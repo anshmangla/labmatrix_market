@@ -245,7 +245,7 @@ export default function CreateListingPage() {
                   placeholder="e.g. Waters Acquity UPLC System with PDA Detector & Sample Manager"
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
-                  className="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition-colors"
+                  className="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-sm text-slate-900 bg-white placeholder:text-slate-500 focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition-colors"
                 />
               </div>
 
@@ -256,10 +256,10 @@ export default function CreateListingPage() {
                 <select
                   value={category}
                   onChange={(e) => setCategory(e.target.value)}
-                  className="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-teal-500 focus:border-teal-500 bg-white"
+                  className="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-sm text-slate-900 bg-white focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
                 >
                   {CATEGORIES.map((cat) => (
-                    <option key={cat} value={cat}>
+                    <option key={cat} value={cat} className="text-slate-900 bg-white">
                       {cat}
                     </option>
                   ))}
@@ -273,10 +273,10 @@ export default function CreateListingPage() {
                 <select
                   value={condition}
                   onChange={(e) => setCondition(e.target.value)}
-                  className="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-teal-500 focus:border-teal-500 bg-white"
+                  className="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-sm text-slate-900 bg-white focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
                 >
                   {CONDITIONS.map((cond) => (
-                    <option key={cond} value={cond}>
+                    <option key={cond} value={cond} className="text-slate-900 bg-white">
                       {cond}
                     </option>
                   ))}
@@ -292,7 +292,7 @@ export default function CreateListingPage() {
                   placeholder="e.g. Hyderabad, Telangana"
                   value={location}
                   onChange={(e) => setLocation(e.target.value)}
-                  className="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
+                  className="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-sm text-slate-900 bg-white placeholder:text-slate-500 focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
                 />
               </div>
 
@@ -308,7 +308,7 @@ export default function CreateListingPage() {
                     placeholder="250000"
                     value={minPrice}
                     onChange={(e) => setMinPrice(e.target.value)}
-                    className="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
+                    className="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-sm text-slate-900 bg-white placeholder:text-slate-500 focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
                   />
                 </div>
                 <div>
@@ -322,7 +322,7 @@ export default function CreateListingPage() {
                     placeholder="350000"
                     value={maxPrice}
                     onChange={(e) => setMaxPrice(e.target.value)}
-                    className="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
+                    className="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-sm text-slate-900 bg-white placeholder:text-slate-500 focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
                   />
                 </div>
               </div>
@@ -337,7 +337,7 @@ export default function CreateListingPage() {
                   placeholder="Mention year of manufacture, software license (Empower/ChemStation), detector wavelength range, column heater status, operational log history..."
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
-                  className="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
+                  className="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-sm text-slate-900 bg-white placeholder:text-slate-500 focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
                 />
               </div>
             </div>

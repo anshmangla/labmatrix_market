@@ -177,7 +177,7 @@ export default function CreateRequirementPage() {
                 placeholder="e.g. Seeking Waters Alliance 2695 HPLC with 2487 Dual UV Detector"
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
-                className="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
+                className="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-sm text-slate-900 bg-white placeholder:text-slate-500 focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
               />
             </div>
 
@@ -188,10 +188,10 @@ export default function CreateRequirementPage() {
               <select
                 value={category}
                 onChange={(e) => setCategory(e.target.value)}
-                className="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-teal-500 focus:border-teal-500 bg-white"
+                className="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-sm text-slate-900 bg-white focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
               >
                 {CATEGORIES.map((cat) => (
-                  <option key={cat} value={cat}>
+                  <option key={cat} value={cat} className="text-slate-900 bg-white">
                     {cat}
                   </option>
                 ))}
@@ -208,7 +208,7 @@ export default function CreateRequirementPage() {
                 placeholder="Specify preferred manufacture year, mandatory detectors, autosampler capacity, software requirements (Empower/OpenLab), qualification certificates (IQ/OQ/PQ), and delivery target city..."
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
-                className="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
+                className="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-sm text-slate-900 bg-white placeholder:text-slate-500 focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
               />
             </div>
           </div>

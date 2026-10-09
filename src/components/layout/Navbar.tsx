@@ -1,20 +1,23 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import Link from "next/link";
 import { useSession, signOut } from "next-auth/react";
 import {
   Shield,
   PlusCircle,
-  Search,
   LogIn,
   LogOut,
   User,
-  SlidersHorizontal,
+  Menu,
+  X,
+  FileQuestion,
+  LayoutDashboard,
 } from "lucide-react";
 
 export default function Navbar() {
   const { data: session, status } = useSession();
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   return (
     <header className="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-slate-200 shadow-xs">
@@ -37,7 +40,7 @@ export default function Navbar() {
             </Link>
           </div>
 
-          {/* Nav links */}
+          {/* Desktop Nav links */}
           <nav className="hidden md:flex items-center space-x-1 lg:space-x-2 text-sm font-medium text-slate-600">
             <Link
               href="/listings"
@@ -73,8 +76,8 @@ export default function Navbar() {
             </Link>
           </nav>
 
-          {/* Right Action Buttons & Auth */}
-          <div className="flex items-center space-x-3">
+          {/* Desktop Right Action Buttons & Auth */}
+          <div className="hidden md:flex items-center space-x-3">
             {status === "loading" ? (
               <div className="h-8 w-20 bg-slate-100 rounded-lg animate-pulse" />
             ) : session?.user ? (
@@ -89,10 +92,16 @@ export default function Navbar() {
                   </Link>
                 )}
 
-                <div className="hidden sm:flex items-center space-x-2 text-xs font-semibold text-slate-700 bg-slate-100 px-3 py-1.5 rounded-full border border-slate-200">
+                <Link
+                  href="/dashboard"
+                  className="flex items-center space-x-2 text-xs font-semibold text-slate-700 hover:text-teal-700 bg-slate-100 hover:bg-slate-200 px-3 py-1.5 rounded-full border border-slate-200 transition-colors"
+                  title="Open Dashboard"
+                >
                   <User className="w-3.5 h-3.5 text-teal-600" />
-                  <span>{session.user.name || session.user.email}</span>
-                </div>
+                  <span className="max-w-[120px] truncate">
+                    {session.user.name || session.user.email}
+                  </span>
+                </Link>
 
                 <button
                   onClick={() => signOut({ callbackUrl: "/" })}
@@ -100,7 +109,7 @@ export default function Navbar() {
                   title="Sign out"
                 >
                   <LogOut className="w-4 h-4" />
-                  <span className="hidden sm:inline">Sign out</span>
+                  <span className="hidden lg:inline">Sign out</span>
                 </button>
               </div>
             ) : (
@@ -121,8 +130,125 @@ export default function Navbar() {
               </div>
             )}
           </div>
+
+          {/* Mobile Hamburger Button */}
+          <div className="flex items-center md:hidden">
+            <button
+              type="button"
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              className="p-2 rounded-xl text-slate-600 hover:text-slate-900 hover:bg-slate-100"
+              aria-label="Toggle menu"
+            >
+              {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+            </button>
+          </div>
         </div>
       </div>
+
+      {/* Mobile Drawer Menu */}
+      {mobileMenuOpen && (
+        <div className="md:hidden border-t border-slate-200 bg-white px-4 pt-3 pb-6 space-y-3 shadow-lg">
+          <nav className="flex flex-col space-y-1 text-sm font-semibold text-slate-700">
+            <Link
+              href="/listings"
+              onClick={() => setMobileMenuOpen(false)}
+              className="px-3 py-2.5 rounded-xl hover:bg-slate-100 flex items-center justify-between"
+            >
+              <span>Browse Equipment</span>
+            </Link>
+            <Link
+              href="/requests"
+              onClick={() => setMobileMenuOpen(false)}
+              className="px-3 py-2.5 rounded-xl hover:bg-slate-100 flex items-center justify-between"
+            >
+              <span>Buyer Requests</span>
+            </Link>
+            <Link
+              href="/#how-it-works"
+              onClick={() => setMobileMenuOpen(false)}
+              className="px-3 py-2.5 rounded-xl hover:bg-slate-100 flex items-center space-x-2"
+            >
+              <Shield className="w-4 h-4 text-teal-600" />
+              <span>Brokerage Process</span>
+            </Link>
+            <Link
+              href="/listings/create"
+              onClick={() => setMobileMenuOpen(false)}
+              className="px-3 py-2.5 rounded-xl bg-teal-50 text-teal-700 flex items-center space-x-2"
+            >
+              <PlusCircle className="w-4 h-4" />
+              <span>List a Surplus Machine</span>
+            </Link>
+            <Link
+              href="/requests/create"
+              onClick={() => setMobileMenuOpen(false)}
+              className="px-3 py-2.5 rounded-xl hover:bg-slate-100 flex items-center space-x-2"
+            >
+              <FileQuestion className="w-4 h-4 text-slate-500" />
+              <span>Post Machine Wanted</span>
+            </Link>
+
+            {session?.user && (
+              <Link
+                href="/dashboard"
+                onClick={() => setMobileMenuOpen(false)}
+                className="px-3 py-2.5 rounded-xl hover:bg-slate-100 flex items-center space-x-2"
+              >
+                <LayoutDashboard className="w-4 h-4 text-teal-600" />
+                <span>My Dashboard</span>
+              </Link>
+            )}
+
+            {(session?.user as any)?.role === "ADMIN" && (
+              <Link
+                href="/admin"
+                onClick={() => setMobileMenuOpen(false)}
+                className="px-3 py-2.5 rounded-xl bg-slate-900 text-white flex items-center space-x-2"
+              >
+                <Shield className="w-4 h-4 text-teal-400" />
+                <span>Admin Deal Desk</span>
+              </Link>
+            )}
+          </nav>
+
+          <div className="pt-3 border-t border-slate-100">
+            {session?.user ? (
+              <div className="flex items-center justify-between pt-1">
+                <span className="text-xs text-slate-600 truncate max-w-[200px]">
+                  {session.user.email}
+                </span>
+                <button
+                  onClick={() => {
+                    setMobileMenuOpen(false);
+                    signOut({ callbackUrl: "/" });
+                  }}
+                  className="text-xs font-bold text-red-600 hover:underline flex items-center space-x-1"
+                >
+                  <LogOut className="w-3.5 h-3.5" />
+                  <span>Sign out</span>
+                </button>
+              </div>
+            ) : (
+              <div className="grid grid-cols-2 gap-2 pt-1">
+                <Link
+                  href="/auth/signin"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="w-full py-2.5 text-center text-xs font-bold border border-slate-300 rounded-xl text-slate-700 hover:bg-slate-50"
+                >
+                  Sign In
+                </Link>
+                <Link
+                  href="/auth/signup"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="w-full py-2.5 text-center text-xs font-bold bg-teal-600 text-white rounded-xl hover:bg-teal-700"
+                >
+                  Register
+                </Link>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
     </header>
   );
 }
