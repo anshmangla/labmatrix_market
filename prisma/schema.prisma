@@ -1,0 +1,132 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum Role {
+  USER
+  ADMIN
+}
+
+enum ListingStatus {
+  AVAILABLE
+  PENDING
+  SOLD
+}
+
+enum RequirementStatus {
+  OPEN
+  FULFILLED
+  CLOSED
+}
+
+enum InquiryStatus {
+  NEW
+  IN_PROGRESS
+  CLOSED
+}
+
+model User {
+  id            String        @id @default(cuid())
+  name          String?
+  email         String        @unique
+  emailVerified DateTime?
+  image         String?
+  password      String?
+  phoneNumber   String?
+  companyName   String?
+  role          Role          @default(USER)
+  accounts      Account[]
+  sessions      Session[]
+  listings      Listing[]
+  requirements  Requirement[]
+  inquiries     Inquiry[]
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+}
+
+model Account {
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([provider, providerAccountId])
+}
+
+model Session {
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model VerificationToken {
+  identifier String
+  token      String
+  expires    DateTime
+
+  @@id([identifier, token])
+}
+
+model Listing {
+  id          String        @id @default(cuid())
+  title       String
+  description String
+  category    String
+  minPrice    Float
+  maxPrice    Float
+  condition   String?       @default("Used - Good")
+  location    String?
+  photos      String[]      @default([])
+  status      ListingStatus @default(AVAILABLE)
+  sellerId    String
+  seller      User          @relation(fields: [sellerId], references: [id], onDelete: Cascade)
+  inquiries   Inquiry[]
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+}
+
+model Requirement {
+  id          String            @id @default(cuid())
+  title       String
+  description String
+  category    String
+  status      RequirementStatus @default(OPEN)
+  buyerId     String
+  buyer       User              @relation(fields: [buyerId], references: [id], onDelete: Cascade)
+  inquiries   Inquiry[]
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
+}
+
+model Inquiry {
+  id            String        @id @default(cuid())
+  inquirerId    String
+  inquirer      User          @relation(fields: [inquirerId], references: [id], onDelete: Cascade)
+  listingId     String?
+  listing       Listing?      @relation(fields: [listingId], references: [id], onDelete: Cascade)
+  requirementId String?
+  requirement   Requirement?  @relation(fields: [requirementId], references: [id], onDelete: Cascade)
+  message       String
+  status        InquiryStatus @default(NEW)
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+}
