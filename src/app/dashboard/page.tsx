@@ -15,6 +15,8 @@ import {
   Building,
   Mail,
   Lock,
+  CheckCircle2,
+  Loader2,
 } from "lucide-react";
 
 export default function UserDashboardPage() {
@@ -24,6 +26,7 @@ export default function UserDashboardPage() {
   const [requirements, setRequirements] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<"listings" | "requests">("listings");
+  const [updatingId, setUpdatingId] = useState<string | null>(null);
 
   useEffect(() => {
     if (session?.user) {
@@ -49,6 +52,52 @@ export default function UserDashboardPage() {
       console.error("Dashboard error:", err);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleUpdateListingStatus = async (id: string, newStatus: string) => {
+    setUpdatingId(id);
+    try {
+      const res = await fetch(`/api/listings/${id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status: newStatus }),
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setListings((prev) =>
+          prev.map((item) => (item.id === id ? { ...item, status: newStatus } : item))
+        );
+      } else {
+        alert(data.error || "Failed to update status");
+      }
+    } catch (err) {
+      alert("Error updating listing status");
+    } finally {
+      setUpdatingId(null);
+    }
+  };
+
+  const handleUpdateRequirementStatus = async (id: string, newStatus: string) => {
+    setUpdatingId(id);
+    try {
+      const res = await fetch(`/api/requirements/${id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status: newStatus }),
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setRequirements((prev) =>
+          prev.map((req) => (req.id === id ? { ...req, status: newStatus } : req))
+        );
+      } else {
+        alert(data.error || "Failed to update status");
+      }
+    } catch (err) {
+      alert("Error updating requirement status");
+    } finally {
+      setUpdatingId(null);
     }
   };
 
@@ -209,48 +258,87 @@ export default function UserDashboardPage() {
                 {listings.map((item) => (
                   <div
                     key={item.id}
-                    className="bg-white rounded-2xl border border-slate-200 p-5 shadow-xs flex flex-col justify-between space-y-4"
+                    className="bg-white rounded-2xl border border-slate-200 p-5 shadow-xs flex flex-col justify-between space-y-4 hover:border-slate-300 transition-colors"
                   >
-                    <div>
-                      <div className="flex items-center justify-between text-xs mb-2">
-                        <span className="font-bold text-teal-600 bg-teal-50 px-2 py-0.5 rounded">
+                    <div className="space-y-3">
+                      {/* Top Badges */}
+                      <div className="flex flex-wrap items-center justify-between gap-2">
+                        <span className="font-bold text-teal-700 bg-teal-50 px-2.5 py-1 rounded-md text-xs">
                           {item.category}
                         </span>
-                        <span
-                          className={`text-[10px] font-bold px-2 py-0.5 rounded uppercase ${
-                            item.status === "AVAILABLE"
-                              ? "bg-emerald-100 text-emerald-800"
-                              : "bg-slate-100 text-slate-700"
-                          }`}
-                        >
-                          {item.status}
-                        </span>
+                        {item.isApproved ? (
+                          <span className="inline-flex items-center space-x-1 text-[11px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200 px-2 py-0.5 rounded-md">
+                            <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
+                            <span>Approved & Live</span>
+                          </span>
+                        ) : (
+                          <span className="inline-flex items-center space-x-1 text-[11px] font-bold bg-amber-50 text-amber-800 border border-amber-200 px-2 py-0.5 rounded-md">
+                            <Clock className="w-3.5 h-3.5 text-amber-600" />
+                            <span>Pending Admin Approval</span>
+                          </span>
+                        )}
                       </div>
-                      <h3 className="font-bold text-slate-900 text-base">
-                        {item.title}
-                      </h3>
-                      <p className="text-xs text-slate-500 mt-1 line-clamp-2">
-                        {item.description}
-                      </p>
+
+                      <div>
+                        <h3 className="font-bold text-slate-900 text-base leading-snug">
+                          {item.title}
+                        </h3>
+                        <p className="text-xs text-slate-500 mt-1 line-clamp-2">
+                          {item.description}
+                        </p>
+                      </div>
+
+                      {!item.isApproved && (
+                        <div className="p-2.5 bg-amber-50/70 border border-amber-200/80 rounded-xl text-[11px] text-amber-800 flex items-start space-x-1.5">
+                          <Clock className="w-3.5 h-3.5 text-amber-600 flex-shrink-0 mt-0.5" />
+                          <span>Under admin review. Once approved, it will appear publicly on the marketplace.</span>
+                        </div>
+                      )}
                     </div>
 
-                    <div className="pt-3 border-t border-slate-100 flex items-center justify-between">
-                      <div>
-                        <span className="text-[10px] text-slate-400 block">
-                          Price Expectation:
-                        </span>
-                        <span className="text-sm font-black text-slate-900">
-                          ₹{item.minPrice.toLocaleString("en-IN")} - ₹
-                          {item.maxPrice.toLocaleString("en-IN")}
-                        </span>
+                    <div className="pt-3 border-t border-slate-100 space-y-3">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <span className="text-[10px] text-slate-400 block font-semibold">
+                            Price Expectation:
+                          </span>
+                          <span className="text-sm font-black text-slate-900">
+                            ₹{item.minPrice.toLocaleString("en-IN")} - ₹{item.maxPrice.toLocaleString("en-IN")}
+                          </span>
+                        </div>
+                        <Link
+                          href={`/listings/${item.id}`}
+                          className="inline-flex items-center space-x-1 text-xs font-semibold text-teal-600 hover:text-teal-700 hover:underline"
+                        >
+                          <span>View Page</span>
+                          <ExternalLink className="w-3.5 h-3.5" />
+                        </Link>
                       </div>
-                      <Link
-                        href={`/listings/${item.id}`}
-                        className="inline-flex items-center space-x-1 text-xs font-semibold text-teal-600 hover:underline"
-                      >
-                        <span>View Public Page</span>
-                        <ExternalLink className="w-3.5 h-3.5" />
-                      </Link>
+
+                      {/* Status toggle for listing owner */}
+                      <div className="flex items-center justify-between pt-2 border-t border-slate-100/80 text-xs">
+                        <label className="text-xs font-semibold text-slate-600">
+                          Machine Status:
+                        </label>
+                        <div className="flex items-center space-x-2">
+                          <select
+                            value={item.status}
+                            onChange={(e) => handleUpdateListingStatus(item.id, e.target.value)}
+                            disabled={updatingId === item.id}
+                            className={`text-xs font-bold rounded-lg px-2.5 py-1 border transition-colors cursor-pointer ${
+                              item.status === "AVAILABLE"
+                                ? "bg-emerald-50 text-emerald-800 border-emerald-300"
+                                : "bg-slate-100 text-slate-700 border-slate-300"
+                            }`}
+                          >
+                            <option value="AVAILABLE" className="text-slate-900 bg-white">AVAILABLE</option>
+                            <option value="SOLD" className="text-slate-900 bg-white">SOLD</option>
+                          </select>
+                          {updatingId === item.id && (
+                            <Loader2 className="w-3.5 h-3.5 text-teal-600 animate-spin" />
+                          )}
+                        </div>
+                      </div>
                     </div>
                   </div>
                 ))}
@@ -285,37 +373,82 @@ export default function UserDashboardPage() {
                 {requirements.map((req) => (
                   <div
                     key={req.id}
-                    className="bg-white rounded-2xl border border-slate-200 p-5 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-4"
+                    className="bg-white rounded-2xl border border-slate-200 p-5 shadow-xs flex flex-col justify-between space-y-4 hover:border-slate-300 transition-colors"
                   >
-                    <div className="space-y-1">
-                      <div className="flex items-center space-x-2 text-xs">
-                        <span className="font-bold text-teal-600 bg-teal-50 px-2 py-0.5 rounded">
-                          {req.category}
-                        </span>
-                        <span className="text-slate-400">•</span>
-                        <span className="text-slate-500">
-                          Posted on {new Date(req.createdAt).toLocaleDateString()}
-                        </span>
-                        <span className="text-slate-400">•</span>
-                        <span className="text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded font-bold text-[10px]">
-                          {req.status}
-                        </span>
+                    <div className="space-y-3">
+                      <div className="flex flex-wrap items-center justify-between gap-2">
+                        <div className="flex items-center space-x-2 text-xs">
+                          <span className="font-bold text-teal-700 bg-teal-50 px-2.5 py-1 rounded-md">
+                            {req.category}
+                          </span>
+                          <span className="text-slate-400">•</span>
+                          <span className="text-slate-500 text-xs">
+                            Posted on {new Date(req.createdAt).toLocaleDateString()}
+                          </span>
+                        </div>
+                        {req.isApproved ? (
+                          <span className="inline-flex items-center space-x-1 text-[11px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200 px-2 py-0.5 rounded-md">
+                            <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
+                            <span>Approved & Live</span>
+                          </span>
+                        ) : (
+                          <span className="inline-flex items-center space-x-1 text-[11px] font-bold bg-amber-50 text-amber-800 border border-amber-200 px-2 py-0.5 rounded-md">
+                            <Clock className="w-3.5 h-3.5 text-amber-600" />
+                            <span>Pending Admin Approval</span>
+                          </span>
+                        )}
                       </div>
-                      <h3 className="font-bold text-slate-900 text-base">
-                        {req.title}
-                      </h3>
-                      <p className="text-xs text-slate-600 line-clamp-1">
-                        {req.description}
-                      </p>
+
+                      <div>
+                        <h3 className="font-bold text-slate-900 text-base leading-snug">
+                          {req.title}
+                        </h3>
+                        <p className="text-xs text-slate-600 mt-1 line-clamp-2">
+                          {req.description}
+                        </p>
+                      </div>
+
+                      {!req.isApproved && (
+                        <div className="p-2.5 bg-amber-50/70 border border-amber-200/80 rounded-xl text-[11px] text-amber-800 flex items-start space-x-1.5">
+                          <Clock className="w-3.5 h-3.5 text-amber-600 flex-shrink-0 mt-0.5" />
+                          <span>Under admin review. Once approved, it will be visible for matching suppliers.</span>
+                        </div>
+                      )}
                     </div>
 
-                    <Link
-                      href={`/requests/${req.id}`}
-                      className="inline-flex items-center space-x-1 text-xs font-semibold text-teal-600 hover:underline self-start sm:self-auto flex-shrink-0"
-                    >
-                      <span>View Requirement</span>
-                      <ExternalLink className="w-3.5 h-3.5" />
-                    </Link>
+                    <div className="pt-3 border-t border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                      <div className="flex items-center space-x-2">
+                        <label className="text-xs font-semibold text-slate-600">
+                          Request Status:
+                        </label>
+                        <div className="flex items-center space-x-2">
+                          <select
+                            value={req.status}
+                            onChange={(e) => handleUpdateRequirementStatus(req.id, e.target.value)}
+                            disabled={updatingId === req.id}
+                            className={`text-xs font-bold rounded-lg px-2.5 py-1 border transition-colors cursor-pointer ${
+                              req.status === "OPEN"
+                                ? "bg-emerald-50 text-emerald-800 border-emerald-300"
+                                : "bg-slate-100 text-slate-700 border-slate-300"
+                            }`}
+                          >
+                            <option value="OPEN" className="text-slate-900 bg-white">OPEN (Looking)</option>
+                            <option value="FULFILLED" className="text-slate-900 bg-white">FULFILLED (Purchased)</option>
+                          </select>
+                          {updatingId === req.id && (
+                            <Loader2 className="w-3.5 h-3.5 text-teal-600 animate-spin" />
+                          )}
+                        </div>
+                      </div>
+
+                      <Link
+                        href={`/requests/${req.id}`}
+                        className="inline-flex items-center space-x-1 text-xs font-semibold text-teal-600 hover:text-teal-700 hover:underline self-start sm:self-auto"
+                      >
+                        <span>View Requirement</span>
+                        <ExternalLink className="w-3.5 h-3.5" />
+                      </Link>
+                    </div>
                   </div>
                 ))}
               </div>

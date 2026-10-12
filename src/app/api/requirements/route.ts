@@ -10,6 +10,7 @@ export async function GET(request: Request) {
     const query = searchParams.get("query");
 
     const where: any = {
+      isApproved: true,
       status: "OPEN",
     };
 
@@ -111,7 +112,8 @@ export async function POST(request: Request) {
 
     return NextResponse.json(
       {
-        message: "Equipment requirement posted successfully!",
+        message:
+          "Equipment requirement submitted successfully! It will be reviewed by the admin before appearing on the site.",
         requirementId: requirement.id,
       },
       { status: 201 }

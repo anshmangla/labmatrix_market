@@ -65,18 +65,19 @@ export async function PATCH(request: Request) {
     }
 
     const body = await request.json();
-    const { id, status } = body;
+    const { id, status, isApproved } = body;
 
-    if (!id || !status) {
-      return NextResponse.json(
-        { error: "ID and status are required" },
-        { status: 400 }
-      );
+    if (!id) {
+      return NextResponse.json({ error: "ID is required" }, { status: 400 });
     }
+
+    const updateData: any = {};
+    if (status) updateData.status = status;
+    if (typeof isApproved === "boolean") updateData.isApproved = isApproved;
 
     const updated = await prisma.requirement.update({
       where: { id },
-      data: { status },
+      data: updateData,
     });
 
     return NextResponse.json({ requirement: updated });
@@ -84,6 +85,43 @@ export async function PATCH(request: Request) {
     console.error("Admin update requirement error:", error);
     return NextResponse.json(
       { error: "Failed to update requirement" },
+      { status: 500 }
+    );
+  }
+}
+
+export async function DELETE(request: Request) {
+  try {
+    const session = await auth();
+    if (!session?.user?.id) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const admin = await prisma.user.findUnique({
+      where: { id: session.user.id },
+      select: { role: true },
+    });
+
+    if (admin?.role !== "ADMIN") {
+      return NextResponse.json({ error: "Forbidden: Admin only" }, { status: 403 });
+    }
+
+    const { searchParams } = new URL(request.url);
+    const id = searchParams.get("id");
+
+    if (!id) {
+      return NextResponse.json({ error: "Requirement ID is required" }, { status: 400 });
+    }
+
+    await prisma.requirement.delete({
+      where: { id },
+    });
+
+    return NextResponse.json({ message: "Requirement deleted successfully" });
+  } catch (error: any) {
+    console.error("Admin delete requirement error:", error);
+    return NextResponse.json(
+      { error: "Failed to delete requirement" },
       { status: 500 }
     );
   }

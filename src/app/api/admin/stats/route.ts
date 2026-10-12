@@ -19,14 +19,23 @@ export async function GET() {
       return NextResponse.json({ error: "Admin access required" }, { status: 403 });
     }
 
-    const [totalUsers, totalListings, totalRequirements, newInquiries, totalInquiries] =
-      await Promise.all([
-        prisma.user.count(),
-        prisma.listing.count(),
-        prisma.requirement.count(),
-        prisma.inquiry.count({ where: { status: "NEW" } }),
-        prisma.inquiry.count(),
-      ]);
+    const [
+      totalUsers,
+      totalListings,
+      totalRequirements,
+      newInquiries,
+      totalInquiries,
+      pendingListings,
+      pendingRequirements,
+    ] = await Promise.all([
+      prisma.user.count(),
+      prisma.listing.count(),
+      prisma.requirement.count(),
+      prisma.inquiry.count({ where: { status: "NEW" } }),
+      prisma.inquiry.count(),
+      prisma.listing.count({ where: { isApproved: false } }),
+      prisma.requirement.count({ where: { isApproved: false } }),
+    ]);
 
     return NextResponse.json({
       stats: {
@@ -35,6 +44,9 @@ export async function GET() {
         totalRequirements,
         newInquiries,
         totalInquiries,
+        pendingApprovals: pendingListings + pendingRequirements,
+        pendingListings,
+        pendingRequirements,
       },
     });
   } catch (error: any) {

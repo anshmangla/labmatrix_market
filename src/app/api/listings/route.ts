@@ -12,6 +12,7 @@ export async function GET(request: Request) {
     const maxPrice = searchParams.get("maxPrice");
 
     const where: any = {
+      isApproved: true,
       status: "AVAILABLE",
     };
 
@@ -141,7 +142,11 @@ export async function POST(request: Request) {
     });
 
     return NextResponse.json(
-      { message: "Machine listed successfully!", listingId: listing.id },
+      {
+        message:
+          "Machine listing submitted successfully! It will be reviewed by the admin before appearing on the site.",
+        listingId: listing.id,
+      },
       { status: 201 }
     );
   } catch (error: any) {

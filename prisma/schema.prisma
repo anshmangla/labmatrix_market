@@ -97,6 +97,7 @@ model Listing {
   location    String?
   photos      String[]      @default([])
   status      ListingStatus @default(AVAILABLE)
+  isApproved  Boolean       @default(false)
   sellerId    String
   seller      User          @relation(fields: [sellerId], references: [id], onDelete: Cascade)
   inquiries   Inquiry[]
@@ -110,6 +111,7 @@ model Requirement {
   description String
   category    String
   status      RequirementStatus @default(OPEN)
+  isApproved  Boolean           @default(false)
   buyerId     String
   buyer       User              @relation(fields: [buyerId], references: [id], onDelete: Cascade)
   inquiries   Inquiry[]
