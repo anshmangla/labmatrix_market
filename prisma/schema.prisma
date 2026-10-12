@@ -87,36 +87,42 @@ model VerificationToken {
 }
 
 model Listing {
-  id          String        @id @default(cuid())
-  title       String
-  description String
-  category    String
-  minPrice    Float
-  maxPrice    Float
-  condition   String?       @default("Used - Good")
-  location    String?
-  photos      String[]      @default([])
-  status      ListingStatus @default(AVAILABLE)
-  isApproved  Boolean       @default(false)
-  sellerId    String
-  seller      User          @relation(fields: [sellerId], references: [id], onDelete: Cascade)
-  inquiries   Inquiry[]
-  createdAt   DateTime      @default(now())
-  updatedAt   DateTime      @updatedAt
+  id             String        @id @default(cuid())
+  title          String
+  description    String
+  category       String
+  itemType       String        @default("MACHINE")
+  partNumber     String?
+  compatibleWith String?
+  minPrice       Float
+  maxPrice       Float
+  condition      String?       @default("Used - Good")
+  location       String?
+  photos         String[]      @default([])
+  status         ListingStatus @default(AVAILABLE)
+  isApproved     Boolean       @default(false)
+  sellerId       String
+  seller         User          @relation(fields: [sellerId], references: [id], onDelete: Cascade)
+  inquiries      Inquiry[]
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
 }
 
 model Requirement {
-  id          String            @id @default(cuid())
-  title       String
-  description String
-  category    String
-  status      RequirementStatus @default(OPEN)
-  isApproved  Boolean           @default(false)
-  buyerId     String
-  buyer       User              @relation(fields: [buyerId], references: [id], onDelete: Cascade)
-  inquiries   Inquiry[]
-  createdAt   DateTime          @default(now())
-  updatedAt   DateTime          @updatedAt
+  id             String            @id @default(cuid())
+  title          String
+  description    String
+  category       String
+  itemType       String            @default("MACHINE")
+  partNumber     String?
+  compatibleWith String?
+  status         RequirementStatus @default(OPEN)
+  isApproved     Boolean           @default(false)
+  buyerId        String
+  buyer          User              @relation(fields: [buyerId], references: [id], onDelete: Cascade)
+  inquiries      Inquiry[]
+  createdAt      DateTime          @default(now())
+  updatedAt      DateTime          @updatedAt
 }
 
 model Inquiry {

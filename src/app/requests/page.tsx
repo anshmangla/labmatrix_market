@@ -33,6 +33,7 @@ const CATEGORIES = [
   "Particle Analyzers",
   "Centrifuges & Shakers",
   "Karl Fischer & Titrators",
+  "Spare Parts & Consumables",
   "Other Lab Equipment",
 ];
 

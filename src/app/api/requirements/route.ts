@@ -7,12 +7,17 @@ export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
     const category = searchParams.get("category");
+    const itemType = searchParams.get("itemType");
     const query = searchParams.get("query");
 
     const where: any = {
       isApproved: true,
       status: "OPEN",
     };
+
+    if (itemType && itemType !== "ALL") {
+      where.itemType = itemType;
+    }
 
     if (category && category !== "ALL") {
       where.category = category;
@@ -22,6 +27,8 @@ export async function GET(request: Request) {
       where.OR = [
         { title: { contains: query, mode: "insensitive" } },
         { description: { contains: query, mode: "insensitive" } },
+        { partNumber: { contains: query, mode: "insensitive" } },
+        { compatibleWith: { contains: query, mode: "insensitive" } },
       ];
     }
 
@@ -33,6 +40,9 @@ export async function GET(request: Request) {
         title: true,
         description: true,
         category: true,
+        itemType: true,
+        partNumber: true,
+        compatibleWith: true,
         status: true,
         createdAt: true,
         // STRICT PRIVACY: Buyer name, phone number, and email are NEVER exposed to the public!
@@ -61,7 +71,16 @@ export async function POST(request: Request) {
     }
 
     const body = await request.json();
-    const { title, description, category, phoneNumber, companyName } = body;
+    const {
+      title,
+      description,
+      category,
+      itemType,
+      partNumber,
+      compatibleWith,
+      phoneNumber,
+      companyName,
+    } = body;
 
     if (!title?.trim() || !description?.trim() || !category?.trim()) {
       return NextResponse.json(
@@ -100,11 +119,17 @@ export async function POST(request: Request) {
       });
     }
 
+    const resolvedItemType =
+      itemType || (category === "Spare Parts & Consumables" ? "SPARE_PART" : "MACHINE");
+
     const requirement = await prisma.requirement.create({
       data: {
         title: title.trim(),
         description: description.trim(),
         category: category.trim(),
+        itemType: resolvedItemType,
+        partNumber: partNumber?.trim() || null,
+        compatibleWith: compatibleWith?.trim() || null,
         buyerId: session.user.id,
         status: "OPEN",
       },
@@ -113,7 +138,9 @@ export async function POST(request: Request) {
     return NextResponse.json(
       {
         message:
-          "Equipment requirement submitted successfully! It will be reviewed by the admin before appearing on the site.",
+          resolvedItemType === "SPARE_PART"
+            ? "Spare part request submitted successfully! It will be reviewed by the admin before appearing on the site."
+            : "Equipment requirement submitted successfully! It will be reviewed by the admin before appearing on the site.",
         requirementId: requirement.id,
       },
       { status: 201 }

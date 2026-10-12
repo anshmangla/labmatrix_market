@@ -17,6 +17,7 @@ import {
   Lock,
   CheckCircle2,
   Loader2,
+  Wrench,
 } from "lucide-react";
 
 export default function UserDashboardPage() {
@@ -170,19 +171,26 @@ export default function UserDashboardPage() {
             </div>
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex flex-wrap items-center gap-2.5">
             <Link
               href="/listings/create"
-              className="inline-flex items-center space-x-1.5 px-4 py-2.5 bg-teal-600 hover:bg-teal-700 text-white text-xs font-bold rounded-xl transition-colors shadow-xs"
+              className="inline-flex items-center space-x-1.5 px-3.5 py-2 bg-teal-600 hover:bg-teal-700 text-white text-xs font-bold rounded-xl transition-colors shadow-xs"
             >
-              <PlusCircle className="w-4 h-4" />
+              <PlusCircle className="w-3.5 h-3.5" />
               <span>List Machine</span>
             </Link>
             <Link
-              href="/requests/create"
-              className="inline-flex items-center space-x-1.5 px-4 py-2.5 bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold rounded-xl transition-colors shadow-xs"
+              href="/listings/create?type=spare_part"
+              className="inline-flex items-center space-x-1.5 px-3.5 py-2 bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-bold rounded-xl transition-colors border border-slate-200 shadow-xs"
             >
-              <FileQuestion className="w-4 h-4" />
+              <Wrench className="w-3.5 h-3.5 text-teal-600" />
+              <span>List Spare Part</span>
+            </Link>
+            <Link
+              href="/requests/create"
+              className="inline-flex items-center space-x-1.5 px-3.5 py-2 bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold rounded-xl transition-colors shadow-xs"
+            >
+              <FileQuestion className="w-3.5 h-3.5" />
               <span>Post Request</span>
             </Link>
           </div>
@@ -263,9 +271,16 @@ export default function UserDashboardPage() {
                     <div className="space-y-3">
                       {/* Top Badges */}
                       <div className="flex flex-wrap items-center justify-between gap-2">
-                        <span className="font-bold text-teal-700 bg-teal-50 px-2.5 py-1 rounded-md text-xs">
-                          {item.category}
-                        </span>
+                        <div className="flex items-center space-x-1.5">
+                          <span className="font-bold text-teal-700 bg-teal-50 px-2.5 py-1 rounded-md text-xs">
+                            {item.category}
+                          </span>
+                          {item.itemType === "SPARE_PART" && (
+                            <span className="bg-amber-50 text-amber-800 border border-amber-200 px-2 py-0.5 rounded text-[10px] font-bold">
+                              ⚙️ Spare Part
+                            </span>
+                          )}
+                        </div>
                         {item.isApproved ? (
                           <span className="inline-flex items-center space-x-1 text-[11px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200 px-2 py-0.5 rounded-md">
                             <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
@@ -381,6 +396,11 @@ export default function UserDashboardPage() {
                           <span className="font-bold text-teal-700 bg-teal-50 px-2.5 py-1 rounded-md">
                             {req.category}
                           </span>
+                          {req.itemType === "SPARE_PART" && (
+                            <span className="bg-amber-50 text-amber-800 border border-amber-200 px-2 py-0.5 rounded text-[10px] font-bold">
+                              ⚙️ Spare Part
+                            </span>
+                          )}
                           <span className="text-slate-400">•</span>
                           <span className="text-slate-500 text-xs">
                             Posted on {new Date(req.createdAt).toLocaleDateString()}

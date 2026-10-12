@@ -31,6 +31,9 @@ export default async function ListingDetailPage({
       title: true,
       description: true,
       category: true,
+      itemType: true,
+      partNumber: true,
+      compatibleWith: true,
       minPrice: true,
       maxPrice: true,
       condition: true,
@@ -98,6 +101,27 @@ export default async function ListingDetailPage({
                     Listed on {new Date(listing.createdAt).toLocaleDateString()}
                   </span>
                 </div>
+
+                {listing.itemType === "SPARE_PART" && (
+                  <div className="mt-4 p-3.5 bg-teal-50/70 rounded-xl border border-teal-200/80 flex flex-wrap gap-5 text-xs">
+                    {listing.compatibleWith && (
+                      <div>
+                        <span className="text-slate-400 block font-bold text-[10px] uppercase">
+                          Compatible Instrument / Model
+                        </span>
+                        <span className="font-bold text-slate-900 text-sm">{listing.compatibleWith}</span>
+                      </div>
+                    )}
+                    {listing.partNumber && (
+                      <div>
+                        <span className="text-slate-400 block font-bold text-[10px] uppercase">
+                          Part / Catalog #
+                        </span>
+                        <span className="font-bold text-slate-900 font-mono text-sm">{listing.partNumber}</span>
+                      </div>
+                    )}
+                  </div>
+                )}
               </div>
 
               <div className="border-t border-slate-100 pt-6">

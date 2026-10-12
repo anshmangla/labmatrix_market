@@ -1,8 +1,8 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, Suspense } from "react";
 import { useSession } from "next-auth/react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import {
   FileQuestion,
@@ -13,7 +13,8 @@ import {
   CheckCircle2,
   ArrowRight,
   ShieldCheck,
-  Info,
+  Wrench,
+  Cpu,
 } from "lucide-react";
 
 const CATEGORIES = [
@@ -25,15 +26,26 @@ const CATEGORIES = [
   "Particle Analyzers",
   "Centrifuges & Shakers",
   "Karl Fischer & Titrators",
+  "Spare Parts & Consumables",
   "Other Lab Equipment",
 ];
 
-export default function CreateRequirementPage() {
+function CreateRequirementForm() {
   const { data: session, status } = useSession();
   const router = useRouter();
+  const searchParams = useSearchParams();
+
+  // Type: MACHINE vs SPARE_PART
+  const initialType = searchParams.get("type") === "spare_part" ? "SPARE_PART" : "MACHINE";
+  const [itemType, setItemType] = useState<"MACHINE" | "SPARE_PART">(initialType);
 
   const [title, setTitle] = useState("");
-  const [category, setCategory] = useState(CATEGORIES[0]);
+  const [category, setCategory] = useState(
+    initialType === "SPARE_PART" ? "Spare Parts & Consumables" : CATEGORIES[0]
+  );
+  const [compatibleWith, setCompatibleWith] = useState("");
+  const [partNumber, setPartNumber] = useState("");
+  const [quantity, setQuantity] = useState("1");
   const [description, setDescription] = useState("");
 
   // Private contact fields
@@ -79,8 +91,7 @@ export default function CreateRequirementPage() {
             Sign In Required to Request Equipment
           </h2>
           <p className="text-sm text-slate-600 mt-2">
-            Please sign in with your email or Google account to post an equipment
-            request.
+            Please sign in with your email or Google account to post an equipment or spare part request.
           </p>
           <Link
             href="/auth/signin"
@@ -105,14 +116,25 @@ export default function CreateRequirementPage() {
 
     setLoading(true);
 
+    // Format description to include quantity and compatibility if spare part
+    let finalDesc = description.trim();
+    if (itemType === "SPARE_PART") {
+      finalDesc += `\n[Request Details: Quantity Needed: ${quantity || "1"}${
+        compatibleWith ? ` | Fits Instrument: ${compatibleWith.trim()}` : ""
+      }${partNumber ? ` | Part #: ${partNumber.trim()}` : ""}]`;
+    }
+
     try {
       const res = await fetch("/api/requirements", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          title,
+          title: title.trim(),
           category,
-          description,
+          itemType,
+          partNumber: partNumber?.trim() || null,
+          compatibleWith: compatibleWith?.trim() || null,
+          description: finalDesc,
           phoneNumber,
           companyName,
         }),
@@ -125,7 +147,7 @@ export default function CreateRequirementPage() {
         return;
       }
 
-      router.push("/requests");
+      router.push(itemType === "SPARE_PART" ? "/spare-parts" : "/requests");
       router.refresh();
     } catch (err: any) {
       setError("Network error. Please try again.");
@@ -144,12 +166,11 @@ export default function CreateRequirementPage() {
             ← Back to All Buyer Requests
           </Link>
           <h1 className="text-3xl font-extrabold text-slate-900">
-            Post Machine Requirement (Wanted Ad)
+            Post an Equipment or Spare Part Request
           </h1>
           <p className="text-sm text-slate-600 mt-1">
-            Let our network know what equipment your lab is looking to acquire.
-            Sellers cannot contact you directly; all matching offers are vetted
-            by our broker team.
+            Let our broker network find what your laboratory needs. Sellers cannot contact you directly;
+            all matching items are verified by our desk before any introduction.
           </p>
         </div>
 
@@ -161,51 +182,191 @@ export default function CreateRequirementPage() {
         )}
 
         <form onSubmit={handleSubmit} className="space-y-6">
-          {/* Machine Specs */}
+          {/* Item Type Selector */}
+          <div className="bg-white rounded-2xl p-6 shadow-xs border border-slate-200 space-y-4">
+            <label className="block text-sm font-bold text-slate-900">
+              What type of requirement are you posting? *
+            </label>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <button
+                type="button"
+                onClick={() => {
+                  setItemType("MACHINE");
+                  if (category === "Spare Parts & Consumables") setCategory(CATEGORIES[0]);
+                }}
+                className={`p-4 rounded-xl border-2 text-left transition-all cursor-pointer ${
+                  itemType === "MACHINE"
+                    ? "border-teal-600 bg-teal-50/60 shadow-xs"
+                    : "border-slate-200 hover:border-slate-300 bg-white"
+                }`}
+              >
+                <div className="flex items-center space-x-3">
+                  <div
+                    className={`w-9 h-9 rounded-xl flex items-center justify-center font-bold text-base ${
+                      itemType === "MACHINE"
+                        ? "bg-teal-600 text-white"
+                        : "bg-slate-100 text-slate-600"
+                    }`}
+                  >
+                    🔬
+                  </div>
+                  <div>
+                    <span className="font-bold text-slate-900 text-sm block">
+                      Complete Machine / System
+                    </span>
+                    <span className="text-xs text-slate-500">
+                      HPLC, GC-MS, UV-Vis, Dissolution Tester...
+                    </span>
+                  </div>
+                </div>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => {
+                  setItemType("SPARE_PART");
+                  setCategory("Spare Parts & Consumables");
+                }}
+                className={`p-4 rounded-xl border-2 text-left transition-all cursor-pointer ${
+                  itemType === "SPARE_PART"
+                    ? "border-teal-600 bg-teal-50/60 shadow-xs"
+                    : "border-slate-200 hover:border-slate-300 bg-white"
+                }`}
+              >
+                <div className="flex items-center space-x-3">
+                  <div
+                    className={`w-9 h-9 rounded-xl flex items-center justify-center font-bold text-base ${
+                      itemType === "SPARE_PART"
+                        ? "bg-teal-600 text-white"
+                        : "bg-slate-100 text-slate-600"
+                    }`}
+                  >
+                    ⚙️
+                  </div>
+                  <div>
+                    <span className="font-bold text-slate-900 text-sm block">
+                      Spare Part or Consumable
+                    </span>
+                    <span className="text-xs text-slate-500">
+                      Lamps, columns, seal kits, valves, boards...
+                    </span>
+                  </div>
+                </div>
+              </button>
+            </div>
+          </div>
+
+          {/* Details Section */}
           <div className="bg-white rounded-2xl p-6 sm:p-8 shadow-xs border border-slate-200 space-y-5">
-            <h2 className="text-lg font-bold text-slate-900">
-              Equipment Details Needed
-            </h2>
+            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+              <h2 className="text-lg font-bold text-slate-900">
+                {itemType === "SPARE_PART"
+                  ? "Spare Part & Consumable Specifications"
+                  : "Equipment Details Needed"}
+              </h2>
+              <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-700">
+                {itemType === "SPARE_PART" ? "⚙️ Spare Part Request" : "🔬 Machine Request"}
+              </span>
+            </div>
 
             <div>
               <label className="block text-sm font-semibold text-slate-700 mb-1">
-                Machine Name / Target Model *
+                {itemType === "SPARE_PART"
+                  ? "Spare Part / Consumable Name *"
+                  : "Machine Name / Target Model *"}
               </label>
               <input
                 type="text"
                 required
-                placeholder="e.g. Seeking Waters Alliance 2695 HPLC with 2487 Dual UV Detector"
+                placeholder={
+                  itemType === "SPARE_PART"
+                    ? "e.g. Deuterium Lamp for DAD Detector or C18 HPLC Column 250x4.6mm"
+                    : "e.g. Seeking Waters Alliance 2695 HPLC with 2487 Dual UV Detector"
+                }
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
                 className="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-sm text-slate-900 bg-white placeholder:text-slate-500 focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
               />
             </div>
 
-            <div>
-              <label className="block text-sm font-semibold text-slate-700 mb-1">
-                Category *
-              </label>
-              <select
-                value={category}
-                onChange={(e) => setCategory(e.target.value)}
-                className="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-sm text-slate-900 bg-white focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
-              >
-                {CATEGORIES.map((cat) => (
-                  <option key={cat} value={cat} className="text-slate-900 bg-white">
-                    {cat}
-                  </option>
-                ))}
-              </select>
+            {itemType === "SPARE_PART" && (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-semibold text-slate-700 mb-1">
+                    Compatible Instrument / Model
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="e.g. Agilent 1100 / 1200 HPLC, Waters 2695"
+                    value={compatibleWith}
+                    onChange={(e) => setCompatibleWith(e.target.value)}
+                    className="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-sm text-slate-900 bg-white placeholder:text-slate-500 focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-semibold text-slate-700 mb-1">
+                    Part Number / Catalog ID (Optional)
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="e.g. G1315-60012, WAT044234"
+                    value={partNumber}
+                    onChange={(e) => setPartNumber(e.target.value)}
+                    className="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-sm text-slate-900 bg-white placeholder:text-slate-500 focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
+                  />
+                </div>
+              </div>
+            )}
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-semibold text-slate-700 mb-1">
+                  Category *
+                </label>
+                <select
+                  value={category}
+                  onChange={(e) => setCategory(e.target.value)}
+                  className="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-sm text-slate-900 bg-white focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
+                >
+                  {CATEGORIES.map((cat) => (
+                    <option key={cat} value={cat} className="text-slate-900 bg-white">
+                      {cat}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              {itemType === "SPARE_PART" && (
+                <div>
+                  <label className="block text-sm font-semibold text-slate-700 mb-1">
+                    Quantity Needed
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="e.g. 1 unit, 2 packs, 5 pcs"
+                    value={quantity}
+                    onChange={(e) => setQuantity(e.target.value)}
+                    className="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-sm text-slate-900 bg-white placeholder:text-slate-500 focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
+                  />
+                </div>
+              )}
             </div>
 
             <div>
               <label className="block text-sm font-semibold text-slate-700 mb-1">
-                Required Specifications & Application Details *
+                {itemType === "SPARE_PART"
+                  ? "Required Specifications, Condition Desired & Urgency *"
+                  : "Required Specifications & Application Details *"}
               </label>
               <textarea
                 required
                 rows={5}
-                placeholder="Specify preferred manufacture year, mandatory detectors, autosampler capacity, software requirements (Empower/OpenLab), qualification certificates (IQ/OQ/PQ), and delivery target city..."
+                placeholder={
+                  itemType === "SPARE_PART"
+                    ? "Specify preferred condition (OEM New Sealed, Tested Surplus, Refurbished), acceptable alternatives, delivery destination, and urgency..."
+                    : "Specify preferred manufacture year, mandatory detectors, autosampler capacity, software requirements, qualification certificates, and delivery target city..."
+                }
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
                 className="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-sm text-slate-900 bg-white placeholder:text-slate-500 focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
@@ -224,9 +385,8 @@ export default function CreateRequirementPage() {
                   Confidential Coordinator Details
                 </h2>
                 <p className="text-xs text-slate-300 mt-0.5 leading-relaxed">
-                  Your phone number will never be shown on this public request.
-                  Only the platform broker will contact you when a matching
-                  machine is located.
+                  Your phone number will never be shown publicly. Only the platform broker
+                  desk contacts you when a matching unit or spare part is located.
                 </p>
               </div>
             </div>
@@ -282,14 +442,34 @@ export default function CreateRequirementPage() {
             <button
               type="submit"
               disabled={loading}
-              className="px-8 py-3.5 bg-teal-600 hover:bg-teal-700 text-white font-bold rounded-xl shadow-lg transition-all disabled:opacity-50 flex items-center space-x-2 text-sm"
+              className="px-8 py-3.5 bg-teal-600 hover:bg-teal-700 text-white font-bold rounded-xl shadow-lg transition-all disabled:opacity-50 flex items-center space-x-2 text-sm cursor-pointer"
             >
-              <span>{loading ? "Submitting..." : "Post Equipment Requirement"}</span>
+              <span>
+                {loading
+                  ? "Submitting..."
+                  : itemType === "SPARE_PART"
+                  ? "Post Spare Part Request"
+                  : "Post Equipment Requirement"}
+              </span>
               {!loading && <ArrowRight className="w-4 h-4" />}
             </button>
           </div>
         </form>
       </div>
     </div>
+  );
+}
+
+export default function CreateRequirementPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-screen flex items-center justify-center bg-slate-50">
+          <div className="w-8 h-8 border-4 border-teal-600 border-t-transparent rounded-full animate-spin" />
+        </div>
+      }
+    >
+      <CreateRequirementForm />
+    </Suspense>
   );
 }

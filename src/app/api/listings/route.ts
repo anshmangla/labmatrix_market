@@ -7,6 +7,7 @@ export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
     const category = searchParams.get("category");
+    const itemType = searchParams.get("itemType");
     const query = searchParams.get("query");
     const minPrice = searchParams.get("minPrice");
     const maxPrice = searchParams.get("maxPrice");
@@ -16,6 +17,10 @@ export async function GET(request: Request) {
       status: "AVAILABLE",
     };
 
+    if (itemType && itemType !== "ALL") {
+      where.itemType = itemType;
+    }
+
     if (category && category !== "ALL") {
       where.category = category;
     }
@@ -24,6 +29,8 @@ export async function GET(request: Request) {
       where.OR = [
         { title: { contains: query, mode: "insensitive" } },
         { description: { contains: query, mode: "insensitive" } },
+        { partNumber: { contains: query, mode: "insensitive" } },
+        { compatibleWith: { contains: query, mode: "insensitive" } },
       ];
     }
 
@@ -41,6 +48,9 @@ export async function GET(request: Request) {
         title: true,
         description: true,
         category: true,
+        itemType: true,
+        partNumber: true,
+        compatibleWith: true,
         minPrice: true,
         maxPrice: true,
         condition: true,
@@ -78,6 +88,9 @@ export async function POST(request: Request) {
       title,
       description,
       category,
+      itemType,
+      partNumber,
+      compatibleWith,
       minPrice,
       maxPrice,
       condition,
@@ -127,11 +140,17 @@ export async function POST(request: Request) {
     }
 
     // Create the listing
+    const resolvedItemType =
+      itemType || (category === "Spare Parts & Consumables" ? "SPARE_PART" : "MACHINE");
+
     const listing = await prisma.listing.create({
       data: {
         title: title.trim(),
         description: description.trim(),
         category: category.trim(),
+        itemType: resolvedItemType,
+        partNumber: partNumber?.trim() || null,
+        compatibleWith: compatibleWith?.trim() || null,
         minPrice: parseFloat(minPrice),
         maxPrice: parseFloat(maxPrice),
         condition: condition || "Used - Good",
@@ -144,7 +163,9 @@ export async function POST(request: Request) {
     return NextResponse.json(
       {
         message:
-          "Machine listing submitted successfully! It will be reviewed by the admin before appearing on the site.",
+          resolvedItemType === "SPARE_PART"
+            ? "Spare part listing submitted successfully! It will be reviewed by the admin before appearing on the site."
+            : "Machine listing submitted successfully! It will be reviewed by the admin before appearing on the site.",
         listingId: listing.id,
       },
       { status: 201 }

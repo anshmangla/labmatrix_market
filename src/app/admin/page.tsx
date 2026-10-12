@@ -912,7 +912,14 @@ export default function AdminDashboardPage() {
                           <ExternalLink className="w-3 h-3 text-slate-400" />
                         </Link>
                       </td>
-                      <td className="p-3.5 text-slate-600">{l.category}</td>
+                      <td className="p-3.5 text-slate-600">
+                        <span>{l.category}</span>
+                        {l.itemType === "SPARE_PART" && (
+                          <span className="block text-[10px] text-amber-700 font-bold">
+                            ⚙️ Spare Part
+                          </span>
+                        )}
+                      </td>
                       <td className="p-3.5 font-semibold text-slate-800">
                         ₹{l.minPrice.toLocaleString("en-IN")} - ₹
                         {l.maxPrice.toLocaleString("en-IN")}
@@ -1038,7 +1045,14 @@ export default function AdminDashboardPage() {
                           <ExternalLink className="w-3 h-3 text-slate-400" />
                         </Link>
                       </td>
-                      <td className="p-3.5 text-slate-600">{r.category}</td>
+                      <td className="p-3.5 text-slate-600">
+                        <span>{r.category}</span>
+                        {r.itemType === "SPARE_PART" && (
+                          <span className="block text-[10px] text-amber-700 font-bold">
+                            ⚙️ Spare Part
+                          </span>
+                        )}
+                      </td>
                       <td className="p-3.5">
                         <div className="font-semibold text-slate-900">
                           {r.buyer.name || r.buyer.email}

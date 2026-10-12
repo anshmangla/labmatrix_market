@@ -13,6 +13,7 @@ import {
   X,
   FileQuestion,
   LayoutDashboard,
+  Wrench,
 } from "lucide-react";
 
 export default function Navbar() {
@@ -47,6 +48,13 @@ export default function Navbar() {
               className="px-3 py-2 rounded-lg hover:text-teal-600 hover:bg-slate-50 transition-colors"
             >
               Browse Equipment
+            </Link>
+            <Link
+              href="/spare-parts"
+              className="px-3 py-2 rounded-lg hover:text-teal-600 hover:bg-slate-50 transition-colors flex items-center space-x-1"
+            >
+              <Wrench className="w-3.5 h-3.5 text-teal-600" />
+              <span>Spare Parts & Consumables</span>
             </Link>
             <Link
               href="/requests"
@@ -155,6 +163,14 @@ export default function Navbar() {
               className="px-3 py-2.5 rounded-xl hover:bg-slate-100 flex items-center justify-between"
             >
               <span>Browse Equipment</span>
+            </Link>
+            <Link
+              href="/spare-parts"
+              onClick={() => setMobileMenuOpen(false)}
+              className="px-3 py-2.5 rounded-xl hover:bg-slate-100 flex items-center space-x-2 text-teal-700 font-semibold"
+            >
+              <Wrench className="w-4 h-4 text-teal-600" />
+              <span>Spare Parts & Consumables</span>
             </Link>
             <Link
               href="/requests"

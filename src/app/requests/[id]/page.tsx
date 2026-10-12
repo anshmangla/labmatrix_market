@@ -28,6 +28,9 @@ export default async function RequirementDetailPage({
       title: true,
       description: true,
       category: true,
+      itemType: true,
+      partNumber: true,
+      compatibleWith: true,
       status: true,
       createdAt: true,
       // CONFIDENTIALITY RULE: Buyer personal details are NOT selected!
@@ -75,6 +78,27 @@ export default async function RequirementDetailPage({
                     Status: {req.status}
                   </span>
                 </div>
+
+                {req.itemType === "SPARE_PART" && (
+                  <div className="mt-4 p-3.5 bg-teal-50/70 rounded-xl border border-teal-200/80 flex flex-wrap gap-5 text-xs">
+                    {req.compatibleWith && (
+                      <div>
+                        <span className="text-slate-400 block font-bold text-[10px] uppercase">
+                          Target Instrument / Model
+                        </span>
+                        <span className="font-bold text-slate-900 text-sm">{req.compatibleWith}</span>
+                      </div>
+                    )}
+                    {req.partNumber && (
+                      <div>
+                        <span className="text-slate-400 block font-bold text-[10px] uppercase">
+                          Part / Catalog #
+                        </span>
+                        <span className="font-bold text-slate-900 font-mono text-sm">{req.partNumber}</span>
+                      </div>
+                    )}
+                  </div>
+                )}
               </div>
 
               <div className="border-t border-slate-100 pt-6">
