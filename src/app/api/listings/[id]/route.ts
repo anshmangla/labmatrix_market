@@ -29,7 +29,7 @@ export async function GET(
         isApproved: true,
         sellerId: true,
         createdAt: true,
-        // CONFIDENTIALITY RULE: Seller phone, email, and name are omitted!
+        // PRIVACY RULE: Seller phone, email, and name are omitted!
       },
     });
 

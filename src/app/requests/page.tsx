@@ -83,14 +83,14 @@ export default function BrowseRequestsPage() {
           <div>
             <div className="inline-flex items-center space-x-1.5 text-xs font-bold text-teal-600 bg-teal-50 px-2.5 py-1 rounded-full mb-2">
               <ShieldCheck className="w-3.5 h-3.5" />
-              <span>Verified Laboratory Inquiries • Broker-Managed</span>
+              <span>Active Laboratory Procurement Requests</span>
             </div>
             <h1 className="text-3xl font-extrabold text-slate-900">
               Buyer Equipment Requirements
             </h1>
             <p className="text-sm text-slate-600 mt-1">
               Laboratories actively looking for analytical instruments. Have a
-              matching unit? Submit an offer directly to our broker desk.
+              matching unit? Submit your quotation proposal directly.
             </p>
           </div>
 

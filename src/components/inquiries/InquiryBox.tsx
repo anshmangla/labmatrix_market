@@ -73,14 +73,13 @@ export default function InquiryBox({
           <CheckCircle2 className="w-5 h-5" />
           <span>
             {isOfferToRequirement
-              ? "Offer Forwarded to Platform Broker"
-              : "Inquiry Forwarded to Platform Broker"}
+              ? "Offer Proposal Submitted"
+              : "Inquiry Submitted Successfully"}
           </span>
         </div>
         <p className="text-xs text-emerald-800 leading-relaxed">
-          Your details have been logged privately with the platform administrator.
-          We will review the specifications and contact you directly to
-          facilitate the transaction.
+          Your inquiry has been logged securely. We will review the details and follow up promptly
+          to facilitate next steps.
         </p>
       </div>
     );
@@ -92,8 +91,8 @@ export default function InquiryBox({
         <ShieldCheck className="w-4 h-4" />
         <span>
           {isOfferToRequirement
-            ? "Confidential Equipment Offer"
-            : "Confidential Broker Inquiry"}
+            ? "Submit Equipment Proposal"
+            : "Direct Equipment Inquiry"}
         </span>
       </div>
 
@@ -104,8 +103,8 @@ export default function InquiryBox({
       </h3>
       <p className="text-xs text-slate-500 mt-1">
         {isOfferToRequirement
-          ? "Submit your instrument details. The platform broker will review and coordinate directly with the buyer."
-          : "All inquiries go exclusively to our deal desk. We handle inspection, validation, and direct closing."}
+          ? "Submit your instrument specifications and price ask to coordinate with the buyer."
+          : "Submit your questions, required specifications, or price proposal below."}
       </p>
 
       {error && (
@@ -132,7 +131,7 @@ export default function InquiryBox({
         <form onSubmit={handleInquiry} className="mt-4 space-y-3">
           <div>
             <label className="block text-xs font-semibold text-slate-700 mb-1">
-              Your Message to Broker Desk
+              Your Inquiry Message
             </label>
             <textarea
               rows={3}
@@ -145,7 +144,7 @@ export default function InquiryBox({
 
           <div>
             <label className="block text-xs font-semibold text-slate-700 mb-1">
-              Your Contact Phone Number (Admin Only)
+              Your Contact Phone Number (Private)
             </label>
             <div className="relative">
               <Phone className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-3" />
@@ -169,13 +168,13 @@ export default function InquiryBox({
               {loading
                 ? "Sending..."
                 : isOfferToRequirement
-                ? "Submit Confidential Offer"
-                : "Submit Confidential Inquiry"}
+                ? "Submit Equipment Offer"
+                : "Send Inquiry"}
             </span>
           </button>
 
           <p className="text-[10px] text-slate-400 text-center leading-tight pt-1">
-            Zero public disclosure. Only the administrator reviews this.
+            Your contact information is never displayed publicly on the marketplace.
           </p>
         </form>
       )}

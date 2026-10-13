@@ -24,7 +24,7 @@ export async function GET(
         isApproved: true,
         buyerId: true,
         createdAt: true,
-        // STRICT CONFIDENTIALITY: Buyer details are never selected for public viewing
+        // STRICT PRIVACY: Buyer details are never selected for public viewing
       },
     });
 

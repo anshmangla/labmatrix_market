@@ -41,7 +41,7 @@ export async function POST(request: Request) {
     });
 
     return NextResponse.json(
-      { message: "Inquiry submitted to platform broker.", inquiryId: inquiry.id },
+      { message: "Inquiry submitted successfully.", inquiryId: inquiry.id },
       { status: 201 }
     );
   } catch (error: any) {

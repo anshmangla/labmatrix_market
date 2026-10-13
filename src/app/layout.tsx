@@ -17,7 +17,7 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "LabMatrix | Marketplace for Used Analytical & Pharma Testing Equipment",
   description:
-    "Brokered marketplace for pre-owned HPLC, GC, Spectrophotometers, Dissolution testers and analytical lab equipment. Full privacy, verified intermediation.",
+    "The dedicated B2B marketplace for pre-owned HPLC, GC, Spectrophotometers, Dissolution testers, spare parts, and analytical lab equipment.",
   icons: {
     icon: [
       { url: "/favicon.png", type: "image/png" },

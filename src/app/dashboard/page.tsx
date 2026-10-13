@@ -196,7 +196,7 @@ export default function UserDashboardPage() {
           </div>
         </div>
 
-        {/* Confidentiality Reminder Banner */}
+        {/* Privacy Notice Banner */}
         <div className="bg-gradient-to-r from-slate-900 to-slate-800 text-white rounded-2xl p-5 flex items-center justify-between gap-4">
           <div className="flex items-center space-x-3">
             <div className="w-9 h-9 rounded-xl bg-teal-500/20 text-teal-400 flex items-center justify-center flex-shrink-0">
@@ -207,8 +207,8 @@ export default function UserDashboardPage() {
                 Full Privacy Guarantee Active
               </h4>
               <p className="text-xs text-slate-300 mt-0.5">
-                Your name, phone number, and company are shielded from public
-                view on all items below. Only the platform administrator coordinates deals.
+                Your personal phone number and email remain private. Inquiries and deal
+                notifications are managed securely through your dashboard.
               </p>
             </div>
           </div>
@@ -251,7 +251,7 @@ export default function UserDashboardPage() {
                 </h3>
                 <p className="text-xs text-slate-500 mt-1 max-w-sm mx-auto">
                   Have surplus HPLC, GC-MS, or testing instruments? List them
-                  confidentially and let our brokerage desk find buyers for you.
+                  on LabMatrix and connect with verified buyers across India.
                 </p>
                 <Link
                   href="/listings/create"
@@ -373,7 +373,7 @@ export default function UserDashboardPage() {
                 </h3>
                 <p className="text-xs text-slate-500 mt-1 max-w-sm mx-auto">
                   Looking for a specific testing machine? Post your requirement
-                  and our broker network will locate matching inventory.
+                  and verified suppliers will respond with matching inventory.
                 </p>
                 <Link
                   href="/requests/create"

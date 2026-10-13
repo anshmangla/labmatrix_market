@@ -65,7 +65,7 @@ export default function Navbar() {
               className="px-3 py-2 rounded-lg hover:text-teal-600 hover:bg-slate-50 transition-colors flex items-center space-x-1"
             >
               <Shield className="w-3.5 h-3.5 text-teal-600" />
-              <span>Brokerage Process</span>
+              <span>How It Works</span>
             </Link>
             <Link
               href="/listings/create"
@@ -183,7 +183,7 @@ export default function Navbar() {
               className="px-3 py-2.5 rounded-xl hover:bg-slate-100 flex items-center space-x-2"
             >
               <Shield className="w-4 h-4 text-teal-600" />
-              <span>Brokerage Process</span>
+              <span>How It Works</span>
             </Link>
             <Link
               href="/listings/create"

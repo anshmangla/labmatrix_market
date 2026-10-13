@@ -185,7 +185,7 @@ export default function SignInPage() {
 
           <div className="mt-6 flex items-center justify-center space-x-1 text-xs text-slate-500">
             <ShieldCheck className="w-4 h-4 text-teal-600" />
-            <span>Direct broker protection. No public contact exposure.</span>
+            <span>Privacy protected. No public phone or email exposure.</span>
           </div>
         </div>
 

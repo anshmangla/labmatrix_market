@@ -329,7 +329,7 @@ export default function AdminDashboardPage() {
     const newRole = currentRole === "ADMIN" ? "USER" : "ADMIN";
     const confirmMsg =
       newRole === "ADMIN"
-        ? `Are you sure you want to promote "${userName}" to Platform Administrator? They will have full access to broker inquiries, unmasked contacts, and moderation.`
+        ? `Are you sure you want to promote "${userName}" to Platform Administrator? They will have full access to marketplace inquiries, client contacts, and moderation.`
         : `Are you sure you want to revoke Admin access from "${userName}"?`;
 
     if (!confirm(confirmMsg)) return;
@@ -369,7 +369,7 @@ export default function AdminDashboardPage() {
           <ShieldAlert className="w-12 h-12 text-teal-600 mx-auto mb-4" />
           <h2 className="text-xl font-bold text-slate-900">Admin Area Restricted</h2>
           <p className="text-sm text-slate-600 mt-2">
-            Please sign in to access the LabMatrix Broker Control Desk.
+            Please sign in to access the LabMatrix Admin Control Desk.
           </p>
           <Link
             href="/auth/signin"
@@ -431,10 +431,10 @@ export default function AdminDashboardPage() {
           <div>
             <div className="inline-flex items-center space-x-2 text-xs font-bold text-teal-700 bg-teal-50 px-2.5 py-1 rounded-full mb-1">
               <ShieldCheck className="w-4 h-4" />
-              <span>Confidential Broker Desk • Master Administrator View</span>
+              <span>LabMatrix Operations Desk • Master Administrator View</span>
             </div>
             <h1 className="text-2xl font-black text-slate-900">
-              LabMatrix Deal & Brokerage Console
+              LabMatrix Operations & Deal Console
             </h1>
             <p className="text-xs text-slate-500 mt-0.5">
               Logged in as: <strong>{session?.user?.email}</strong>. Buyer and
@@ -609,10 +609,10 @@ export default function AdminDashboardPage() {
           <div className="space-y-4">
             <div className="flex items-center justify-between">
               <h2 className="text-base font-bold text-slate-900">
-                Broker Deal Pipeline
+                Marketplace Inquiry Pipeline
               </h2>
               <span className="text-xs text-slate-500">
-                Directly connect Buyer & Seller offline while keeping platform control.
+                Directly coordinate between Buyer & Seller while keeping platform oversight.
               </span>
             </div>
 
@@ -844,7 +844,7 @@ export default function AdminDashboardPage() {
                       {/* Message Content */}
                       <div className="pt-2">
                         <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider block mb-1">
-                          Message sent to Broker Desk:
+                          Inquiry Message Submitted:
                         </span>
                         <div className="bg-slate-50 p-3 rounded-xl border border-slate-200 text-xs text-slate-800 italic">
                           &quot;{inq.message}&quot;

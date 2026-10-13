@@ -41,7 +41,7 @@ export default async function ListingDetailPage({
       photos: true,
       status: true,
       createdAt: true,
-      // CRITICAL BROKERAGE PRIVACY: Seller name, phone, company, and email are strictly NOT selected!
+      // CRITICAL PRIVACY: Seller name, phone, company, and email are strictly NOT selected!
     },
   });
 
@@ -134,27 +134,25 @@ export default async function ListingDetailPage({
                 </div>
               </div>
 
-              {/* Confidentiality Notice Box */}
+              {/* Marketplace Assurance Box */}
               <div className="bg-slate-900 text-white rounded-xl p-5 flex items-start space-x-3.5 shadow-sm">
                 <div className="w-8 h-8 rounded-lg bg-teal-500/20 text-teal-400 flex items-center justify-center flex-shrink-0 mt-0.5">
-                  <PhoneOff className="w-4 h-4" />
+                  <ShieldCheck className="w-4 h-4" />
                 </div>
                 <div>
                   <h4 className="text-xs font-bold text-teal-400 uppercase tracking-wider">
-                    Confidential Brokered Listing
+                    Verified Equipment Listing
                   </h4>
                   <p className="text-xs text-slate-300 mt-1 leading-relaxed">
-                    To maintain unbiased pricing and protect client privacy,
-                    seller contact details are confidential. Our platform desk
-                    arranges physical inspection, technical validation, and
-                    secure deal closure.
+                    Instrument specifications and maintenance logs are verified through our platform.
+                    Submit an inquiry below to ask technical questions, request additional photos, or submit a quotation.
                   </p>
                 </div>
               </div>
             </div>
           </div>
 
-          {/* Right Column (1 Col): Price & Confidential Inquiry Box */}
+          {/* Right Column (1 Col): Price & Inquiry Box */}
           <div className="space-y-6">
             {/* Price Box */}
             <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-xs">

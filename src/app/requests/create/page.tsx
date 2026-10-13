@@ -169,8 +169,7 @@ function CreateRequirementForm() {
             Post an Equipment or Spare Part Request
           </h1>
           <p className="text-sm text-slate-600 mt-1">
-            Let our broker network find what your laboratory needs. Sellers cannot contact you directly;
-            all matching items are verified by our desk before any introduction.
+            Post your equipment or spare part requirements. Qualified suppliers and laboratories submit offers directly through the platform.
           </p>
         </div>
 
@@ -374,7 +373,7 @@ function CreateRequirementForm() {
             </div>
           </div>
 
-          {/* Confidential Contact Details */}
+          {/* Contact Details */}
           <div className="bg-gradient-to-br from-slate-900 to-slate-800 text-white rounded-2xl p-6 sm:p-8 shadow-md">
             <div className="flex items-start space-x-3 mb-4">
               <div className="w-10 h-10 rounded-xl bg-teal-500/20 border border-teal-500/40 flex items-center justify-center text-teal-400 flex-shrink-0">
@@ -382,11 +381,11 @@ function CreateRequirementForm() {
               </div>
               <div>
                 <h2 className="text-lg font-bold text-white">
-                  Confidential Coordinator Details
+                  Contact & Notification Details
                 </h2>
                 <p className="text-xs text-slate-300 mt-0.5 leading-relaxed">
-                  Your phone number will never be shown publicly. Only the platform broker
-                  desk contacts you when a matching unit or spare part is located.
+                  Your phone number will never be shown publicly. It is used strictly for
+                  deal notifications and verifying matching inventory.
                 </p>
               </div>
             </div>
@@ -433,7 +432,7 @@ function CreateRequirementForm() {
             {userHasPhone && (
               <div className="mt-3 flex items-center space-x-1.5 text-xs text-teal-400">
                 <CheckCircle2 className="w-3.5 h-3.5" />
-                <span>Phone on file: Verified for platform broker desk.</span>
+                <span>Phone on file: Verified for inquiry notifications.</span>
               </div>
             )}
           </div>

@@ -176,7 +176,7 @@ function CreateListingForm() {
     setError("");
 
     if (!userHasPhone && !phoneNumber.trim()) {
-      setError("Please provide your mobile number for broker coordination.");
+      setError("Please provide your mobile number for inquiry notifications.");
       return;
     }
 
@@ -243,8 +243,7 @@ function CreateListingForm() {
             List Equipment or Spare Parts
           </h1>
           <p className="text-sm text-slate-600 mt-1">
-            All listings are brokered confidentially. Your contact details will
-            never be shared publicly.
+            Your contact details remain completely private. Inquiries and proposals are coordinated securely.
           </p>
         </div>
 
@@ -535,7 +534,7 @@ function CreateListingForm() {
             </div>
           </div>
 
-          {/* Card 3: Confidential Contact Details */}
+          {/* Card 3: Contact & Notification Details */}
           <div className="bg-gradient-to-br from-slate-900 to-slate-800 text-white rounded-2xl p-6 sm:p-8 shadow-md">
             <div className="flex items-start space-x-3 mb-4">
               <div className="w-10 h-10 rounded-xl bg-teal-500/20 border border-teal-500/40 flex items-center justify-center text-teal-400 flex-shrink-0">
@@ -543,11 +542,11 @@ function CreateListingForm() {
               </div>
               <div>
                 <h2 className="text-lg font-bold text-white">
-                  3. Confidential Broker Desk Contact
+                  3. Contact & Notification Details
                 </h2>
                 <p className="text-xs text-slate-300 mt-0.5 leading-relaxed">
-                  Your phone number will NEVER be displayed publicly on this listing. Only the
-                  platform administrator contacts you when a buyer submits a serious inquiry.
+                  Your phone number will NEVER be displayed publicly on this listing. It is used
+                  strictly for deal notifications and verifying interested buyers.
                 </p>
               </div>
             </div>
@@ -594,7 +593,7 @@ function CreateListingForm() {
             {userHasPhone && (
               <div className="mt-3 flex items-center space-x-1.5 text-xs text-teal-400">
                 <CheckCircle2 className="w-3.5 h-3.5" />
-                <span>Phone on file: Verified for platform broker desk.</span>
+                <span>Phone on file: Verified for inquiry notifications.</span>
               </div>
             )}
           </div>

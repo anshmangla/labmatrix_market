@@ -112,7 +112,7 @@ export default function SparePartsHubPage() {
           <div className="relative z-10 max-w-3xl space-y-4">
             <div className="inline-flex items-center space-x-2 bg-teal-500/20 border border-teal-500/30 px-3 py-1 rounded-full text-xs font-semibold text-teal-300">
               <ShieldCheck className="w-3.5 h-3.5" />
-              <span>Confidential Broker Desk • Verified Spares & Consumables</span>
+              <span>Verified Spare Parts & Lab Consumables Hub</span>
             </div>
 
             <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight">
@@ -249,7 +249,7 @@ export default function SparePartsHubPage() {
                 </h3>
                 <p className="text-xs text-slate-500 max-w-sm mx-auto">
                   Have surplus lamps, columns, valves, or boards in your laboratory inventory?
-                  List them confidentially and connect with laboratories looking for spares.
+                  List them on LabMatrix and connect with laboratories looking for spares across India.
                 </p>
                 <div className="pt-2">
                   <Link
@@ -350,7 +350,7 @@ export default function SparePartsHubPage() {
                 </h3>
                 <p className="text-xs text-slate-500 max-w-sm mx-auto">
                   Looking for an urgent replacement lamp, detector, or board? Post your
-                  spare part requirement and let our broker network source it for you.
+                  spare part requirement and receive quotation offers from matching suppliers.
                 </p>
                 <div className="pt-2">
                   <Link

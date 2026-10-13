@@ -101,7 +101,7 @@ export default function BrowseListingsPage() {
           <div>
             <div className="inline-flex items-center space-x-1.5 text-xs font-bold text-teal-600 bg-teal-50 px-2.5 py-1 rounded-full mb-2">
               <ShieldCheck className="w-3.5 h-3.5" />
-              <span>Direct Broker Desk • Buyer/Seller Privacy Protected</span>
+              <span>Verified Equipment Catalog • Direct Quotations</span>
             </div>
             <h1 className="text-3xl font-extrabold text-slate-900">
               Browse Pre-Owned Equipment
@@ -265,7 +265,7 @@ export default function BrowseListingsPage() {
 
                   <div className="absolute bottom-3 right-3 bg-teal-600/90 backdrop-blur-md text-white text-[10px] font-semibold px-2 py-0.5 rounded-md flex items-center space-x-1">
                     <ShieldCheck className="w-3 h-3" />
-                    <span>Confidential Deal</span>
+                    <span>Verified Listing</span>
                   </div>
                 </div>
 

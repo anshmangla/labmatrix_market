@@ -33,7 +33,7 @@ export default async function RequirementDetailPage({
       compatibleWith: true,
       status: true,
       createdAt: true,
-      // CONFIDENTIALITY RULE: Buyer personal details are NOT selected!
+      // PRIVACY RULE: Buyer personal details are NOT selected!
     },
   });
 
@@ -111,20 +111,19 @@ export default async function RequirementDetailPage({
                 </div>
               </div>
 
-              {/* Broker Protection Callout */}
+              {/* Marketplace Procurement Callout */}
               <div className="bg-slate-900 text-white rounded-xl p-5 flex items-start space-x-3.5 shadow-sm">
                 <div className="w-8 h-8 rounded-lg bg-teal-500/20 text-teal-400 flex items-center justify-center flex-shrink-0 mt-0.5">
-                  <PhoneOff className="w-4 h-4" />
+                  <ShieldCheck className="w-4 h-4" />
                 </div>
                 <div>
                   <h4 className="text-xs font-bold text-teal-400 uppercase tracking-wider">
-                    Confidential Buyer Request
+                    Verified Procurement Request
                   </h4>
                   <p className="text-xs text-slate-300 mt-1 leading-relaxed">
-                    Buyer identity and budget ceiling are guarded confidentially.
-                    If you own or represent a matching instrument, submit your
-                    proposal. Our broker desk verifies the machine and presents
-                    it to the buyer.
+                    This requirement is actively requested by a verified laboratory.
+                    If you own or represent matching equipment or spare parts, submit your
+                    proposal using the form on the right.
                   </p>
                 </div>
               </div>
@@ -149,11 +148,11 @@ export default async function RequirementDetailPage({
               </div>
               <div className="flex items-start space-x-2">
                 <CheckCircle className="w-4 h-4 text-teal-600 flex-shrink-0 mt-0.5" />
-                <span>The platform administrator will reach out to inspect.</span>
+                <span>The platform coordinator will assist in facilitating the review.</span>
               </div>
               <div className="flex items-start space-x-2">
                 <CheckCircle className="w-4 h-4 text-teal-600 flex-shrink-0 mt-0.5" />
-                <span>Zero direct exposure of your contact details to the buyer.</span>
+                <span>Secure quotation and deal coordination through the platform.</span>
               </div>
             </div>
           </div>

@@ -33,7 +33,7 @@ export default function Home() {
         <div className="max-w-5xl mx-auto text-center space-y-8">
           <div className="inline-flex items-center space-x-2 bg-teal-500/10 border border-teal-500/30 px-3.5 py-1.5 rounded-full text-xs font-semibold text-teal-400">
             <ShieldCheck className="w-4 h-4" />
-            <span>Confidential Brokerage • No Public Contact Details</span>
+            <span>Verified B2B Marketplace • Laboratory Instruments & Spares</span>
           </div>
 
           <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight">
@@ -44,10 +44,10 @@ export default function Home() {
           </h1>
 
           <p className="text-base sm:text-lg text-slate-300 max-w-2xl mx-auto font-normal leading-relaxed">
-            A trusted, broker-managed platform for high-precision analytical
-            instruments. Browse available machines or submit your equipment
-            requirements—all transactions are negotiated securely through our
-            dedicated desk.
+            The dedicated marketplace for laboratories, pharma facilities, and
+            research centers to buy and sell high-precision analytical
+            instruments and certified spare parts with verified equipment
+            specifications.
           </p>
 
           {/* Search Bar Form */}
@@ -98,53 +98,51 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Brokerage Trust Pillars */}
+      {/* Marketplace Trust Pillars */}
       <section className="py-12 bg-white border-b border-slate-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             <div className="flex items-start space-x-4 p-4 rounded-xl bg-slate-50 border border-slate-100">
               <div className="w-12 h-12 rounded-xl bg-teal-100 flex items-center justify-center flex-shrink-0 text-teal-700">
-                <PhoneOff className="w-6 h-6" />
+                <UserCheck className="w-6 h-6" />
               </div>
               <div>
                 <h3 className="font-bold text-slate-900 text-base">
-                  Zero Direct Contact Exposure
+                  Verified Industry Network
                 </h3>
                 <p className="text-xs text-slate-600 mt-1 leading-relaxed">
-                  Neither buyers nor sellers see each other&apos;s phone numbers or
-                  company identities. We prevent unsolicited calls and direct
-                  bypasses.
+                  Connect with verified pharmaceutical manufacturers, research institutes,
+                  and analytical testing facilities across India.
                 </p>
               </div>
             </div>
 
             <div className="flex items-start space-x-4 p-4 rounded-xl bg-slate-50 border border-slate-100">
               <div className="w-12 h-12 rounded-xl bg-emerald-100 flex items-center justify-center flex-shrink-0 text-emerald-700">
-                <UserCheck className="w-6 h-6" />
+                <ShieldCheck className="w-6 h-6" />
               </div>
               <div>
                 <h3 className="font-bold text-slate-900 text-base">
-                  Broker-Mediated Deals
+                  Direct Inquiries & Quotes
                 </h3>
                 <p className="text-xs text-slate-600 mt-1 leading-relaxed">
-                  Every inquiry and request is reviewed and managed directly by our
-                  brokerage desk to verify equipment condition and pricing.
+                  Submit inquiries and price proposals directly on any machine or spare part.
+                  Coordinated with verified equipment specs and pricing.
                 </p>
               </div>
             </div>
 
             <div className="flex items-start space-x-4 p-4 rounded-xl bg-slate-50 border border-slate-100">
               <div className="w-12 h-12 rounded-xl bg-blue-100 flex items-center justify-center flex-shrink-0 text-blue-700">
-                <ShieldCheck className="w-6 h-6" />
+                <Cpu className="w-6 h-6" />
               </div>
               <div>
                 <h3 className="font-bold text-slate-900 text-base">
-                  Frictionless Onboarding
+                  Quality Testing Equipment
                 </h3>
                 <p className="text-xs text-slate-600 mt-1 leading-relaxed">
-                  Sign up instantly via Email or Google. Your mobile number and
-                  company details are only requested when you choose to list or
-                  request.
+                  Access premium chromatography, spectroscopy, dissolution systems, and
+                  genuine consumables from global industry leaders.
                 </p>
               </div>
             </div>
@@ -202,14 +200,14 @@ export default function Home() {
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center max-w-2xl mx-auto mb-16">
             <span className="text-xs font-bold uppercase tracking-wider text-teal-600">
-              Confidentiality First
+              Simple & Transparent
             </span>
             <h2 className="text-3xl font-black text-slate-900 mt-1">
-              How Deals Work on LabMatrix
+              How It Works on LabMatrix
             </h2>
             <p className="text-sm text-slate-600 mt-3">
-              We eliminate unsolicited contacts by acting as your dedicated
-              dealmaker throughout the lifecycle.
+              A streamlined process to list equipment, submit inquiries, and connect
+              verified buyers with sellers.
             </p>
           </div>
 
@@ -217,35 +215,33 @@ export default function Home() {
             <div className="bg-slate-50 p-6 rounded-2xl border border-slate-200/70 flex flex-col">
               <div className="text-3xl font-black text-teal-600 mb-3">01</div>
               <h3 className="font-bold text-slate-900 text-lg">
-                Post Machine or Request
+                List Equipment or Post Request
               </h3>
               <p className="text-sm text-slate-600 mt-2 leading-relaxed">
-                Add equipment specs, photos, and approximate price range. Or post
-                what you need. Your contact info is stored privately for the
-                administrator only.
+                Add equipment specifications, high-res photos, and approximate price range.
+                Or post the machine or spare parts your laboratory needs.
               </p>
             </div>
 
             <div className="bg-slate-50 p-6 rounded-2xl border border-slate-200/70 flex flex-col">
               <div className="text-3xl font-black text-teal-600 mb-3">02</div>
               <h3 className="font-bold text-slate-900 text-lg">
-                Direct Broker Inquiry
+                Send Inquiry / Request Quote
               </h3>
               <p className="text-sm text-slate-600 mt-2 leading-relaxed">
-                When a buyer is interested, they click &quot;Inquire&quot;. The notification
-                goes straight to our broker desk—not to other users or public
-                eyes.
+                When interested in an item, click &quot;Inquire&quot; to send questions or price
+                proposals. Inquiries are handled promptly with verified specifications.
               </p>
             </div>
 
             <div className="bg-slate-50 p-6 rounded-2xl border border-slate-200/70 flex flex-col">
               <div className="text-3xl font-black text-teal-600 mb-3">03</div>
               <h3 className="font-bold text-slate-900 text-lg">
-                Mediated Close
+                Verified Handover & Inspection
               </h3>
               <p className="text-sm text-slate-600 mt-2 leading-relaxed">
-                We coordinate inspections, condition verification, price
-                negotiations, and safe handover between both parties.
+                Coordinate instrument inspections, calibration records verification, and
+                secure delivery between laboratories.
               </p>
             </div>
           </div>
@@ -268,7 +264,7 @@ export default function Home() {
             />
           </Link>
           <p className="text-xs text-slate-500">
-            &copy; 2026 LabMatrix. Confidential Brokered Marketplace for Pharma & Analytical Equipment.
+            &copy; 2026 LabMatrix. B2B Marketplace for Pharma & Analytical Equipment.
           </p>
         </div>
       </footer>
