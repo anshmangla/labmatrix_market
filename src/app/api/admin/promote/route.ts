@@ -21,10 +21,15 @@ export async function POST() {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
-    // Allow promotion if: no admin exists yet OR user's email matches ADMIN_EMAIL env
+    // Allow promotion if: no admin exists yet OR user's email matches ADMIN_EMAIL/ADMIN_EMAILS env (supports comma-separated list)
+    const configuredAdminEmails = (process.env.ADMIN_EMAIL || process.env.ADMIN_EMAILS || "")
+      .split(",")
+      .map((e) => e.trim().toLowerCase())
+      .filter(Boolean);
+
     const isOwnerEmail =
-      process.env.ADMIN_EMAIL &&
-      currentUser.email.toLowerCase() === process.env.ADMIN_EMAIL.toLowerCase();
+      configuredAdminEmails.length > 0 &&
+      configuredAdminEmails.includes(currentUser.email.toLowerCase());
 
     if (adminCount === 0 || isOwnerEmail) {
       const updated = await prisma.user.update({

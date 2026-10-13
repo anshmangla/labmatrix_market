@@ -39,23 +39,37 @@ export default function AdminDashboardPage() {
   const [users, setUsers] = useState<any[]>([]);
   const [listings, setListings] = useState<any[]>([]);
   const [requirements, setRequirements] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [initialLoading, setInitialLoading] = useState(true);
+  const [tabLoading, setTabLoading] = useState(false);
   const [actionLoading, setActionLoading] = useState(false);
   const [claimSuccess, setClaimSuccess] = useState("");
 
-  useEffect(() => {
-    if (session?.user) {
-      checkRoleAndLoadData();
-    }
-  }, [session, activeTab]);
+  const sessionUserId = session?.user?.id;
+  const sessionUserEmail = session?.user?.email;
 
-  const checkRoleAndLoadData = async () => {
-    setLoading(true);
+  // 1. Initial admin verification - ONLY fires when authenticated user ID/email is known or unauthenticated
+  useEffect(() => {
+    if (status === "authenticated" && (sessionUserId || sessionUserEmail)) {
+      checkAdminAccess();
+    } else if (status === "unauthenticated") {
+      setIsAdmin(false);
+      setInitialLoading(false);
+    }
+  }, [sessionUserId, sessionUserEmail, status]);
+
+  // 2. Tab data load - fires when admin rights confirmed or activeTab changes
+  useEffect(() => {
+    if (isAdmin) {
+      loadTabData(activeTab);
+    }
+  }, [isAdmin, activeTab]);
+
+  const checkAdminAccess = async () => {
     try {
       const statsRes = await fetch("/api/admin/stats");
       if (statsRes.status === 403 || statsRes.status === 401) {
         setIsAdmin(false);
-        setLoading(false);
+        setInitialLoading(false);
         return;
       }
 
@@ -63,34 +77,47 @@ export default function AdminDashboardPage() {
       if (statsData?.stats) {
         setIsAdmin(true);
         setStats(statsData.stats);
-
-        // Fetch data based on tab
-        if (activeTab === "inquiries") {
-          const res = await fetch("/api/admin/inquiries");
-          const data = await res.json();
-          if (data?.inquiries) setInquiries(data.inquiries);
-        } else if (activeTab === "users") {
-          const res = await fetch("/api/admin/users");
-          const data = await res.json();
-          if (data?.users) setUsers(data.users);
-        } else if (activeTab === "listings") {
-          const res = await fetch("/api/admin/listings");
-          const data = await res.json();
-          if (data?.listings) setListings(data.listings);
-        } else if (activeTab === "requirements") {
-          const res = await fetch("/api/admin/requirements");
-          const data = await res.json();
-          if (data?.requirements) setRequirements(data.requirements);
-        }
       } else {
         setIsAdmin(false);
       }
     } catch (err) {
-      console.error("Admin load error:", err);
+      console.error("Admin check error:", err);
       setIsAdmin(false);
     } finally {
-      setLoading(false);
+      setInitialLoading(false);
     }
+  };
+
+  const loadTabData = async (tab: string) => {
+    setTabLoading(true);
+    try {
+      if (tab === "inquiries") {
+        const res = await fetch("/api/admin/inquiries");
+        const data = await res.json();
+        if (data?.inquiries) setInquiries(data.inquiries);
+      } else if (tab === "users") {
+        const res = await fetch("/api/admin/users");
+        const data = await res.json();
+        if (data?.users) setUsers(data.users);
+      } else if (tab === "listings") {
+        const res = await fetch("/api/admin/listings");
+        const data = await res.json();
+        if (data?.listings) setListings(data.listings);
+      } else if (tab === "requirements") {
+        const res = await fetch("/api/admin/requirements");
+        const data = await res.json();
+        if (data?.requirements) setRequirements(data.requirements);
+      }
+    } catch (err) {
+      console.error(`Error loading ${tab} data:`, err);
+    } finally {
+      setTabLoading(false);
+    }
+  };
+
+  const refreshAll = async () => {
+    await checkAdminAccess();
+    await loadTabData(activeTab);
   };
 
   const handleClaimAdmin = async () => {
@@ -294,7 +321,40 @@ export default function AdminDashboardPage() {
     }
   };
 
-  if (status === "loading" || loading) {
+  const handleToggleUserRole = async (
+    userId: string,
+    currentRole: string,
+    userName: string
+  ) => {
+    const newRole = currentRole === "ADMIN" ? "USER" : "ADMIN";
+    const confirmMsg =
+      newRole === "ADMIN"
+        ? `Are you sure you want to promote "${userName}" to Platform Administrator? They will have full access to broker inquiries, unmasked contacts, and moderation.`
+        : `Are you sure you want to revoke Admin access from "${userName}"?`;
+
+    if (!confirm(confirmMsg)) return;
+
+    try {
+      const res = await fetch("/api/admin/users", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userId, role: newRole }),
+      });
+      if (res.ok) {
+        setUsers((prev) =>
+          prev.map((u) => (u.id === userId ? { ...u, role: newRole } : u))
+        );
+      } else {
+        const data = await res.json();
+        alert(data.error || "Failed to update user role");
+      }
+    } catch (err) {
+      console.error("Update user role error:", err);
+      alert("An error occurred while updating user role.");
+    }
+  };
+
+  if (status === "loading" || initialLoading) {
     return (
       <div className="min-h-screen bg-slate-50 flex items-center justify-center">
         <div className="w-8 h-8 border-4 border-teal-600 border-t-transparent rounded-full animate-spin" />
@@ -383,11 +443,12 @@ export default function AdminDashboardPage() {
           </div>
 
           <button
-            onClick={() => checkRoleAndLoadData()}
+            onClick={() => refreshAll()}
+            disabled={tabLoading}
             className="self-start sm:self-auto inline-flex items-center space-x-1.5 px-3.5 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold rounded-xl transition-colors"
           >
-            <RefreshCw className="w-3.5 h-3.5" />
-            <span>Refresh Data</span>
+            <RefreshCw className={`w-3.5 h-3.5 ${tabLoading ? "animate-spin text-teal-600" : ""}`} />
+            <span>{tabLoading ? "Refreshing..." : "Refresh Data"}</span>
           </button>
         </div>
 
@@ -555,7 +616,14 @@ export default function AdminDashboardPage() {
               </span>
             </div>
 
-            {inquiries.length === 0 ? (
+            {tabLoading ? (
+              <div className="bg-white rounded-2xl p-16 text-center border border-slate-200 flex flex-col items-center justify-center space-y-3">
+                <div className="w-7 h-7 border-3 border-teal-600 border-t-transparent rounded-full animate-spin" />
+                <span className="text-xs text-slate-500 font-semibold">
+                  Loading deal pipeline...
+                </span>
+              </div>
+            ) : inquiries.length === 0 ? (
               <div className="bg-white rounded-2xl p-8 text-center border border-slate-200 text-slate-500 text-xs">
                 No inquiries submitted yet.
               </div>
@@ -793,73 +861,144 @@ export default function AdminDashboardPage() {
         {/* TAB 2: REGISTERED USERS */}
         {activeTab === "users" && (
           <div className="bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden">
-            <div className="p-5 border-b border-slate-200">
-              <h2 className="text-base font-bold text-slate-900">
-                Registered Users & Private Contacts
-              </h2>
-              <p className="text-xs text-slate-500">
-                Full database of users with their phone numbers and company details.
-              </p>
+            <div className="p-5 border-b border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+              <div>
+                <h2 className="text-base font-bold text-slate-900">
+                  Registered Users & Platform Permissions
+                </h2>
+                <p className="text-xs text-slate-500">
+                  Manage user roles, grant or revoke platform administrator privileges, and view verified contacts.
+                </p>
+              </div>
+              <span className="text-xs font-semibold text-slate-600 bg-slate-100 px-3 py-1 rounded-lg self-start sm:self-auto">
+                Total Users: {users.length}
+              </span>
             </div>
 
-            <div className="overflow-x-auto">
-              <table className="w-full text-left text-xs">
-                <thead className="bg-slate-50 border-b border-slate-200 text-slate-500 uppercase font-semibold">
-                  <tr>
-                    <th className="p-3.5">Name</th>
-                    <th className="p-3.5">Email</th>
-                    <th className="p-3.5">Mobile / Phone</th>
-                    <th className="p-3.5">Company / Lab</th>
-                    <th className="p-3.5">Role</th>
-                    <th className="p-3.5">Activity</th>
-                    <th className="p-3.5">Joined</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-100">
-                  {users.map((u) => (
-                    <tr key={u.id} className="hover:bg-slate-50">
-                      <td className="p-3.5 font-bold text-slate-900">
-                        {u.name || "Anonymous"}
-                      </td>
-                      <td className="p-3.5 text-slate-700">{u.email}</td>
-                      <td className="p-3.5">
-                        {u.phoneNumber ? (
-                          <div className="flex items-center space-x-1.5 font-bold text-teal-700">
-                            <Phone className="w-3 h-3 text-teal-600" />
-                            <span>{u.phoneNumber}</span>
-                          </div>
-                        ) : (
-                          <span className="text-slate-400 italic">
-                            Not yet posted
-                          </span>
-                        )}
-                      </td>
-                      <td className="p-3.5 text-slate-600">
-                        {u.companyName || "—"}
-                      </td>
-                      <td className="p-3.5">
-                        <span
-                          className={`px-2 py-0.5 rounded text-[10px] font-bold ${
-                            u.role === "ADMIN"
-                              ? "bg-purple-100 text-purple-800"
-                              : "bg-slate-100 text-slate-700"
-                          }`}
-                        >
-                          {u.role}
-                        </span>
-                      </td>
-                      <td className="p-3.5 text-slate-500">
-                        {u._count.listings} listings • {u._count.requirements}{" "}
-                        reqs
-                      </td>
-                      <td className="p-3.5 text-slate-400">
-                        {new Date(u.createdAt).toLocaleDateString()}
-                      </td>
+            {tabLoading ? (
+              <div className="p-16 text-center flex flex-col items-center justify-center space-y-3">
+                <div className="w-7 h-7 border-3 border-teal-600 border-t-transparent rounded-full animate-spin" />
+                <span className="text-xs text-slate-500 font-semibold">
+                  Loading registered users...
+                </span>
+              </div>
+            ) : (
+              <div className="overflow-x-auto">
+                <table className="w-full text-left text-xs">
+                  <thead className="bg-slate-50 border-b border-slate-200 text-slate-500 uppercase font-semibold">
+                    <tr>
+                      <th className="p-3.5">Name</th>
+                      <th className="p-3.5">Email</th>
+                      <th className="p-3.5">Mobile / Phone</th>
+                      <th className="p-3.5">Company / Lab</th>
+                      <th className="p-3.5">Current Role</th>
+                      <th className="p-3.5">Activity</th>
+                      <th className="p-3.5">Joined</th>
+                      <th className="p-3.5 text-right font-bold text-slate-700">
+                        Admin Permissions
+                      </th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+                  </thead>
+                  <tbody className="divide-y divide-slate-100">
+                    {users.map((u) => {
+                      const isSelf = Boolean(
+                        (session?.user?.id && session.user.id === u.id) ||
+                        (session?.user?.email &&
+                          u.email &&
+                          session.user.email.toLowerCase() ===
+                            u.email.toLowerCase())
+                      );
+                      return (
+                        <tr key={u.id} className="hover:bg-slate-50">
+                          <td className="p-3.5 font-bold text-slate-900">
+                            {u.name || "Anonymous"}
+                          </td>
+                          <td className="p-3.5 text-slate-700 font-medium">
+                            {u.email}
+                          </td>
+                          <td className="p-3.5">
+                            {u.phoneNumber ? (
+                              <div className="flex items-center space-x-1.5 font-bold text-teal-700">
+                                <Phone className="w-3 h-3 text-teal-600" />
+                                <span>{u.phoneNumber}</span>
+                              </div>
+                            ) : (
+                              <span className="text-slate-400 italic">
+                                Not yet posted
+                              </span>
+                            )}
+                          </td>
+                          <td className="p-3.5 text-slate-600">
+                            {u.companyName || "—"}
+                          </td>
+                          <td className="p-3.5">
+                            <span
+                              className={`px-2.5 py-1 rounded-md text-[10px] font-black uppercase tracking-wider ${
+                                u.role === "ADMIN"
+                                  ? "bg-purple-100 text-purple-800 border border-purple-200"
+                                  : "bg-slate-100 text-slate-700 border border-slate-200"
+                              }`}
+                            >
+                              {u.role}
+                            </span>
+                          </td>
+                          <td className="p-3.5 text-slate-500">
+                            {u._count?.listings ?? 0} listings •{" "}
+                            {u._count?.requirements ?? 0} reqs
+                          </td>
+                          <td className="p-3.5 text-slate-400">
+                            {new Date(u.createdAt).toLocaleDateString()}
+                          </td>
+                          <td className="p-3.5 text-right">
+                            {isSelf ? (
+                              <span className="inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-bold bg-teal-50 text-teal-700 border border-teal-200">
+                                You (Logged In)
+                              </span>
+                            ) : (
+                              <div className="inline-flex items-center justify-end">
+                                {u.role === "ADMIN" ? (
+                                  <button
+                                    onClick={() =>
+                                      handleToggleUserRole(
+                                        u.id,
+                                        u.role,
+                                        u.name || u.email
+                                      )
+                                    }
+                                    disabled={actionLoading}
+                                    className="inline-flex items-center space-x-1.5 px-3 py-1.5 rounded-lg text-xs font-bold bg-red-50 text-red-700 border border-red-200 hover:bg-red-100 hover:border-red-300 transition-colors cursor-pointer"
+                                    title="Demote this administrator to a standard user"
+                                  >
+                                    <ShieldAlert className="w-3.5 h-3.5 text-red-600" />
+                                    <span>Demote to User</span>
+                                  </button>
+                                ) : (
+                                  <button
+                                    onClick={() =>
+                                      handleToggleUserRole(
+                                        u.id,
+                                        u.role,
+                                        u.name || u.email
+                                      )
+                                    }
+                                    disabled={actionLoading}
+                                    className="inline-flex items-center space-x-1.5 px-3 py-1.5 rounded-lg text-xs font-bold bg-purple-600 text-white hover:bg-purple-700 transition-colors shadow-xs cursor-pointer"
+                                    title="Promote this user to platform administrator"
+                                  >
+                                    <ShieldCheck className="w-3.5 h-3.5 text-white" />
+                                    <span>Make Admin</span>
+                                  </button>
+                                )}
+                              </div>
+                            )}
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            )}
           </div>
         )}
 
@@ -880,120 +1019,129 @@ export default function AdminDashboardPage() {
               </span>
             </div>
 
-            <div className="overflow-x-auto">
-              <table className="w-full text-left text-xs">
-                <thead className="bg-slate-50 border-b border-slate-200 text-slate-500 uppercase font-semibold">
-                  <tr>
-                    <th className="p-3.5">Machine Title</th>
-                    <th className="p-3.5">Category</th>
-                    <th className="p-3.5">Price Range</th>
-                    <th className="p-3.5">Seller (Private)</th>
-                    <th className="p-3.5">Inquiries</th>
-                    <th className="p-3.5">Approval</th>
-                    <th className="p-3.5">Status</th>
-                    <th className="p-3.5">Actions</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-100">
-                  {listings.map((l) => (
-                    <tr
-                      key={l.id}
-                      className={`hover:bg-slate-50 transition-colors ${
-                        !l.isApproved ? "bg-amber-50/40" : ""
-                      }`}
-                    >
-                      <td className="p-3.5 font-bold text-slate-900">
-                        <Link
-                          href={`/listings/${l.id}`}
-                          target="_blank"
-                          className="hover:text-teal-600 hover:underline flex items-center space-x-1"
-                        >
-                          <span>{l.title}</span>
-                          <ExternalLink className="w-3 h-3 text-slate-400" />
-                        </Link>
-                      </td>
-                      <td className="p-3.5 text-slate-600">
-                        <span>{l.category}</span>
-                        {l.itemType === "SPARE_PART" && (
-                          <span className="block text-[10px] text-amber-700 font-bold">
-                            ⚙️ Spare Part
-                          </span>
-                        )}
-                      </td>
-                      <td className="p-3.5 font-semibold text-slate-800">
-                        ₹{l.minPrice.toLocaleString("en-IN")} - ₹
-                        {l.maxPrice.toLocaleString("en-IN")}
-                      </td>
-                      <td className="p-3.5">
-                        <div className="font-semibold text-slate-900">
-                          {l.seller.name || l.seller.email}
-                        </div>
-                        <div className="text-[11px] text-teal-700 font-bold">
-                          {l.seller.phoneNumber || "No phone"}
-                        </div>
-                      </td>
-                      <td className="p-3.5 font-bold text-slate-700">
-                        {l._count?.inquiries || 0}
-                      </td>
-                      <td className="p-3.5">
-                        {l.isApproved ? (
-                          <div className="flex items-center space-x-2">
-                            <span className="inline-flex items-center space-x-1 text-[10px] font-bold bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded">
-                              <Check className="w-3 h-3" />
-                              <span>Approved</span>
-                            </span>
-                            <button
-                              type="button"
-                              onClick={() => handleToggleListingApproval(l.id, l.isApproved)}
-                              className="text-[10px] text-amber-700 bg-amber-50 hover:bg-amber-100 border border-amber-200 px-1.5 py-0.5 rounded font-semibold transition-colors"
-                            >
-                              Revoke
-                            </button>
-                          </div>
-                        ) : (
-                          <div className="flex items-center space-x-2">
-                            <span className="inline-flex items-center space-x-1 text-[10px] font-bold bg-amber-100 text-amber-800 px-2 py-0.5 rounded">
-                              <Clock className="w-3 h-3" />
-                              <span>Pending</span>
-                            </span>
-                            <button
-                              type="button"
-                              onClick={() => handleToggleListingApproval(l.id, l.isApproved)}
-                              className="text-[10px] text-white bg-emerald-600 hover:bg-emerald-700 px-2 py-0.5 rounded font-bold shadow-xs transition-colors"
-                            >
-                              Approve
-                            </button>
-                          </div>
-                        )}
-                      </td>
-                      <td className="p-3.5">
-                        <select
-                          value={l.status}
-                          onChange={(e) =>
-                            handleUpdateListingStatus(l.id, e.target.value)
-                          }
-                          className="text-xs font-semibold bg-slate-50 border border-slate-300 rounded px-2 py-1 text-slate-900"
-                        >
-                          <option value="AVAILABLE">AVAILABLE</option>
-                          <option value="PENDING">PENDING</option>
-                          <option value="SOLD">SOLD</option>
-                        </select>
-                      </td>
-                      <td className="p-3.5">
-                        <button
-                          type="button"
-                          onClick={() => handleDeleteListing(l.id, l.title)}
-                          className="inline-flex items-center space-x-1 text-[11px] font-bold text-rose-700 bg-rose-50 hover:bg-rose-100 border border-rose-200 px-2 py-1 rounded-lg transition-colors"
-                        >
-                          <Trash2 className="w-3.5 h-3.5 text-rose-600" />
-                          <span>Delete</span>
-                        </button>
-                      </td>
+            {tabLoading ? (
+              <div className="p-16 text-center flex flex-col items-center justify-center space-y-3">
+                <div className="w-7 h-7 border-3 border-teal-600 border-t-transparent rounded-full animate-spin" />
+                <span className="text-xs text-slate-500 font-semibold">
+                  Loading equipment & parts listings...
+                </span>
+              </div>
+            ) : (
+              <div className="overflow-x-auto">
+                <table className="w-full text-left text-xs">
+                  <thead className="bg-slate-50 border-b border-slate-200 text-slate-500 uppercase font-semibold">
+                    <tr>
+                      <th className="p-3.5">Machine Title</th>
+                      <th className="p-3.5">Category</th>
+                      <th className="p-3.5">Price Range</th>
+                      <th className="p-3.5">Seller (Private)</th>
+                      <th className="p-3.5">Inquiries</th>
+                      <th className="p-3.5">Approval</th>
+                      <th className="p-3.5">Status</th>
+                      <th className="p-3.5">Actions</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+                  </thead>
+                  <tbody className="divide-y divide-slate-100">
+                    {listings.map((l) => (
+                      <tr
+                        key={l.id}
+                        className={`hover:bg-slate-50 transition-colors ${
+                          !l.isApproved ? "bg-amber-50/40" : ""
+                        }`}
+                      >
+                        <td className="p-3.5 font-bold text-slate-900">
+                          <Link
+                            href={`/listings/${l.id}`}
+                            target="_blank"
+                            className="hover:text-teal-600 hover:underline flex items-center space-x-1"
+                          >
+                            <span>{l.title}</span>
+                            <ExternalLink className="w-3 h-3 text-slate-400" />
+                          </Link>
+                        </td>
+                        <td className="p-3.5 text-slate-600">
+                          <span>{l.category}</span>
+                          {l.itemType === "SPARE_PART" && (
+                            <span className="block text-[10px] text-amber-700 font-bold">
+                              ⚙️ Spare Part
+                            </span>
+                          )}
+                        </td>
+                        <td className="p-3.5 font-semibold text-slate-800">
+                          ₹{l.minPrice.toLocaleString("en-IN")} - ₹
+                          {l.maxPrice.toLocaleString("en-IN")}
+                        </td>
+                        <td className="p-3.5">
+                          <div className="font-semibold text-slate-900">
+                            {l.seller.name || l.seller.email}
+                          </div>
+                          <div className="text-[11px] text-teal-700 font-bold">
+                            {l.seller.phoneNumber || "No phone"}
+                          </div>
+                        </td>
+                        <td className="p-3.5 font-bold text-slate-700">
+                          {l._count?.inquiries || 0}
+                        </td>
+                        <td className="p-3.5">
+                          {l.isApproved ? (
+                            <div className="flex items-center space-x-2">
+                              <span className="inline-flex items-center space-x-1 text-[10px] font-bold bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded">
+                                <Check className="w-3 h-3" />
+                                <span>Approved</span>
+                              </span>
+                              <button
+                                type="button"
+                                onClick={() => handleToggleListingApproval(l.id, l.isApproved)}
+                                className="text-[10px] text-amber-700 bg-amber-50 hover:bg-amber-100 border border-amber-200 px-1.5 py-0.5 rounded font-semibold transition-colors"
+                              >
+                                Revoke
+                              </button>
+                            </div>
+                          ) : (
+                            <div className="flex items-center space-x-2">
+                              <span className="inline-flex items-center space-x-1 text-[10px] font-bold bg-amber-100 text-amber-800 px-2 py-0.5 rounded">
+                                <Clock className="w-3 h-3" />
+                                <span>Pending</span>
+                              </span>
+                              <button
+                                type="button"
+                                onClick={() => handleToggleListingApproval(l.id, l.isApproved)}
+                                className="text-[10px] text-white bg-emerald-600 hover:bg-emerald-700 px-2 py-0.5 rounded font-bold shadow-xs transition-colors"
+                              >
+                                Approve
+                              </button>
+                            </div>
+                          )}
+                        </td>
+                        <td className="p-3.5">
+                          <select
+                            value={l.status}
+                            onChange={(e) =>
+                              handleUpdateListingStatus(l.id, e.target.value)
+                            }
+                            className="text-xs font-semibold bg-slate-50 border border-slate-300 rounded px-2 py-1 text-slate-900"
+                          >
+                            <option value="AVAILABLE">AVAILABLE</option>
+                            <option value="PENDING">PENDING</option>
+                            <option value="SOLD">SOLD</option>
+                          </select>
+                        </td>
+                        <td className="p-3.5">
+                          <button
+                            type="button"
+                            onClick={() => handleDeleteListing(l.id, l.title)}
+                            className="inline-flex items-center space-x-1 text-[11px] font-bold text-rose-700 bg-rose-50 hover:bg-rose-100 border border-rose-200 px-2 py-1 rounded-lg transition-colors"
+                          >
+                            <Trash2 className="w-3.5 h-3.5 text-rose-600" />
+                            <span>Delete</span>
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
           </div>
         )}
 
@@ -1014,7 +1162,15 @@ export default function AdminDashboardPage() {
               </span>
             </div>
 
-            <div className="overflow-x-auto">
+            {tabLoading ? (
+              <div className="p-16 text-center flex flex-col items-center justify-center space-y-3">
+                <div className="w-7 h-7 border-3 border-teal-600 border-t-transparent rounded-full animate-spin" />
+                <span className="text-xs text-slate-500 font-semibold">
+                  Loading buyer requests...
+                </span>
+              </div>
+            ) : (
+              <div className="overflow-x-auto">
               <table className="w-full text-left text-xs">
                 <thead className="bg-slate-50 border-b border-slate-200 text-slate-500 uppercase font-semibold">
                   <tr>
@@ -1123,8 +1279,9 @@ export default function AdminDashboardPage() {
                 </tbody>
               </table>
             </div>
-          </div>
-        )}
+          )}
+        </div>
+      )}
       </div>
     </div>
   );
