@@ -50,6 +50,9 @@ const COMMON_PART_CATEGORIES = [
   "HPLC & UHPLC",
   "GC & GC-MS",
   "UV-Vis & FTIR",
+  "AAS",
+  "ICP-OES & ICP-MS",
+  "DSC-TGA & DMA",
   "Spare Parts & Consumables",
   "Other Lab Equipment",
 ];
