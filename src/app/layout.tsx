@@ -18,6 +18,14 @@ export const metadata: Metadata = {
   title: "LabMatrix | Marketplace for Used Analytical & Pharma Testing Equipment",
   description:
     "Brokered marketplace for pre-owned HPLC, GC, Spectrophotometers, Dissolution testers and analytical lab equipment. Full privacy, verified intermediation.",
+  icons: {
+    icon: [
+      { url: "/favicon.png", type: "image/png" },
+      { url: "/fav.png", sizes: "32x32", type: "image/png" },
+    ],
+    shortcut: "/favicon.png",
+    apple: "/favicon.png",
+  },
 };
 
 export default function RootLayout({

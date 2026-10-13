@@ -4,6 +4,7 @@ import React, { useState } from "react";
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import Image from "next/image";
 import {
   ArrowRight,
   Lock,
@@ -91,13 +92,17 @@ export default function SignUpPage() {
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
-        <div className="flex justify-center items-center space-x-2">
-          <div className="w-10 h-10 rounded-lg bg-teal-600 flex items-center justify-center text-white font-bold text-xl shadow-md">
-            LM
-          </div>
-          <span className="text-2xl font-black tracking-tight text-slate-900">
-            LabMatrix
-          </span>
+        <div className="flex justify-center items-center">
+          <Link href="/">
+            <Image
+              src="/logo.png"
+              alt="Labmatrix - Keeping Science Ahead"
+              width={220}
+              height={46}
+              priority
+              className="h-12 w-auto object-contain hover:opacity-95 transition-opacity"
+            />
+          </Link>
         </div>
         <h2 className="mt-4 text-center text-2xl font-bold tracking-tight text-slate-800">
           Create your account

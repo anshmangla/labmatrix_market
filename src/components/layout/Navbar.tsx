@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { useSession, signOut } from "next-auth/react";
 import {
   Shield,
@@ -26,18 +27,15 @@ export default function Navbar() {
         <div className="flex items-center justify-between h-16">
           {/* Brand */}
           <div className="flex items-center space-x-3">
-            <Link href="/" className="flex items-center space-x-2.5 group">
-              <div className="w-9 h-9 rounded-xl bg-teal-600 flex items-center justify-center text-white font-bold text-lg shadow-sm group-hover:bg-teal-700 transition-colors">
-                LM
-              </div>
-              <div className="flex flex-col">
-                <span className="text-xl font-black tracking-tight text-slate-900 leading-none">
-                  LabMatrix
-                </span>
-                <span className="text-[10px] uppercase font-bold tracking-wider text-teal-600 mt-0.5">
-                  Analytical & Pharma
-                </span>
-              </div>
+            <Link href="/" className="flex items-center group py-1">
+              <Image
+                src="/logo.png"
+                alt="Labmatrix - Keeping Science Ahead"
+                width={180}
+                height={38}
+                priority
+                className="h-9 sm:h-10 w-auto object-contain transition-transform group-hover:scale-[1.02]"
+              />
             </Link>
           </div>
 
