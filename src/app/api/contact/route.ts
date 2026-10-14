@@ -1,13 +1,42 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { sendContactEmail } from "@/lib/resend";
 
-export async function POST(req: Request) {
+export async function OPTIONS() {
+  return new NextResponse(null, {
+    status: 200,
+    headers: {
+      "Access-Control-Allow-Origin": "*",
+      "Access-Control-Allow-Methods": "POST, OPTIONS",
+      "Access-Control-Allow-Headers": "Content-Type, Authorization",
+    },
+  });
+}
+
+export async function POST(req: NextRequest) {
   try {
-    const body = await req.json();
+    // 1. Safely parse incoming payload body
+    let body: any;
+    try {
+      const rawText = await req.text();
+      if (!rawText || !rawText.trim()) {
+        return NextResponse.json(
+          { error: "Inquiry submission is empty. Please fill in the required fields." },
+          { status: 400 }
+        );
+      }
+      body = JSON.parse(rawText);
+    } catch (parseErr: any) {
+      console.warn("[Contact API] Malformed JSON received:", parseErr?.message);
+      return NextResponse.json(
+        { error: "Invalid data format received. Please refresh the page and try submitting again." },
+        { status: 400 }
+      );
+    }
+
     const { name, email, phone, company, subject, message } = body;
 
-    // 1. Validation
+    // 2. Validation
     if (!name || typeof name !== "string" || name.trim().length < 2) {
       return NextResponse.json(
         { error: "Please enter your full name." },
@@ -56,37 +85,45 @@ export async function POST(req: Request) {
       message: message.trim(),
     };
 
-    // 2. Dispatch email via Resend
+    // 3. Dispatch email via Resend
     const emailResult = await sendContactEmail(cleanPayload);
 
-    // 3. Notify all platform administrators in database (if any exist)
-    try {
-      const admins = await prisma.user.findMany({
+    // 4. Notify platform administrators in background (non-blocking)
+    prisma.user
+      .findMany({
         where: { role: "ADMIN" },
         select: { id: true },
+      })
+      .then(async (admins) => {
+        if (admins.length > 0) {
+          await prisma.notification.createMany({
+            data: admins.map((admin) => ({
+              userId: admin.id,
+              title: `New Website Inquiry: ${cleanPayload.subject}`,
+              message: `${cleanPayload.name} (${cleanPayload.phone}) sent a message: "${cleanPayload.message.slice(0, 100)}..."`,
+              type: "CONTACT_INQUIRY",
+              link: "/admin",
+            })),
+          });
+        }
+      })
+      .catch((dbErr) => {
+        console.warn("[Contact API] Could not write admin notification:", dbErr?.message || dbErr);
       });
 
-      if (admins.length > 0) {
-        await prisma.notification.createMany({
-          data: admins.map((admin) => ({
-            userId: admin.id,
-            title: `New Website Inquiry: ${cleanPayload.subject}`,
-            message: `${cleanPayload.name} (${cleanPayload.phone}) sent a message: "${cleanPayload.message.slice(0, 100)}..."`,
-            type: "CONTACT_INQUIRY",
-            link: "/admin",
-          })),
-        });
+    return NextResponse.json(
+      {
+        success: true,
+        message:
+          "Thank you! Your inquiry has been dispatched to LabMatrix Instrument India. Our team will contact you shortly.",
+        emailDelivered: emailResult.success,
+      },
+      {
+        headers: {
+          "Access-Control-Allow-Origin": "*",
+        },
       }
-    } catch (dbErr) {
-      console.warn("[Contact API] Could not write admin notification:", dbErr);
-    }
-
-    return NextResponse.json({
-      success: true,
-      message:
-        "Thank you! Your inquiry has been dispatched to LabMatrix Instrument India. Our team will contact you shortly.",
-      emailDelivered: emailResult.success,
-    });
+    );
   } catch (error: any) {
     console.error("[Contact API Error]:", error);
     return NextResponse.json(

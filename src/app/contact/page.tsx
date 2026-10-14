@@ -41,6 +41,7 @@ export default function ContactPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (loading) return;
     setError("");
     setLoading(true);
 
@@ -49,19 +50,27 @@ export default function ContactPage() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          name,
-          email,
-          phone,
-          company,
+          name: name.trim(),
+          email: email.trim(),
+          phone: phone.trim(),
+          company: company.trim(),
           subject,
-          message,
+          message: message.trim(),
         }),
       });
 
-      const data = await res.json();
+      let data: any = {};
+      try {
+        data = await res.json();
+      } catch {
+        // Fallback for non-JSON responses
+      }
 
       if (!res.ok) {
-        throw new Error(data.error || "Failed to submit message");
+        throw new Error(
+          data?.error ||
+          `Submission failed (${res.status}). Please try again or reach our hotline directly at +91 7303040804.`
+        );
       }
 
       setSuccess(true);
@@ -71,7 +80,13 @@ export default function ContactPage() {
       setCompany("");
       setMessage("");
     } catch (err: any) {
-      setError(err.message || "An unexpected error occurred. Please try again.");
+      if (err?.name === "TypeError" || err?.message?.toLowerCase().includes("networkerror") || err?.message?.toLowerCase().includes("failed to fetch")) {
+        setError(
+          "Connection issue detected. If you are browsing on an unencrypted HTTP link, please switch to https://surplus.labmatrixindia.com/contact or check your connection."
+        );
+      } else {
+        setError(err.message || "An unexpected error occurred. Please try again.");
+      }
     } finally {
       setLoading(false);
     }
