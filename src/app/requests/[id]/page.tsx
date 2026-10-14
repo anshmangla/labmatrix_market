@@ -1,6 +1,7 @@
 import React from "react";
 import { notFound } from "next/navigation";
 import Link from "next/link";
+import type { Metadata } from "next";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import InquiryBox from "@/components/inquiries/InquiryBox";
@@ -14,6 +15,60 @@ import {
 } from "lucide-react";
 
 export const dynamic = "force-dynamic";
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}): Promise<Metadata> {
+  const { id } = await params;
+  const req = await prisma.requirement.findUnique({
+    where: { id },
+    select: {
+      title: true,
+      description: true,
+      category: true,
+      itemType: true,
+      isApproved: true,
+    },
+  });
+
+  if (!req || !req.isApproved) {
+    return {
+      title: "Sourcing Requirement",
+      description: "Buyer requirement for laboratory equipment on LabMatrix.",
+    };
+  }
+
+  const title = `Wanted: ${req.title} (${req.category}) | Buyer Requirement`;
+  const desc = `Buyer sourcing request for ${req.title}. Category: ${req.category}. Have this equipment or spare part available? Connect and submit your offer on LabMatrix Marketplace.`;
+
+  return {
+    title,
+    description: desc,
+    alternates: {
+      canonical: `/requests/${id}`,
+    },
+    openGraph: {
+      title,
+      description: desc,
+      url: `/requests/${id}`,
+      type: "website",
+      images: [
+        {
+          url: "/logo.png",
+          alt: req.title,
+        },
+      ],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description: desc,
+      images: ["/logo.png"],
+    },
+  };
+}
 
 export default async function RequirementDetailPage({
   params,
@@ -53,8 +108,37 @@ export default async function RequirementDetailPage({
     notFound();
   }
 
+  const breadcrumbJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      {
+        "@type": "ListItem",
+        position: 1,
+        name: "Home",
+        item: "https://surplus.labmatrixindia.com",
+      },
+      {
+        "@type": "ListItem",
+        position: 2,
+        name: "Buyer Requests",
+        item: "https://surplus.labmatrixindia.com/requests",
+      },
+      {
+        "@type": "ListItem",
+        position: 3,
+        name: req.title,
+        item: `https://surplus.labmatrixindia.com/requests/${req.id}`,
+      },
+    ],
+  };
+
   return (
     <div className="min-h-screen bg-slate-50 py-10 px-4 sm:px-6 lg:px-8">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
+      />
       <div className="max-w-7xl mx-auto">
         {/* Breadcrumb */}
         <div className="mb-6 flex items-center space-x-2 text-xs font-semibold text-slate-500">

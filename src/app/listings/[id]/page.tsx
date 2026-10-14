@@ -1,6 +1,7 @@
 import React from "react";
 import { notFound } from "next/navigation";
 import Link from "next/link";
+import type { Metadata } from "next";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import PhotoGallery from "@/components/listings/PhotoGallery";
@@ -17,6 +18,66 @@ import {
 } from "lucide-react";
 
 export const dynamic = "force-dynamic";
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}): Promise<Metadata> {
+  const { id } = await params;
+  const listing = await prisma.listing.findUnique({
+    where: { id },
+    select: {
+      title: true,
+      description: true,
+      category: true,
+      condition: true,
+      minPrice: true,
+      maxPrice: true,
+      photos: true,
+      location: true,
+      isApproved: true,
+    },
+  });
+
+  if (!listing || !listing.isApproved) {
+    return {
+      title: "Equipment Listing",
+      description: "Pre-owned laboratory analytical instrument on LabMatrix.",
+    };
+  }
+
+  const title = `${listing.title} | Used & Refurbished ${listing.category}`;
+  const desc = `Buy verified pre-owned ${listing.title} in ${listing.location || "India"}. Condition: ${listing.condition || "Used"}. Approx Price: ₹${listing.minPrice.toLocaleString("en-IN")} - ₹${listing.maxPrice.toLocaleString("en-IN")}. Contact LabMatrix for inspection and quotations.`;
+  const image =
+    listing.photos && listing.photos.length > 0 ? listing.photos[0] : "/logo.png";
+
+  return {
+    title,
+    description: desc,
+    alternates: {
+      canonical: `/listings/${id}`,
+    },
+    openGraph: {
+      title,
+      description: desc,
+      url: `/listings/${id}`,
+      type: "website",
+      images: [
+        {
+          url: image,
+          alt: listing.title,
+        },
+      ],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description: desc,
+      images: [image],
+    },
+  };
+}
 
 export default async function ListingDetailPage({
   params,
@@ -61,8 +122,77 @@ export default async function ListingDetailPage({
     notFound();
   }
 
+  const productJsonLd = {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "Product",
+        "@id": `https://surplus.labmatrixindia.com/listings/${listing.id}#product`,
+        name: listing.title,
+        description: listing.description.slice(0, 300),
+        category: listing.category,
+        image:
+          listing.photos && listing.photos.length > 0
+            ? listing.photos
+            : ["https://surplus.labmatrixindia.com/logo.png"],
+        itemCondition: listing.condition?.toLowerCase().includes("refurbished")
+          ? "https://schema.org/RefurbishedCondition"
+          : "https://schema.org/UsedCondition",
+        offers: {
+          "@type": "AggregateOffer",
+          priceCurrency: "INR",
+          lowPrice: listing.minPrice,
+          highPrice: listing.maxPrice,
+          offerCount: "1",
+          priceValidUntil: new Date(Date.now() + 60 * 24 * 60 * 60 * 1000)
+            .toISOString()
+            .split("T")[0],
+          availability: "https://schema.org/InStock",
+          seller: {
+            "@type": "Organization",
+            name: "LabMatrix Instrument India Pvt Ltd",
+            url: "https://surplus.labmatrixindia.com",
+          },
+        },
+      },
+      {
+        "@type": "BreadcrumbList",
+        itemListElement: [
+          {
+            "@type": "ListItem",
+            position: 1,
+            name: "Home",
+            item: "https://surplus.labmatrixindia.com",
+          },
+          {
+            "@type": "ListItem",
+            position: 2,
+            name: "Equipment",
+            item: "https://surplus.labmatrixindia.com/listings",
+          },
+          {
+            "@type": "ListItem",
+            position: 3,
+            name: listing.category,
+            item: `https://surplus.labmatrixindia.com/listings?category=${encodeURIComponent(listing.category)}`,
+          },
+          {
+            "@type": "ListItem",
+            position: 4,
+            name: listing.title,
+            item: `https://surplus.labmatrixindia.com/listings/${listing.id}`,
+          },
+        ],
+      },
+    ],
+  };
+
   return (
     <div className="min-h-screen bg-slate-50 py-10 px-4 sm:px-6 lg:px-8">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(productJsonLd) }}
+      />
       <div className="max-w-7xl mx-auto">
         {/* Breadcrumb Navigation */}
         <div className="mb-6 flex items-center space-x-2 text-xs font-semibold text-slate-500">
