@@ -14,6 +14,9 @@ import {
   FlaskConical,
   Gauge,
   Microscope,
+  Flame,
+  Sparkles,
+  Thermometer,
 } from "lucide-react";
 
 export default function Home() {
@@ -21,9 +24,9 @@ export default function Home() {
     { name: "HPLC & UHPLC", count: "Chromatography", icon: Gauge },
     { name: "GC & GC-MS", count: "Gas Systems", icon: FlaskConical },
     { name: "UV-Vis & FTIR", count: "Spectroscopy", icon: Microscope },
-    { name: "Dissolution Testers", count: "Pharma QA/QC", icon: Layers },
-    { name: "Stability Chambers", count: "Environmental", icon: Cpu },
-    { name: "Particle Analyzers", count: "Physical Testing", icon: Gauge },
+    { name: "AAS", count: "Atomic Absorption", icon: Flame },
+    { name: "ICP-OES & ICP-MS", count: "Plasma Spectroscopy", icon: Sparkles },
+    { name: "DSC-TGA & DMA", count: "Thermal Analysis", icon: Thermometer },
   ];
 
   return (
@@ -141,7 +144,7 @@ export default function Home() {
                   Quality Testing Equipment
                 </h3>
                 <p className="text-xs text-slate-600 mt-1 leading-relaxed">
-                  Access premium chromatography, spectroscopy, dissolution systems, and
+                  Access premium chromatography, spectroscopy, elemental & thermal analysis systems, and
                   genuine consumables from global industry leaders.
                 </p>
               </div>
