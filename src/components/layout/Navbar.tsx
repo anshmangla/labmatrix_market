@@ -5,18 +5,23 @@ import Link from "next/link";
 import Image from "next/image";
 import { useSession, signOut } from "next-auth/react";
 import {
-  Shield,
-  PlusCircle,
-  LogIn,
-  LogOut,
-  User,
   Menu,
   X,
+  LogIn,
+  UserPlus,
+  Tag,
   FileQuestion,
   LayoutDashboard,
-  Wrench,
+  Shield,
+  LogOut,
+  ChevronRight,
+  Package,
+  FileText,
+  MessageSquare,
 } from "lucide-react";
 import { NotificationBell } from "./NotificationBell";
+import UserMenu from "./UserMenu";
+import PostActionMenu from "./PostActionMenu";
 
 export default function Navbar() {
   const { data: session, status } = useSession();
@@ -26,134 +31,96 @@ export default function Navbar() {
     <header className="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-slate-200 shadow-xs">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
-          {/* Brand */}
-          <div className="flex items-center space-x-3">
+          {/* Brand Logo */}
+          <div className="flex items-center space-x-3 flex-shrink-0">
             <Link href="/" className="flex items-center group py-1">
               <Image
                 src="/logo.png"
                 alt="Labmatrix - Keeping Science Ahead"
-                width={180}
-                height={38}
+                width={170}
+                height={36}
                 priority
-                className="h-9 sm:h-10 w-auto object-contain transition-transform group-hover:scale-[1.02]"
+                className="h-8 sm:h-9 w-auto object-contain transition-transform group-hover:scale-[1.02]"
               />
             </Link>
           </div>
 
-          {/* Desktop Nav links */}
-          <nav className="hidden md:flex items-center space-x-1 lg:space-x-2 text-sm font-medium text-slate-600">
+          {/* Desktop Primary Navigation Links */}
+          <nav className="hidden md:flex items-center space-x-1 lg:space-x-3 text-sm font-semibold text-slate-600">
             <Link
               href="/listings"
-              className="px-3 py-2 rounded-lg hover:text-brand-blue hover:bg-brand-blue-50/60 transition-colors"
+              className="px-3 py-2 rounded-xl hover:text-brand-blue hover:bg-slate-100/70 transition-colors"
             >
               Browse Equipment
             </Link>
             <Link
               href="/spare-parts"
-              className="px-3 py-2 rounded-lg hover:text-brand-blue hover:bg-brand-blue-50/60 transition-colors flex items-center space-x-1"
+              className="px-3 py-2 rounded-xl hover:text-brand-blue hover:bg-slate-100/70 transition-colors"
             >
-              <Wrench className="w-3.5 h-3.5 text-brand-blue" />
-              <span>Spare Parts & Consumables</span>
+              Spare Parts
             </Link>
             <Link
               href="/requests"
-              className="px-3 py-2 rounded-lg hover:text-brand-blue hover:bg-brand-blue-50/60 transition-colors"
+              className="px-3 py-2 rounded-xl hover:text-brand-blue hover:bg-slate-100/70 transition-colors"
             >
               Buyer Requests
             </Link>
             <Link
               href="/#how-it-works"
-              className="px-3 py-2 rounded-lg hover:text-brand-blue hover:bg-brand-blue-50/60 transition-colors flex items-center space-x-1"
+              className="px-3 py-2 rounded-xl hover:text-brand-blue hover:bg-slate-100/70 transition-colors"
             >
-              <Shield className="w-3.5 h-3.5 text-brand-gold-600" />
-              <span>How It Works</span>
+              How It Works
             </Link>
             <Link
               href="/contact"
-              className="px-3 py-2 rounded-lg hover:text-brand-blue hover:bg-brand-blue-50/60 transition-colors"
+              className="px-3 py-2 rounded-xl hover:text-brand-blue hover:bg-slate-100/70 transition-colors"
             >
               Contact
             </Link>
-            <Link
-              href="/listings/create"
-              className="px-3.5 py-2 rounded-xl text-brand-blue bg-brand-gold hover:bg-brand-gold-300 font-bold shadow-xs hover:shadow-sm transition-all flex items-center space-x-1.5"
-            >
-              <PlusCircle className="w-4 h-4 text-brand-blue" />
-              <span>List Machine</span>
-            </Link>
-            <Link
-              href="/requests/create"
-              className="px-3 py-2 rounded-xl text-brand-blue bg-brand-blue-50 hover:bg-brand-blue-100 font-semibold transition-colors"
-            >
-              + Post Request
-            </Link>
           </nav>
 
-          {/* Desktop Right Action Buttons & Auth */}
+          {/* Desktop Actions & User Controls */}
           <div className="hidden md:flex items-center space-x-3">
+            {/* Primary Unified CTA */}
+            <PostActionMenu />
+
+            {/* Auth / Profile Area */}
             {status === "loading" ? (
-              <div className="h-8 w-20 bg-slate-100 rounded-lg animate-pulse" />
+              <div className="h-8 w-24 bg-slate-100 rounded-full animate-pulse" />
             ) : session?.user ? (
-              <div className="flex items-center space-x-3">
+              <div className="flex items-center space-x-2.5">
                 <NotificationBell />
-
-                {(session.user as any)?.role === "ADMIN" && (
-                  <Link
-                    href="/admin"
-                    className="inline-flex items-center space-x-1.5 text-xs font-bold bg-brand-blue-900 text-white hover:bg-brand-blue-800 border border-brand-gold/30 px-3 py-1.5 rounded-full transition-colors shadow-xs"
-                  >
-                    <Shield className="w-3 h-3 text-brand-gold" />
-                    <span>Admin Desk</span>
-                  </Link>
-                )}
-
-                <Link
-                  href="/dashboard"
-                  className="flex items-center space-x-2 text-xs font-semibold text-slate-700 hover:text-brand-blue bg-slate-100 hover:bg-brand-blue-50/80 px-3 py-1.5 rounded-full border border-slate-200 transition-colors"
-                  title="Open Dashboard"
-                >
-                  <User className="w-3.5 h-3.5 text-brand-blue" />
-                  <span className="max-w-[120px] truncate">
-                    {session.user.name || session.user.email}
-                  </span>
-                </Link>
-
-                <button
-                  onClick={() => signOut({ callbackUrl: "/" })}
-                  className="inline-flex items-center space-x-1 text-xs font-semibold text-slate-600 hover:text-red-600 px-2.5 py-1.5 rounded-lg hover:bg-red-50 transition-colors"
-                  title="Sign out"
-                >
-                  <LogOut className="w-4 h-4" />
-                  <span className="hidden lg:inline">Sign out</span>
-                </button>
+                <UserMenu user={session.user} />
               </div>
             ) : (
-              <div className="flex items-center space-x-2">
+              <div className="flex items-center space-x-2 pl-1">
                 <Link
                   href="/auth/signin"
-                  className="inline-flex items-center space-x-1.5 px-3 py-2 rounded-xl text-xs font-bold text-slate-700 hover:bg-slate-100 transition-colors"
+                  className="inline-flex items-center space-x-1 px-3 py-1.5 rounded-xl text-xs font-bold text-slate-700 hover:text-brand-blue hover:bg-slate-100 transition-colors"
                 >
-                  <LogIn className="w-4 h-4 text-slate-500" />
+                  <LogIn className="w-3.5 h-3.5 text-slate-500" />
                   <span>Sign In</span>
                 </Link>
                 <Link
                   href="/auth/signup"
-                  className="inline-flex items-center space-x-1.5 px-3.5 py-2 rounded-xl text-xs font-bold text-white bg-brand-blue hover:bg-brand-blue-500 shadow-xs transition-all"
+                  className="inline-flex items-center space-x-1 px-3.5 py-1.5 rounded-xl text-xs font-bold text-white bg-brand-blue hover:bg-brand-blue-500 shadow-xs transition-all"
                 >
+                  <UserPlus className="w-3.5 h-3.5" />
                   <span>Register</span>
                 </Link>
               </div>
             )}
           </div>
 
-          {/* Mobile Actions: Notifications & Hamburger Button */}
+          {/* Mobile Right Controls: Bell + Hamburger Button */}
           <div className="flex items-center space-x-1 md:hidden">
             {session?.user && <NotificationBell />}
             <button
               type="button"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="p-2 rounded-xl text-slate-600 hover:text-slate-900 hover:bg-slate-100"
-              aria-label="Toggle menu"
+              className="p-2 rounded-xl text-slate-700 hover:text-brand-blue hover:bg-slate-100 transition-colors"
+              aria-label="Toggle navigation menu"
+              aria-expanded={mobileMenuOpen}
             >
               {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
             </button>
@@ -163,117 +130,198 @@ export default function Navbar() {
 
       {/* Mobile Drawer Menu */}
       {mobileMenuOpen && (
-        <div className="md:hidden border-t border-slate-200 bg-white px-4 pt-3 pb-6 space-y-3 shadow-lg">
-          <nav className="flex flex-col space-y-1 text-sm font-semibold text-slate-700">
-            <Link
-              href="/listings"
-              onClick={() => setMobileMenuOpen(false)}
-              className="px-3 py-2.5 rounded-xl hover:bg-brand-blue-50/70 hover:text-brand-blue flex items-center justify-between"
-            >
-              <span>Browse Equipment</span>
-            </Link>
-            <Link
-              href="/spare-parts"
-              onClick={() => setMobileMenuOpen(false)}
-              className="px-3 py-2.5 rounded-xl hover:bg-brand-blue-50/70 flex items-center space-x-2 text-brand-blue font-semibold"
-            >
-              <Wrench className="w-4 h-4 text-brand-blue" />
-              <span>Spare Parts & Consumables</span>
-            </Link>
-            <Link
-              href="/requests"
-              onClick={() => setMobileMenuOpen(false)}
-              className="px-3 py-2.5 rounded-xl hover:bg-brand-blue-50/70 hover:text-brand-blue flex items-center justify-between"
-            >
-              <span>Buyer Requests</span>
-            </Link>
-            <Link
-              href="/#how-it-works"
-              onClick={() => setMobileMenuOpen(false)}
-              className="px-3 py-2.5 rounded-xl hover:bg-brand-blue-50/70 flex items-center space-x-2"
-            >
-              <Shield className="w-4 h-4 text-brand-gold-600" />
-              <span>How It Works</span>
-            </Link>
-            <Link
-              href="/contact"
-              onClick={() => setMobileMenuOpen(false)}
-              className="px-3 py-2.5 rounded-xl hover:bg-brand-blue-50/70 hover:text-brand-blue flex items-center justify-between"
-            >
-              <span>Contact Us</span>
-            </Link>
+        <div className="md:hidden border-t border-slate-200 bg-white px-4 pt-3 pb-6 space-y-4 shadow-xl max-h-[calc(100vh-4rem)] overflow-y-auto animate-in slide-in-from-top-2 duration-150">
+          {/* Quick Action Banners: Buy vs Sell */}
+          <div className="grid grid-cols-2 gap-2 pt-1">
             <Link
               href="/listings/create"
               onClick={() => setMobileMenuOpen(false)}
-              className="px-3 py-2.5 rounded-xl bg-brand-gold text-brand-blue font-bold flex items-center space-x-2 shadow-xs"
+              className="flex flex-col items-center justify-center text-center p-3 rounded-2xl bg-brand-gold/20 hover:bg-brand-gold/30 border border-brand-gold/50 transition-colors group"
             >
-              <PlusCircle className="w-4 h-4 text-brand-blue" />
-              <span>List a Surplus Machine</span>
+              <div className="w-8 h-8 rounded-xl bg-brand-gold text-brand-blue flex items-center justify-center mb-1.5 shadow-xs">
+                <Tag className="w-4 h-4 text-brand-blue" />
+              </div>
+              <span className="text-xs font-black text-brand-blue">Sell Equipment</span>
+              <span className="text-[10px] text-slate-600 mt-0.5">List Machines & Spares</span>
             </Link>
+
             <Link
               href="/requests/create"
               onClick={() => setMobileMenuOpen(false)}
-              className="px-3 py-2.5 rounded-xl bg-brand-blue-50 text-brand-blue font-semibold flex items-center space-x-2"
+              className="flex flex-col items-center justify-center text-center p-3 rounded-2xl bg-brand-blue-50/80 hover:bg-brand-blue-100/80 border border-brand-blue-200/80 transition-colors group"
             >
-              <FileQuestion className="w-4 h-4 text-brand-blue" />
-              <span>Post Machine Wanted</span>
+              <div className="w-8 h-8 rounded-xl bg-brand-blue text-white flex items-center justify-center mb-1.5 shadow-xs">
+                <FileQuestion className="w-4 h-4 text-white" />
+              </div>
+              <span className="text-xs font-black text-brand-blue">Post Wanted</span>
+              <span className="text-[10px] text-slate-600 mt-0.5">Request a Machine</span>
             </Link>
+          </div>
 
-            {session?.user && (
+          {/* Section 1: Explore & Source */}
+          <div>
+            <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 px-3 block mb-1">
+              Marketplace Exploration
+            </span>
+            <nav className="flex flex-col space-y-0.5 text-sm font-semibold text-slate-700">
               <Link
-                href="/dashboard"
+                href="/listings"
                 onClick={() => setMobileMenuOpen(false)}
-                className="px-3 py-2.5 rounded-xl hover:bg-brand-blue-50 flex items-center space-x-2"
+                className="px-3 py-2 rounded-xl hover:bg-slate-50 hover:text-brand-blue flex items-center justify-between"
               >
-                <LayoutDashboard className="w-4 h-4 text-brand-blue" />
-                <span>My Dashboard</span>
+                <span>Browse Equipment</span>
+                <ChevronRight className="w-4 h-4 text-slate-300" />
               </Link>
-            )}
-
-            {(session?.user as any)?.role === "ADMIN" && (
               <Link
-                href="/admin"
+                href="/spare-parts"
                 onClick={() => setMobileMenuOpen(false)}
-                className="px-3 py-2.5 rounded-xl bg-brand-blue-900 text-white flex items-center space-x-2 border border-brand-gold/30"
+                className="px-3 py-2 rounded-xl hover:bg-slate-50 hover:text-brand-blue flex items-center justify-between"
               >
-                <Shield className="w-4 h-4 text-brand-gold" />
-                <span>Admin Deal Desk</span>
+                <span>Spare Parts & Consumables</span>
+                <ChevronRight className="w-4 h-4 text-slate-300" />
               </Link>
-            )}
-          </nav>
+              <Link
+                href="/requests"
+                onClick={() => setMobileMenuOpen(false)}
+                className="px-3 py-2 rounded-xl hover:bg-slate-50 hover:text-brand-blue flex items-center justify-between"
+              >
+                <span>Buyer Requests Board</span>
+                <ChevronRight className="w-4 h-4 text-slate-300" />
+              </Link>
+            </nav>
+          </div>
 
+          {/* Section 2: Support & Company */}
+          <div>
+            <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 px-3 block mb-1">
+              Assurance & Desk
+            </span>
+            <nav className="flex flex-col space-y-0.5 text-sm font-semibold text-slate-700">
+              <Link
+                href="/#how-it-works"
+                onClick={() => setMobileMenuOpen(false)}
+                className="px-3 py-2 rounded-xl hover:bg-slate-50 hover:text-brand-blue flex items-center justify-between"
+              >
+                <span>How It Works</span>
+                <ChevronRight className="w-4 h-4 text-slate-300" />
+              </Link>
+              <Link
+                href="/contact"
+                onClick={() => setMobileMenuOpen(false)}
+                className="px-3 py-2 rounded-xl hover:bg-slate-50 hover:text-brand-blue flex items-center justify-between"
+              >
+                <span>Contact Corporate Desk</span>
+                <ChevronRight className="w-4 h-4 text-slate-300" />
+              </Link>
+            </nav>
+          </div>
+
+          {/* Section 3: User Account & Session */}
           <div className="pt-3 border-t border-slate-100">
             {session?.user ? (
-              <div className="flex items-center justify-between pt-1">
-                <span className="text-xs text-slate-600 truncate max-w-[200px]">
-                  {session.user.email}
-                </span>
-                <button
-                  onClick={() => {
-                    setMobileMenuOpen(false);
-                    signOut({ callbackUrl: "/" });
-                  }}
-                  className="text-xs font-bold text-red-600 hover:underline flex items-center space-x-1"
-                >
-                  <LogOut className="w-3.5 h-3.5" />
-                  <span>Sign out</span>
-                </button>
+              <div className="space-y-2">
+                {/* User Info Header Card */}
+                <div className="p-3 bg-slate-50 rounded-2xl flex items-center justify-between border border-slate-200/60">
+                  <div className="min-w-0 pr-2">
+                    <p className="text-xs font-bold text-slate-900 truncate">
+                      {session.user.name || "Lab User"}
+                    </p>
+                    <p className="text-[11px] text-slate-500 truncate">
+                      {session.user.email}
+                    </p>
+                  </div>
+                  {(session.user as any)?.role === "ADMIN" ? (
+                    <span className="text-[10px] font-bold bg-brand-blue-900 text-brand-gold px-2 py-0.5 rounded-md flex-shrink-0">
+                      Admin
+                    </span>
+                  ) : (
+                    <span className="text-[10px] font-bold bg-emerald-50 text-emerald-700 px-2 py-0.5 rounded-md flex-shrink-0">
+                      Member
+                    </span>
+                  )}
+                </div>
+
+                {/* Account Links */}
+                <div className="space-y-0.5 text-xs font-semibold text-slate-700">
+                  <Link
+                    href="/dashboard"
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="px-3 py-2 rounded-xl hover:bg-slate-50 flex items-center space-x-2.5"
+                  >
+                    <LayoutDashboard className="w-4 h-4 text-slate-400" />
+                    <span>Dashboard Overview</span>
+                  </Link>
+
+                  <Link
+                    href="/dashboard?tab=listings"
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="px-3 py-2 rounded-xl hover:bg-slate-50 flex items-center space-x-2.5"
+                  >
+                    <Package className="w-4 h-4 text-slate-400" />
+                    <span>My Listed Equipment</span>
+                  </Link>
+
+                  <Link
+                    href="/dashboard?tab=requests"
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="px-3 py-2 rounded-xl hover:bg-slate-50 flex items-center space-x-2.5"
+                  >
+                    <FileText className="w-4 h-4 text-slate-400" />
+                    <span>My Sourcing Requirements</span>
+                  </Link>
+
+                  <Link
+                    href="/dashboard?tab=inquiries"
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="px-3 py-2 rounded-xl hover:bg-slate-50 flex items-center space-x-2.5"
+                  >
+                    <MessageSquare className="w-4 h-4 text-slate-400" />
+                    <span>Inquiries & Messages</span>
+                  </Link>
+
+                  {(session.user as any)?.role === "ADMIN" && (
+                    <Link
+                      href="/admin"
+                      onClick={() => setMobileMenuOpen(false)}
+                      className="px-3 py-2 rounded-xl bg-brand-blue-900 text-white flex items-center space-x-2.5 border border-brand-gold/30 font-bold"
+                    >
+                      <Shield className="w-4 h-4 text-brand-gold" />
+                      <span>Admin Deal Desk</span>
+                    </Link>
+                  )}
+                </div>
+
+                <div className="pt-2">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setMobileMenuOpen(false);
+                      signOut({ callbackUrl: "/" });
+                    }}
+                    className="w-full flex items-center justify-center space-x-1.5 py-2.5 px-3 rounded-xl text-xs font-bold text-red-600 bg-red-50/70 hover:bg-red-100/70 transition-colors"
+                  >
+                    <LogOut className="w-4 h-4 text-red-500" />
+                    <span>Sign Out</span>
+                  </button>
+                </div>
               </div>
             ) : (
               <div className="grid grid-cols-2 gap-2 pt-1">
                 <Link
                   href="/auth/signin"
                   onClick={() => setMobileMenuOpen(false)}
-                  className="w-full py-2.5 text-center text-xs font-bold border border-slate-300 rounded-xl text-slate-700 hover:bg-slate-50"
+                  className="w-full py-2.5 text-center text-xs font-bold border border-slate-300 rounded-xl text-slate-700 hover:bg-slate-50 flex items-center justify-center space-x-1"
                 >
-                  Sign In
+                  <LogIn className="w-3.5 h-3.5 text-slate-500" />
+                  <span>Sign In</span>
                 </Link>
                 <Link
                   href="/auth/signup"
                   onClick={() => setMobileMenuOpen(false)}
-                  className="w-full py-2.5 text-center text-xs font-bold bg-brand-blue text-white rounded-xl hover:bg-brand-blue-500 shadow-xs"
+                  className="w-full py-2.5 text-center text-xs font-bold bg-brand-blue text-white rounded-xl hover:bg-brand-blue-500 shadow-xs flex items-center justify-center space-x-1"
                 >
-                  Register
+                  <UserPlus className="w-3.5 h-3.5" />
+                  <span>Register</span>
                 </Link>
               </div>
             )}
