@@ -42,7 +42,14 @@ export async function GET(
 
     // If listing is not approved yet, only the seller or an admin can view it
     const isOwner = session?.user?.id === listing.sellerId;
-    const isAdmin = (session?.user as any)?.role === "ADMIN";
+    let isAdmin = false;
+    if (session?.user?.id) {
+      const user = await prisma.user.findUnique({
+        where: { id: session.user.id },
+        select: { role: true },
+      });
+      isAdmin = user?.role === "ADMIN";
+    }
 
     if (!listing.isApproved && !isOwner && !isAdmin) {
       return NextResponse.json(

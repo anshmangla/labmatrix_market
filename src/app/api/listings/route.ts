@@ -107,6 +107,66 @@ export async function POST(request: Request) {
       );
     }
 
+    // 1. Text length validation
+    const trimmedTitle = String(title).trim();
+    const trimmedDesc = String(description).trim();
+    const trimmedCategory = String(category).trim();
+
+    if (trimmedTitle.length < 3 || trimmedTitle.length > 150) {
+      return NextResponse.json(
+        { error: "Title must be between 3 and 150 characters." },
+        { status: 400 }
+      );
+    }
+
+    if (trimmedDesc.length < 10 || trimmedDesc.length > 5000) {
+      return NextResponse.json(
+        { error: "Description must be between 10 and 5,000 characters." },
+        { status: 400 }
+      );
+    }
+
+    // 2. Numerical price range validation
+    const parsedMin = Number(minPrice);
+    const parsedMax = Number(maxPrice);
+    if (
+      isNaN(parsedMin) ||
+      isNaN(parsedMax) ||
+      !Number.isFinite(parsedMin) ||
+      !Number.isFinite(parsedMax) ||
+      parsedMin < 0 ||
+      parsedMax < 0
+    ) {
+      return NextResponse.json(
+        { error: "Pricing values must be valid non-negative numbers." },
+        { status: 400 }
+      );
+    }
+
+    if (parsedMin > parsedMax) {
+      return NextResponse.json(
+        { error: "Minimum price cannot be greater than maximum price." },
+        { status: 400 }
+      );
+    }
+
+    // 3. Photo array sanitization and limit
+    let sanitizedPhotos: string[] = [];
+    if (Array.isArray(photos)) {
+      if (photos.length > 10) {
+        return NextResponse.json(
+          { error: "A maximum of 10 photos can be attached per listing." },
+          { status: 400 }
+        );
+      }
+      sanitizedPhotos = photos
+        .filter((p): p is string => 
+          typeof p === "string" && 
+          (p.startsWith("https://") || p.startsWith("data:image/") || p.startsWith("http://localhost"))
+        )
+        .slice(0, 10);
+    }
+
     // Check user's current contact info
     const currentUser = await prisma.user.findUnique({
       where: { id: session.user.id },
@@ -114,8 +174,8 @@ export async function POST(request: Request) {
     });
 
     // If user doesn't have phone number on file yet, it must be provided with this post
-    const finalPhone = currentUser?.phoneNumber || phoneNumber?.trim();
-    const finalCompany = currentUser?.companyName || companyName?.trim();
+    const finalPhone = currentUser?.phoneNumber || (typeof phoneNumber === "string" ? phoneNumber.trim() : "");
+    const finalCompany = currentUser?.companyName || (typeof companyName === "string" ? companyName.trim() : "");
 
     if (!finalPhone) {
       return NextResponse.json(
@@ -128,34 +188,41 @@ export async function POST(request: Request) {
       );
     }
 
+    if (finalPhone.length > 30) {
+      return NextResponse.json(
+        { error: "Phone number is too long." },
+        { status: 400 }
+      );
+    }
+
     // Update user profile if phone or company were newly provided
     if (phoneNumber || companyName) {
       await prisma.user.update({
         where: { id: session.user.id },
         data: {
           phoneNumber: finalPhone,
-          companyName: finalCompany || null,
+          companyName: finalCompany ? finalCompany.slice(0, 100) : null,
         },
       });
     }
 
     // Create the listing
     const resolvedItemType =
-      itemType || (category === "Spare Parts & Consumables" ? "SPARE_PART" : "MACHINE");
+      itemType || (trimmedCategory === "Spare Parts & Consumables" ? "SPARE_PART" : "MACHINE");
 
     const listing = await prisma.listing.create({
       data: {
-        title: title.trim(),
-        description: description.trim(),
-        category: category.trim(),
+        title: trimmedTitle,
+        description: trimmedDesc,
+        category: trimmedCategory.slice(0, 100),
         itemType: resolvedItemType,
-        partNumber: partNumber?.trim() || null,
-        compatibleWith: compatibleWith?.trim() || null,
-        minPrice: parseFloat(minPrice),
-        maxPrice: parseFloat(maxPrice),
-        condition: condition || "Used - Good",
-        location: location?.trim() || "India",
-        photos: Array.isArray(photos) ? photos : [],
+        partNumber: partNumber && typeof partNumber === "string" ? partNumber.trim().slice(0, 100) : null,
+        compatibleWith: compatibleWith && typeof compatibleWith === "string" ? compatibleWith.trim().slice(0, 150) : null,
+        minPrice: parsedMin,
+        maxPrice: parsedMax,
+        condition: condition && typeof condition === "string" ? condition.slice(0, 100) : "Used - Good",
+        location: location && typeof location === "string" ? location.trim().slice(0, 100) : "India",
+        photos: sanitizedPhotos,
         sellerId: session.user.id,
       },
     });
@@ -188,7 +255,7 @@ export async function POST(request: Request) {
   } catch (error: any) {
     console.error("Create listing error:", error);
     return NextResponse.json(
-      { error: error.message || "Failed to create listing" },
+      { error: "Failed to create listing. Please verify your inputs and try again." },
       { status: 500 }
     );
   }

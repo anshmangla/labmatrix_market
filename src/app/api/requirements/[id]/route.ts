@@ -37,7 +37,14 @@ export async function GET(
 
     // If not approved yet, only the buyer or an admin can view it
     const isOwner = session?.user?.id === requirement.buyerId;
-    const isAdmin = (session?.user as any)?.role === "ADMIN";
+    let isAdmin = false;
+    if (session?.user?.id) {
+      const user = await prisma.user.findUnique({
+        where: { id: session.user.id },
+        select: { role: true },
+      });
+      isAdmin = user?.role === "ADMIN";
+    }
 
     if (!requirement.isApproved && !isOwner && !isAdmin) {
       return NextResponse.json(

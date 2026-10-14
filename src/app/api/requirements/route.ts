@@ -82,9 +82,27 @@ export async function POST(request: Request) {
       companyName,
     } = body;
 
-    if (!title?.trim() || !description?.trim() || !category?.trim()) {
+    if (!title || !description || !category) {
       return NextResponse.json(
         { error: "Title, category, and specifications description are required." },
+        { status: 400 }
+      );
+    }
+
+    const trimmedTitle = String(title).trim();
+    const trimmedDesc = String(description).trim();
+    const trimmedCategory = String(category).trim();
+
+    if (trimmedTitle.length < 3 || trimmedTitle.length > 150) {
+      return NextResponse.json(
+        { error: "Title must be between 3 and 150 characters." },
+        { status: 400 }
+      );
+    }
+
+    if (trimmedDesc.length < 10 || trimmedDesc.length > 5000) {
+      return NextResponse.json(
+        { error: "Description must be between 10 and 5,000 characters." },
         { status: 400 }
       );
     }
@@ -95,8 +113,8 @@ export async function POST(request: Request) {
       select: { phoneNumber: true, companyName: true },
     });
 
-    const finalPhone = currentUser?.phoneNumber || phoneNumber?.trim();
-    const finalCompany = currentUser?.companyName || companyName?.trim();
+    const finalPhone = currentUser?.phoneNumber || (typeof phoneNumber === "string" ? phoneNumber.trim() : "");
+    const finalCompany = currentUser?.companyName || (typeof companyName === "string" ? companyName.trim() : "");
 
     if (!finalPhone) {
       return NextResponse.json(
@@ -108,28 +126,35 @@ export async function POST(request: Request) {
       );
     }
 
+    if (finalPhone.length > 30) {
+      return NextResponse.json(
+        { error: "Phone number is too long." },
+        { status: 400 }
+      );
+    }
+
     // Update user contact info if newly provided
     if (phoneNumber || companyName) {
       await prisma.user.update({
         where: { id: session.user.id },
         data: {
           phoneNumber: finalPhone,
-          companyName: finalCompany || null,
+          companyName: finalCompany ? finalCompany.slice(0, 100) : null,
         },
       });
     }
 
     const resolvedItemType =
-      itemType || (category === "Spare Parts & Consumables" ? "SPARE_PART" : "MACHINE");
+      itemType || (trimmedCategory === "Spare Parts & Consumables" ? "SPARE_PART" : "MACHINE");
 
     const requirement = await prisma.requirement.create({
       data: {
-        title: title.trim(),
-        description: description.trim(),
-        category: category.trim(),
+        title: trimmedTitle,
+        description: trimmedDesc,
+        category: trimmedCategory.slice(0, 100),
         itemType: resolvedItemType,
-        partNumber: partNumber?.trim() || null,
-        compatibleWith: compatibleWith?.trim() || null,
+        partNumber: partNumber && typeof partNumber === "string" ? partNumber.trim().slice(0, 100) : null,
+        compatibleWith: compatibleWith && typeof compatibleWith === "string" ? compatibleWith.trim().slice(0, 150) : null,
         buyerId: session.user.id,
         status: "OPEN",
       },
@@ -163,7 +188,7 @@ export async function POST(request: Request) {
   } catch (error: any) {
     console.error("Create requirement error:", error);
     return NextResponse.json(
-      { error: error.message || "Failed to post requirement" },
+      { error: "Failed to post requirement. Please verify your inputs and try again." },
       { status: 500 }
     );
   }

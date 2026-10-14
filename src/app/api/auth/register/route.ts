@@ -7,9 +7,18 @@ export async function POST(request: Request) {
     const body = await request.json();
     const { name, email, password } = body;
 
-    if (!email || !password) {
+    if (!email || !password || typeof email !== "string" || typeof password !== "string") {
       return NextResponse.json(
-        { error: "Email and password are required." },
+        { error: "A valid email and password are required." },
+        { status: 400 }
+      );
+    }
+
+    const cleanEmail = email.toLowerCase().trim();
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(cleanEmail) || cleanEmail.length > 254) {
+      return NextResponse.json(
+        { error: "Please provide a valid email address." },
         { status: 400 }
       );
     }
@@ -21,7 +30,14 @@ export async function POST(request: Request) {
       );
     }
 
-    const cleanEmail = email.toLowerCase().trim();
+    if (password.length > 72) {
+      return NextResponse.json(
+        { error: "Password cannot exceed 72 characters." },
+        { status: 400 }
+      );
+    }
+
+    const cleanName = typeof name === "string" ? name.trim().slice(0, 100) : null;
 
     const existingUser = await prisma.user.findUnique({
       where: { email: cleanEmail },
@@ -38,7 +54,7 @@ export async function POST(request: Request) {
 
     const user = await prisma.user.create({
       data: {
-        name: name?.trim() || null,
+        name: cleanName,
         email: cleanEmail,
         password: hashedPassword,
       },
