@@ -1,14 +1,20 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
+import { checkRateLimit } from "@/lib/rate-limit";
 
-// GET /api/requirements - List all open machine requirements
+// GET /api/requirements - List all open machine requirements with pagination
 export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
     const category = searchParams.get("category");
     const itemType = searchParams.get("itemType");
     const query = searchParams.get("query");
+
+    // Pagination parameters (default 30 per page, capped at 50 to prevent DoS)
+    const page = Math.max(1, parseInt(searchParams.get("page") || "1") || 1);
+    const limit = Math.min(50, Math.max(1, parseInt(searchParams.get("limit") || "30") || 30));
+    const skip = (page - 1) * limit;
 
     const where: any = {
       isApproved: true,
@@ -32,24 +38,37 @@ export async function GET(request: Request) {
       ];
     }
 
-    const requirements = await prisma.requirement.findMany({
-      where,
-      orderBy: { createdAt: "desc" },
-      select: {
-        id: true,
-        title: true,
-        description: true,
-        category: true,
-        itemType: true,
-        partNumber: true,
-        compatibleWith: true,
-        status: true,
-        createdAt: true,
-        // STRICT PRIVACY: Buyer name, phone number, and email are NEVER exposed to the public!
+    const [requirements, total] = await Promise.all([
+      prisma.requirement.findMany({
+        where,
+        orderBy: { createdAt: "desc" },
+        take: limit,
+        skip,
+        select: {
+          id: true,
+          title: true,
+          description: true,
+          category: true,
+          itemType: true,
+          partNumber: true,
+          compatibleWith: true,
+          status: true,
+          createdAt: true,
+          // STRICT PRIVACY: Buyer name, phone number, and email are NEVER exposed to the public!
+        },
+      }),
+      prisma.requirement.count({ where }),
+    ]);
+
+    return NextResponse.json({
+      requirements,
+      pagination: {
+        total,
+        page,
+        limit,
+        totalPages: Math.ceil(total / limit),
       },
     });
-
-    return NextResponse.json({ requirements });
   } catch (error: any) {
     console.error("Fetch requirements error:", error);
     return NextResponse.json(
@@ -67,6 +86,18 @@ export async function POST(request: Request) {
       return NextResponse.json(
         { error: "Unauthorized. Please sign in to post a requirement." },
         { status: 401 }
+      );
+    }
+
+    // Rate limit: Max 20 requirements per hour per user
+    const rateLimit = checkRateLimit(`requirement:${session.user.id}`, 20, 60 * 60 * 1000);
+    if (!rateLimit.success) {
+      return NextResponse.json(
+        { error: "Requirement creation limit reached. Please wait before posting more requirements." },
+        {
+          status: 429,
+          headers: { "Retry-After": rateLimit.resetSeconds.toString() },
+        }
       );
     }
 

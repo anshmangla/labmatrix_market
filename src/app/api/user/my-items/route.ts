@@ -13,10 +13,12 @@ export async function GET() {
       prisma.listing.findMany({
         where: { sellerId: session.user.id },
         orderBy: { createdAt: "desc" },
+        take: 100,
       }),
       prisma.requirement.findMany({
         where: { buyerId: session.user.id },
         orderBy: { createdAt: "desc" },
+        take: 100,
       }),
     ]);
 

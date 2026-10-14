@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
+import { checkRateLimit } from "@/lib/rate-limit";
 
 export async function POST(request: Request) {
   try {
@@ -9,6 +10,18 @@ export async function POST(request: Request) {
       return NextResponse.json(
         { error: "Unauthorized. Please sign in to send an inquiry." },
         { status: 401 }
+      );
+    }
+
+    // Rate limit: Max 15 inquiries per hour per user to prevent lead spamming
+    const rateLimit = checkRateLimit(`inquiry:${session.user.id}`, 15, 60 * 60 * 1000);
+    if (!rateLimit.success) {
+      return NextResponse.json(
+        { error: "Too many inquiries submitted. Please wait before sending more inquiries." },
+        {
+          status: 429,
+          headers: { "Retry-After": rateLimit.resetSeconds.toString() },
+        }
       );
     }
 

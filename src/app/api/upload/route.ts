@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/auth";
 import cloudinary from "@/lib/cloudinary";
+import { checkRateLimit } from "@/lib/rate-limit";
 
 export async function POST(request: Request) {
   try {
@@ -9,6 +10,18 @@ export async function POST(request: Request) {
       return NextResponse.json(
         { error: "Unauthorized. Please sign in to upload images." },
         { status: 401 }
+      );
+    }
+
+    // Rate limit: Max 20 image uploads per hour per user
+    const rateLimit = checkRateLimit(`upload:${session.user.id}`, 20, 60 * 60 * 1000);
+    if (!rateLimit.success) {
+      return NextResponse.json(
+        { error: "Upload limit reached. Please wait before uploading more images." },
+        {
+          status: 429,
+          headers: { "Retry-After": rateLimit.resetSeconds.toString() },
+        }
       );
     }
 

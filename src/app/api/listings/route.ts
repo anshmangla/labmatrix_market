@@ -1,8 +1,9 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
+import { checkRateLimit } from "@/lib/rate-limit";
 
-// GET /api/listings - Get all listings with optional filtering
+// GET /api/listings - Get all listings with optional filtering and pagination
 export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
@@ -11,6 +12,11 @@ export async function GET(request: Request) {
     const query = searchParams.get("query");
     const minPrice = searchParams.get("minPrice");
     const maxPrice = searchParams.get("maxPrice");
+
+    // Pagination parameters (default 30 per page, capped at 50 to prevent DoS)
+    const page = Math.max(1, parseInt(searchParams.get("page") || "1") || 1);
+    const limit = Math.min(50, Math.max(1, parseInt(searchParams.get("limit") || "30") || 30));
+    const skip = (page - 1) * limit;
 
     const where: any = {
       isApproved: true,
@@ -40,29 +46,42 @@ export async function GET(request: Request) {
       if (maxPrice) where.maxPrice = { lte: parseFloat(maxPrice) };
     }
 
-    const listings = await prisma.listing.findMany({
-      where,
-      orderBy: { createdAt: "desc" },
-      select: {
-        id: true,
-        title: true,
-        description: true,
-        category: true,
-        itemType: true,
-        partNumber: true,
-        compatibleWith: true,
-        minPrice: true,
-        maxPrice: true,
-        condition: true,
-        location: true,
-        photos: true,
-        status: true,
-        createdAt: true,
-        // NOTICE: Seller name, phone number, and email are NEVER returned to the client!
+    const [listings, total] = await Promise.all([
+      prisma.listing.findMany({
+        where,
+        orderBy: { createdAt: "desc" },
+        take: limit,
+        skip,
+        select: {
+          id: true,
+          title: true,
+          description: true,
+          category: true,
+          itemType: true,
+          partNumber: true,
+          compatibleWith: true,
+          minPrice: true,
+          maxPrice: true,
+          condition: true,
+          location: true,
+          photos: true,
+          status: true,
+          createdAt: true,
+          // NOTICE: Seller name, phone number, and email are NEVER returned to the client!
+        },
+      }),
+      prisma.listing.count({ where }),
+    ]);
+
+    return NextResponse.json({
+      listings,
+      pagination: {
+        total,
+        page,
+        limit,
+        totalPages: Math.ceil(total / limit),
       },
     });
-
-    return NextResponse.json({ listings });
   } catch (error: any) {
     console.error("Fetch listings error:", error);
     return NextResponse.json(
@@ -80,6 +99,18 @@ export async function POST(request: Request) {
       return NextResponse.json(
         { error: "Unauthorized. Please sign in to list a machine." },
         { status: 401 }
+      );
+    }
+
+    // Rate limit: Max 20 listings per hour per user
+    const rateLimit = checkRateLimit(`listing:${session.user.id}`, 20, 60 * 60 * 1000);
+    if (!rateLimit.success) {
+      return NextResponse.json(
+        { error: "Listing creation limit reached. Please wait before creating more listings." },
+        {
+          status: 429,
+          headers: { "Retry-After": rateLimit.resetSeconds.toString() },
+        }
       );
     }
 

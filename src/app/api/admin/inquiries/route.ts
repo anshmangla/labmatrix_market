@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 
-export async function GET() {
+export async function GET(request: Request) {
   try {
     const session = await auth();
     if (!session?.user?.id) {
@@ -18,8 +18,16 @@ export async function GET() {
       return NextResponse.json({ error: "Forbidden: Admin only" }, { status: 403 });
     }
 
-    const inquiries = await prisma.inquiry.findMany({
-      orderBy: { createdAt: "desc" },
+    const { searchParams } = new URL(request.url);
+    const page = Math.max(1, parseInt(searchParams.get("page") || "1") || 1);
+    const limit = Math.min(100, Math.max(1, parseInt(searchParams.get("limit") || "50") || 50));
+    const skip = (page - 1) * limit;
+
+    const [inquiries, total] = await Promise.all([
+      prisma.inquiry.findMany({
+        orderBy: { createdAt: "desc" },
+        take: limit,
+        skip,
       include: {
         inquirer: {
           select: {
@@ -65,9 +73,19 @@ export async function GET() {
           },
         },
       },
-    });
+    }),
+    prisma.inquiry.count(),
+  ]);
 
-    return NextResponse.json({ inquiries });
+    return NextResponse.json({
+      inquiries,
+      pagination: {
+        total,
+        page,
+        limit,
+        totalPages: Math.ceil(total / limit),
+      },
+    });
   } catch (error: any) {
     console.error("Admin inquiries error:", error);
     return NextResponse.json(
