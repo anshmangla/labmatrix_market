@@ -1,7 +1,8 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, Suspense } from "react";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import {
   FileQuestion,
   Search,
@@ -40,11 +41,32 @@ const CATEGORIES = [
   "Other Lab Equipment",
 ];
 
-export default function BrowseRequestsPage() {
+function RequestsContent() {
+  const searchParams = useSearchParams();
+  const urlCategory = searchParams.get("category");
+  const urlQuery = searchParams.get("query");
+
   const [requirements, setRequirements] = useState<Requirement[]>([]);
   const [loading, setLoading] = useState(true);
-  const [search, setSearch] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState("ALL");
+  const [search, setSearch] = useState(urlQuery || "");
+  const [selectedCategory, setSelectedCategory] = useState(
+    urlCategory && CATEGORIES.includes(urlCategory) ? urlCategory : "ALL"
+  );
+
+  // Sync state if searchParams change in the URL
+  useEffect(() => {
+    const cat = searchParams.get("category");
+    if (cat && CATEGORIES.includes(cat)) {
+      setSelectedCategory(cat);
+    } else if (!cat) {
+      setSelectedCategory("ALL");
+    }
+
+    const q = searchParams.get("query");
+    if (q !== null) {
+      setSearch(q);
+    }
+  }, [searchParams]);
 
   useEffect(() => {
     fetchRequirements();
@@ -230,5 +252,21 @@ export default function BrowseRequestsPage() {
         )}
       </div>
     </div>
+  );
+}
+
+export default function BrowseRequestsPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-screen bg-slate-50 py-10 px-4 sm:px-6 lg:px-8">
+          <div className="max-w-7xl mx-auto flex items-center justify-center py-20">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-brand-blue" />
+          </div>
+        </div>
+      }
+    >
+      <RequestsContent />
+    </Suspense>
   );
 }
