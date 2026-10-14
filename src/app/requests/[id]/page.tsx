@@ -1,6 +1,7 @@
 import React from "react";
 import { notFound } from "next/navigation";
 import Link from "next/link";
+import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import InquiryBox from "@/components/inquiries/InquiryBox";
 import {
@@ -20,6 +21,7 @@ export default async function RequirementDetailPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
+  const session = await auth();
 
   const req = await prisma.requirement.findUnique({
     where: { id },
@@ -32,12 +34,22 @@ export default async function RequirementDetailPage({
       partNumber: true,
       compatibleWith: true,
       status: true,
+      isApproved: true,
+      buyerId: true,
       createdAt: true,
       // PRIVACY RULE: Buyer personal details are NOT selected!
     },
   });
 
   if (!req) {
+    notFound();
+  }
+
+  const isOwner = session?.user?.id === req.buyerId;
+  const isAdmin = (session?.user as any)?.role === "ADMIN";
+
+  // If not approved, only owner or admin can preview it
+  if (!req.isApproved && !isOwner && !isAdmin) {
     notFound();
   }
 
@@ -56,6 +68,24 @@ export default async function RequirementDetailPage({
           <span>/</span>
           <span className="text-slate-800 truncate max-w-xs">{req.title}</span>
         </div>
+
+        {/* Pending Approval Banner for Owner/Admin */}
+        {!req.isApproved && (
+          <div className="mb-6 p-4 rounded-2xl bg-amber-50 border border-amber-200 text-amber-900 flex items-start space-x-3 shadow-xs">
+            <Clock className="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" />
+            <div>
+              <div className="flex items-center space-x-2">
+                <span className="text-xs font-bold uppercase tracking-wider bg-amber-200/60 text-amber-900 px-2 py-0.5 rounded">
+                  Private Owner Preview
+                </span>
+                <span className="text-xs font-bold text-amber-800">• Pending Admin Approval</span>
+              </div>
+              <p className="text-xs text-amber-800 mt-1">
+                This procurement request is currently under admin review and is not visible to the public. You will receive an on-site notification (bell icon) as soon as it is approved.
+              </p>
+            </div>
+          </div>
+        )}
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Left Column (2 Cols): Target Instrument Specs */}

@@ -80,6 +80,23 @@ export async function PATCH(request: Request) {
       data: updateData,
     });
 
+    // Notify user if requirement was just approved
+    if (isApproved === true) {
+      try {
+        await prisma.notification.create({
+          data: {
+            userId: updated.buyerId,
+            type: "ENTRY_APPROVED",
+            title: "🎉 Request Approved & Live!",
+            message: `Your procurement request "${updated.title}" has been approved by admin and is now visible to sellers on the marketplace.`,
+            link: updated.itemType === "SPARE_PART" ? "/spare-parts?tab=wanted" : `/requests/${updated.id}`,
+          },
+        });
+      } catch (notifErr) {
+        console.error("Failed to create approval notification for requirement:", notifErr);
+      }
+    }
+
     return NextResponse.json({ requirement: updated });
   } catch (error: any) {
     console.error("Admin update requirement error:", error);

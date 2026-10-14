@@ -80,6 +80,23 @@ export async function PATCH(request: Request) {
       data: updateData,
     });
 
+    // Notify user if listing was just approved
+    if (isApproved === true) {
+      try {
+        await prisma.notification.create({
+          data: {
+            userId: updated.sellerId,
+            type: "ENTRY_APPROVED",
+            title: "🎉 Listing Approved & Live!",
+            message: `Your listing "${updated.title}" has been approved by admin and is now publicly live on the marketplace.`,
+            link: updated.itemType === "SPARE_PART" ? "/spare-parts" : `/listings/${updated.id}`,
+          },
+        });
+      } catch (notifErr) {
+        console.error("Failed to create approval notification for listing:", notifErr);
+      }
+    }
+
     return NextResponse.json({ listing: updated });
   } catch (error: any) {
     console.error("Admin update listing error:", error);

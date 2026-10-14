@@ -16,6 +16,7 @@ import {
   LayoutDashboard,
   Wrench,
 } from "lucide-react";
+import { NotificationBell } from "./NotificationBell";
 
 export default function Navbar() {
   const { data: session, status } = useSession();
@@ -88,6 +89,8 @@ export default function Navbar() {
               <div className="h-8 w-20 bg-slate-100 rounded-lg animate-pulse" />
             ) : session?.user ? (
               <div className="flex items-center space-x-3">
+                <NotificationBell />
+
                 {(session.user as any)?.role === "ADMIN" && (
                   <Link
                     href="/admin"
@@ -137,8 +140,9 @@ export default function Navbar() {
             )}
           </div>
 
-          {/* Mobile Hamburger Button */}
-          <div className="flex items-center md:hidden">
+          {/* Mobile Actions: Notifications & Hamburger Button */}
+          <div className="flex items-center space-x-1 md:hidden">
+            {session?.user && <NotificationBell />}
             <button
               type="button"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}

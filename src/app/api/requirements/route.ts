@@ -135,6 +135,21 @@ export async function POST(request: Request) {
       },
     });
 
+    // Create an in-app notification for the user
+    try {
+      await prisma.notification.create({
+        data: {
+          userId: session.user.id,
+          type: "ENTRY_PENDING",
+          title: "Request Submitted for Approval",
+          message: `Your ${resolvedItemType === "SPARE_PART" ? "spare part" : "equipment"} request "${requirement.title}" is under admin review. Once approved, it will be published on the marketplace.`,
+          link: "/dashboard",
+        },
+      });
+    } catch (notifErr) {
+      console.error("Failed to create pending notification for requirement:", notifErr);
+    }
+
     return NextResponse.json(
       {
         message:

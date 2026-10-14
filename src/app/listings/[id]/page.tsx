@@ -1,6 +1,7 @@
 import React from "react";
 import { notFound } from "next/navigation";
 import Link from "next/link";
+import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import PhotoGallery from "@/components/listings/PhotoGallery";
 import InquiryBox from "@/components/inquiries/InquiryBox";
@@ -23,6 +24,7 @@ export default async function ListingDetailPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
+  const session = await auth();
 
   const listing = await prisma.listing.findUnique({
     where: { id },
@@ -40,12 +42,22 @@ export default async function ListingDetailPage({
       location: true,
       photos: true,
       status: true,
+      isApproved: true,
+      sellerId: true,
       createdAt: true,
       // CRITICAL PRIVACY: Seller name, phone, company, and email are strictly NOT selected!
     },
   });
 
   if (!listing) {
+    notFound();
+  }
+
+  const isOwner = session?.user?.id === listing.sellerId;
+  const isAdmin = (session?.user as any)?.role === "ADMIN";
+
+  // If not approved, only owner or admin can preview it
+  if (!listing.isApproved && !isOwner && !isAdmin) {
     notFound();
   }
 
@@ -67,6 +79,24 @@ export default async function ListingDetailPage({
           <span>/</span>
           <span className="text-slate-800 truncate max-w-xs">{listing.title}</span>
         </div>
+
+        {/* Pending Approval Banner for Owner/Admin */}
+        {!listing.isApproved && (
+          <div className="mb-6 p-4 rounded-2xl bg-amber-50 border border-amber-200 text-amber-900 flex items-start space-x-3 shadow-xs">
+            <Clock className="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" />
+            <div>
+              <div className="flex items-center space-x-2">
+                <span className="text-xs font-bold uppercase tracking-wider bg-amber-200/60 text-amber-900 px-2 py-0.5 rounded">
+                  Private Owner Preview
+                </span>
+                <span className="text-xs font-bold text-amber-800">• Pending Admin Approval</span>
+              </div>
+              <p className="text-xs text-amber-800 mt-1">
+                This listing is currently under admin review and is not visible to the public. You will receive an on-site notification (bell icon) as soon as it is approved.
+              </p>
+            </div>
+          </div>
+        )}
 
         {/* Main Content Layout */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">

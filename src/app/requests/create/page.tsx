@@ -15,6 +15,7 @@ import {
   ShieldCheck,
   Wrench,
   Cpu,
+  Clock,
 } from "lucide-react";
 
 const CATEGORIES = [
@@ -58,6 +59,7 @@ function CreateRequirementForm() {
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [submittedData, setSubmittedData] = useState<{ id: string; title: string; itemType: string } | null>(null);
 
   // Check user profile for existing phone
   useEffect(() => {
@@ -150,13 +152,68 @@ function CreateRequirementForm() {
         return;
       }
 
-      router.push(itemType === "SPARE_PART" ? "/spare-parts" : "/requests");
-      router.refresh();
+      setSubmittedData({
+        id: data.requirementId,
+        title: title.trim(),
+        itemType,
+      });
+      setLoading(false);
     } catch (err: any) {
       setError("Network error. Please try again.");
       setLoading(false);
     }
   };
+
+  if (submittedData) {
+    return (
+      <div className="min-h-screen bg-slate-50 py-16 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-xl mx-auto bg-white rounded-3xl p-8 sm:p-10 border border-slate-200 shadow-xl text-center space-y-6">
+          <div className="w-16 h-16 rounded-2xl bg-amber-50 border border-amber-200 text-amber-600 flex items-center justify-center mx-auto shadow-xs">
+            <Clock className="w-8 h-8" />
+          </div>
+
+          <div>
+            <div className="inline-flex items-center space-x-1.5 px-3 py-1 rounded-full text-xs font-bold bg-amber-50 text-amber-800 border border-amber-200 mb-3">
+              <Clock className="w-3.5 h-3.5" />
+              <span>Pending Admin Review</span>
+            </div>
+            <h1 className="text-2xl font-black text-slate-900">
+              Request Submitted for Approval!
+            </h1>
+            <p className="text-sm text-slate-600 mt-2 leading-relaxed">
+              Your procurement request for <strong className="text-slate-900">&quot;{submittedData.title}&quot;</strong> has been created and submitted for admin review.
+            </p>
+          </div>
+
+          <div className="bg-slate-50 border border-slate-200 rounded-2xl p-4 text-left space-y-2 text-xs text-slate-600">
+            <div className="flex items-start space-x-2">
+              <CheckCircle2 className="w-4 h-4 text-emerald-600 flex-shrink-0 mt-0.5" />
+              <span><strong>Next Step:</strong> Admin verification ensures your specifications are clear.</span>
+            </div>
+            <div className="flex items-start space-x-2">
+              <CheckCircle2 className="w-4 h-4 text-emerald-600 flex-shrink-0 mt-0.5" />
+              <span><strong>Notification:</strong> You will be notified on-site (bell icon) the moment it is approved.</span>
+            </div>
+          </div>
+
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2">
+            <Link
+              href="/dashboard"
+              className="w-full sm:w-auto px-6 py-3 rounded-xl bg-teal-600 hover:bg-teal-700 text-white font-bold text-sm transition-colors shadow-xs"
+            >
+              Go to My Dashboard
+            </Link>
+            <Link
+              href={submittedData.itemType === "SPARE_PART" ? "/spare-parts?tab=wanted" : "/requests"}
+              className="w-full sm:w-auto px-6 py-3 rounded-xl border border-slate-200 hover:bg-slate-50 text-slate-700 font-bold text-sm transition-colors"
+            >
+              Browse Marketplace
+            </Link>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-slate-50 py-10 px-4 sm:px-6 lg:px-8">
