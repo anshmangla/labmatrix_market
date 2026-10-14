@@ -88,7 +88,7 @@ export default function SignInPage() {
             type="button"
             onClick={handleGoogleSignIn}
             disabled={googleLoading || loading}
-            className="w-full flex justify-center items-center gap-3 py-2.5 px-4 border border-slate-300 rounded-xl shadow-sm bg-white text-sm font-semibold text-slate-700 hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-teal-500 transition-all disabled:opacity-50"
+            className="w-full flex justify-center items-center gap-3 py-2.5 px-4 border border-slate-300 rounded-xl shadow-sm bg-white text-sm font-semibold text-slate-700 hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand-blue transition-all disabled:opacity-50"
           >
             <svg className="w-5 h-5" viewBox="0 0 24 24">
               <path
@@ -143,7 +143,7 @@ export default function SignInPage() {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="analyst@labmatrix.com"
-                  className="block w-full pl-11 pr-3 py-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-teal-500 focus:border-teal-500 text-sm text-slate-900 placeholder-slate-400 transition-colors"
+                  className="block w-full pl-11 pr-3 py-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-brand-blue focus:border-brand-blue text-sm text-slate-900 placeholder-slate-400 transition-colors"
                 />
               </div>
             </div>
@@ -168,7 +168,7 @@ export default function SignInPage() {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="••••••••"
-                  className="block w-full pl-11 pr-3 py-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-teal-500 focus:border-teal-500 text-sm text-slate-900 placeholder-slate-400 transition-colors"
+                  className="block w-full pl-11 pr-3 py-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-brand-blue focus:border-brand-blue text-sm text-slate-900 placeholder-slate-400 transition-colors"
                 />
               </div>
             </div>
@@ -176,15 +176,15 @@ export default function SignInPage() {
             <button
               type="submit"
               disabled={loading || googleLoading}
-              className="w-full flex justify-center items-center py-2.5 px-4 border border-transparent rounded-xl shadow-sm text-sm font-semibold text-white bg-teal-600 hover:bg-teal-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-teal-500 transition-all disabled:opacity-50"
+              className="w-full flex justify-center items-center py-2.5 px-4 border border-transparent rounded-xl shadow-xs text-sm font-semibold text-white bg-brand-blue hover:bg-brand-blue-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand-blue transition-all disabled:opacity-50"
             >
               {loading ? "Signing in..." : "Sign in"}
               {!loading && <ArrowRight className="ml-2 h-4 w-4" />}
             </button>
           </form>
 
-          <div className="mt-6 flex items-center justify-center space-x-1 text-xs text-slate-500">
-            <ShieldCheck className="w-4 h-4 text-teal-600" />
+          <div className="mt-6 flex items-center justify-center space-x-1.5 text-xs text-slate-500">
+            <ShieldCheck className="w-4 h-4 text-brand-gold-600" />
             <span>Privacy protected. No public phone or email exposure.</span>
           </div>
         </div>
@@ -193,7 +193,7 @@ export default function SignInPage() {
           Don&apos;t have an account yet?{" "}
           <Link
             href="/auth/signup"
-            className="font-semibold text-teal-600 hover:text-teal-700 underline underline-offset-4"
+            className="font-semibold text-brand-blue hover:text-brand-blue-500 underline underline-offset-4"
           >
             Create an account
           </Link>

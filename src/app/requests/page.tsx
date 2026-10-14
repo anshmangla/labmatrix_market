@@ -84,7 +84,7 @@ export default function BrowseRequestsPage() {
         {/* Header */}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
           <div>
-            <div className="inline-flex items-center space-x-1.5 text-xs font-bold text-teal-600 bg-teal-50 px-2.5 py-1 rounded-full mb-2">
+            <div className="inline-flex items-center space-x-1.5 text-xs font-bold text-brand-blue-700 bg-brand-blue-50 border border-brand-blue-100/50 px-2.5 py-1 rounded-full mb-2">
               <ShieldCheck className="w-3.5 h-3.5" />
               <span>Active Laboratory Procurement Requests</span>
             </div>
@@ -99,9 +99,9 @@ export default function BrowseRequestsPage() {
 
           <Link
             href="/requests/create"
-            className="inline-flex items-center space-x-2 px-5 py-3 rounded-xl bg-teal-600 hover:bg-teal-700 text-white font-bold text-sm shadow-md transition-all self-start md:self-auto"
+            className="inline-flex items-center space-x-2 px-5 py-3 rounded-xl bg-brand-gold hover:bg-brand-gold-500 text-brand-blue-950 font-bold text-sm shadow-sm transition-all self-start md:self-auto"
           >
-            <PlusCircle className="w-4 h-4" />
+            <PlusCircle className="w-4 h-4 text-brand-blue-900" />
             <span>Post Equipment Wanted</span>
           </Link>
         </div>
@@ -116,12 +116,12 @@ export default function BrowseRequestsPage() {
                 placeholder="Search desired instruments (HPLC, GC-MS, FTIR, Dissolution)..."
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                className="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 focus:bg-white"
+                className="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-brand-blue focus:bg-white"
               />
             </div>
             <button
               type="submit"
-              className="px-5 py-2.5 bg-slate-900 hover:bg-slate-800 text-white text-sm font-semibold rounded-xl transition-colors"
+              className="px-5 py-2.5 bg-brand-blue hover:bg-brand-blue-500 text-white text-sm font-semibold rounded-xl transition-colors shadow-xs"
             >
               Search
             </button>
@@ -139,8 +139,8 @@ export default function BrowseRequestsPage() {
                 onClick={() => setSelectedCategory(cat)}
                 className={`px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition-all ${
                   selectedCategory === cat
-                    ? "bg-teal-600 text-white shadow-xs"
-                    : "bg-slate-100 hover:bg-slate-200 text-slate-600"
+                    ? "bg-brand-blue text-white shadow-xs"
+                    : "bg-slate-100 hover:bg-brand-blue-50 hover:text-brand-blue text-slate-600"
                 }`}
               >
                 {cat}
@@ -176,9 +176,9 @@ export default function BrowseRequestsPage() {
             </p>
             <Link
               href="/requests/create"
-              className="mt-6 inline-flex items-center space-x-2 px-4 py-2 bg-teal-600 hover:bg-teal-700 text-white rounded-xl text-xs font-semibold"
+              className="mt-6 inline-flex items-center space-x-2 px-4 py-2 bg-brand-gold hover:bg-brand-gold-500 text-brand-blue-950 rounded-xl text-xs font-bold shadow-xs transition-colors"
             >
-              <PlusCircle className="w-4 h-4" />
+              <PlusCircle className="w-4 h-4 text-brand-blue-900" />
               <span>Post First Requirement</span>
             </Link>
           </div>
@@ -187,11 +187,11 @@ export default function BrowseRequestsPage() {
             {requirements.map((req) => (
               <div
                 key={req.id}
-                className="bg-white rounded-2xl border border-slate-200 hover:border-teal-500/80 p-6 shadow-xs hover:shadow-md transition-all flex flex-col md:flex-row md:items-center justify-between gap-6"
+                className="bg-white rounded-2xl border border-slate-200 hover:border-brand-blue-300 p-6 shadow-xs hover:shadow-md transition-all flex flex-col md:flex-row md:items-center justify-between gap-6"
               >
                 <div className="space-y-2 flex-1">
                   <div className="flex flex-wrap items-center gap-2">
-                    <span className="bg-teal-50 text-teal-700 text-xs font-bold px-2.5 py-0.5 rounded-md">
+                    <span className="bg-brand-blue-50 text-brand-blue-700 border border-brand-blue-100/60 text-xs font-bold px-2.5 py-0.5 rounded-md">
                       {req.category}
                     </span>
                     <span className="text-slate-400 text-xs">•</span>
@@ -201,7 +201,7 @@ export default function BrowseRequestsPage() {
                     </span>
                     <span className="text-slate-400 text-xs">•</span>
                     <span className="bg-slate-100 text-slate-700 text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded flex items-center space-x-1">
-                      <ShieldCheck className="w-3 h-3 text-teal-600" />
+                      <ShieldCheck className="w-3 h-3 text-brand-blue" />
                       <span>Admin Protected Buyer</span>
                     </span>
                   </div>
@@ -218,7 +218,7 @@ export default function BrowseRequestsPage() {
                 <div className="flex-shrink-0 flex items-center">
                   <Link
                     href={`/requests/${req.id}`}
-                    className="inline-flex items-center space-x-1.5 px-4 py-2.5 bg-slate-900 hover:bg-teal-600 text-white rounded-xl text-xs font-bold transition-colors shadow-xs"
+                    className="inline-flex items-center space-x-1.5 px-4 py-2.5 bg-brand-blue hover:bg-brand-blue-500 text-white rounded-xl text-xs font-bold transition-colors shadow-xs"
                   >
                     <span>View & Fulfill Request</span>
                     <ArrowRight className="w-3.5 h-3.5" />

@@ -58,11 +58,11 @@ export default async function RequirementDetailPage({
       <div className="max-w-7xl mx-auto">
         {/* Breadcrumb */}
         <div className="mb-6 flex items-center space-x-2 text-xs font-semibold text-slate-500">
-          <Link href="/" className="hover:text-teal-600 transition-colors">
+          <Link href="/" className="hover:text-brand-blue transition-colors">
             Home
           </Link>
           <span>/</span>
-          <Link href="/requests" className="hover:text-teal-600 transition-colors">
+          <Link href="/requests" className="hover:text-brand-blue transition-colors">
             Buyer Requests
           </Link>
           <span>/</span>
@@ -92,7 +92,7 @@ export default async function RequirementDetailPage({
           <div className="lg:col-span-2 space-y-6">
             <div className="bg-white rounded-2xl p-6 sm:p-8 shadow-xs border border-slate-200 space-y-6">
               <div>
-                <span className="text-xs font-bold uppercase tracking-wider text-teal-600">
+                <span className="text-xs font-bold uppercase tracking-wider text-brand-blue">
                   {req.category}
                 </span>
                 <h1 className="text-2xl sm:text-3xl font-black text-slate-900 mt-1">
@@ -110,7 +110,7 @@ export default async function RequirementDetailPage({
                 </div>
 
                 {req.itemType === "SPARE_PART" && (
-                  <div className="mt-4 p-3.5 bg-teal-50/70 rounded-xl border border-teal-200/80 flex flex-wrap gap-5 text-xs">
+                  <div className="mt-4 p-3.5 bg-brand-blue-50/70 rounded-xl border border-brand-blue-200/80 flex flex-wrap gap-5 text-xs">
                     {req.compatibleWith && (
                       <div>
                         <span className="text-slate-400 block font-bold text-[10px] uppercase">
@@ -133,7 +133,7 @@ export default async function RequirementDetailPage({
 
               <div className="border-t border-slate-100 pt-6">
                 <h2 className="text-base font-bold text-slate-900 mb-3 flex items-center space-x-2">
-                  <FileText className="w-4 h-4 text-teal-600" />
+                  <FileText className="w-4 h-4 text-brand-blue" />
                   <span>Required Specifications & Application</span>
                 </h2>
                 <div className="text-sm text-slate-700 leading-relaxed whitespace-pre-line bg-slate-50 p-5 rounded-xl border border-slate-100">
@@ -143,11 +143,11 @@ export default async function RequirementDetailPage({
 
               {/* Marketplace Procurement Callout */}
               <div className="bg-slate-900 text-white rounded-xl p-5 flex items-start space-x-3.5 shadow-sm">
-                <div className="w-8 h-8 rounded-lg bg-teal-500/20 text-teal-400 flex items-center justify-center flex-shrink-0 mt-0.5">
+                <div className="w-8 h-8 rounded-lg bg-brand-gold/20 text-brand-gold flex items-center justify-center flex-shrink-0 mt-0.5">
                   <ShieldCheck className="w-4 h-4" />
                 </div>
                 <div>
-                  <h4 className="text-xs font-bold text-teal-400 uppercase tracking-wider">
+                  <h4 className="text-xs font-bold text-brand-gold uppercase tracking-wider">
                     Verified Procurement Request
                   </h4>
                   <p className="text-xs text-slate-300 mt-1 leading-relaxed">
@@ -173,15 +173,15 @@ export default async function RequirementDetailPage({
                 How Sellers Fulfill Requests
               </h4>
               <div className="flex items-start space-x-2">
-                <CheckCircle className="w-4 h-4 text-teal-600 flex-shrink-0 mt-0.5" />
+                <CheckCircle className="w-4 h-4 text-brand-blue flex-shrink-0 mt-0.5" />
                 <span>Submit your model details, photos, and price ask.</span>
               </div>
               <div className="flex items-start space-x-2">
-                <CheckCircle className="w-4 h-4 text-teal-600 flex-shrink-0 mt-0.5" />
+                <CheckCircle className="w-4 h-4 text-brand-blue flex-shrink-0 mt-0.5" />
                 <span>The platform coordinator will assist in facilitating the review.</span>
               </div>
               <div className="flex items-start space-x-2">
-                <CheckCircle className="w-4 h-4 text-teal-600 flex-shrink-0 mt-0.5" />
+                <CheckCircle className="w-4 h-4 text-brand-blue flex-shrink-0 mt-0.5" />
                 <span>Secure quotation and deal coordination through the platform.</span>
               </div>
             </div>

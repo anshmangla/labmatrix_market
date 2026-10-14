@@ -357,7 +357,7 @@ export default function AdminDashboardPage() {
   if (status === "loading" || initialLoading) {
     return (
       <div className="min-h-screen bg-slate-50 flex items-center justify-center">
-        <div className="w-8 h-8 border-4 border-teal-600 border-t-transparent rounded-full animate-spin" />
+        <div className="w-8 h-8 border-4 border-brand-blue border-t-transparent rounded-full animate-spin" />
       </div>
     );
   }
@@ -366,14 +366,14 @@ export default function AdminDashboardPage() {
     return (
       <div className="min-h-[70vh] flex flex-col items-center justify-center px-4">
         <div className="bg-white p-8 rounded-2xl shadow-xl max-w-md w-full text-center border border-slate-200">
-          <ShieldAlert className="w-12 h-12 text-teal-600 mx-auto mb-4" />
+          <ShieldAlert className="w-12 h-12 text-brand-blue mx-auto mb-4" />
           <h2 className="text-xl font-bold text-slate-900">Admin Area Restricted</h2>
           <p className="text-sm text-slate-600 mt-2">
             Please sign in to access the LabMatrix Admin Control Desk.
           </p>
           <Link
             href="/auth/signin"
-            className="mt-6 inline-flex items-center justify-center w-full py-2.5 px-4 rounded-xl text-white font-semibold bg-teal-600 hover:bg-teal-700 transition-colors"
+            className="mt-6 inline-flex items-center justify-center w-full py-2.5 px-4 rounded-xl text-white font-semibold bg-brand-blue hover:bg-brand-blue-500 transition-colors shadow-xs"
           >
             <span>Sign In to Continue</span>
           </Link>
@@ -407,7 +407,7 @@ export default function AdminDashboardPage() {
                 type="button"
                 onClick={handleClaimAdmin}
                 disabled={actionLoading}
-                className="w-full py-2.5 px-4 bg-slate-900 hover:bg-teal-600 text-white font-bold rounded-xl text-xs transition-colors shadow-sm disabled:opacity-50"
+                className="w-full py-2.5 px-4 bg-brand-blue hover:bg-brand-blue-500 text-white font-bold rounded-xl text-xs transition-colors shadow-sm disabled:opacity-50"
               >
                 {actionLoading
                   ? "Verifying & Promoting..."
@@ -429,7 +429,7 @@ export default function AdminDashboardPage() {
         {/* Top Header */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-6 rounded-2xl border border-slate-200 shadow-xs">
           <div>
-            <div className="inline-flex items-center space-x-2 text-xs font-bold text-teal-700 bg-teal-50 px-2.5 py-1 rounded-full mb-1">
+            <div className="inline-flex items-center space-x-2 text-xs font-bold text-brand-blue-700 bg-brand-blue-50 border border-brand-blue-100/60 px-2.5 py-1 rounded-full mb-1">
               <ShieldCheck className="w-4 h-4" />
               <span>LabMatrix Operations Desk • Master Administrator View</span>
             </div>
@@ -447,7 +447,7 @@ export default function AdminDashboardPage() {
             disabled={tabLoading}
             className="self-start sm:self-auto inline-flex items-center space-x-1.5 px-3.5 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold rounded-xl transition-colors"
           >
-            <RefreshCw className={`w-3.5 h-3.5 ${tabLoading ? "animate-spin text-teal-600" : ""}`} />
+            <RefreshCw className={`w-3.5 h-3.5 ${tabLoading ? "animate-spin text-brand-blue" : ""}`} />
             <span>{tabLoading ? "Refreshing..." : "Refresh Data"}</span>
           </button>
         </div>
@@ -498,7 +498,7 @@ export default function AdminDashboardPage() {
             </div>
 
             <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs flex items-center space-x-4">
-              <div className="w-12 h-12 rounded-xl bg-teal-50 text-teal-600 flex items-center justify-center flex-shrink-0">
+              <div className="w-12 h-12 rounded-xl bg-brand-blue-50 text-brand-blue flex items-center justify-center flex-shrink-0">
                 <Tag className="w-6 h-6" />
               </div>
               <div>
@@ -556,7 +556,7 @@ export default function AdminDashboardPage() {
             onClick={() => setActiveTab("inquiries")}
             className={`px-4 py-2 rounded-xl text-xs font-bold transition-all ${
               activeTab === "inquiries"
-                ? "bg-teal-600 text-white shadow-sm"
+                ? "bg-brand-blue text-white shadow-sm"
                 : "bg-white text-slate-600 hover:bg-slate-200"
             }`}
           >
@@ -566,7 +566,7 @@ export default function AdminDashboardPage() {
             onClick={() => setActiveTab("users")}
             className={`px-4 py-2 rounded-xl text-xs font-bold transition-all ${
               activeTab === "users"
-                ? "bg-teal-600 text-white shadow-sm"
+                ? "bg-brand-blue text-white shadow-sm"
                 : "bg-white text-slate-600 hover:bg-slate-200"
             }`}
           >
@@ -576,7 +576,7 @@ export default function AdminDashboardPage() {
             onClick={() => setActiveTab("listings")}
             className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center space-x-1.5 ${
               activeTab === "listings"
-                ? "bg-teal-600 text-white shadow-sm"
+                ? "bg-brand-blue text-white shadow-sm"
                 : "bg-white text-slate-600 hover:bg-slate-200"
             }`}
           >
@@ -591,7 +591,7 @@ export default function AdminDashboardPage() {
             onClick={() => setActiveTab("requirements")}
             className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center space-x-1.5 ${
               activeTab === "requirements"
-                ? "bg-teal-600 text-white shadow-sm"
+                ? "bg-brand-blue text-white shadow-sm"
                 : "bg-white text-slate-600 hover:bg-slate-200"
             }`}
           >
@@ -618,7 +618,7 @@ export default function AdminDashboardPage() {
 
             {tabLoading ? (
               <div className="bg-white rounded-2xl p-16 text-center border border-slate-200 flex flex-col items-center justify-center space-y-3">
-                <div className="w-7 h-7 border-3 border-teal-600 border-t-transparent rounded-full animate-spin" />
+                <div className="w-7 h-7 border-3 border-brand-blue border-t-transparent rounded-full animate-spin" />
                 <span className="text-xs text-slate-500 font-semibold">
                   Loading deal pipeline...
                 </span>
@@ -679,7 +679,7 @@ export default function AdminDashboardPage() {
                       {/* Equipment Item Being Discussed */}
                       <div className="p-3 bg-slate-50 rounded-xl border border-slate-100 flex items-center justify-between">
                         <div>
-                          <span className="text-[10px] uppercase font-bold text-teal-600 block">
+                          <span className="text-[10px] uppercase font-bold text-brand-blue block">
                             {hasListing
                               ? "Machine Listing Inquiry"
                               : "Offer for Buyer Requirement"}
@@ -702,7 +702,7 @@ export default function AdminDashboardPage() {
                           <Link
                             href={`/listings/${inq.listing.id}`}
                             target="_blank"
-                            className="text-xs font-semibold text-teal-600 hover:underline flex items-center"
+                            className="text-xs font-semibold text-brand-blue hover:underline flex items-center"
                           >
                             <span>View Listing</span>
                             <ExternalLink className="w-3 h-3 ml-1" />
@@ -713,8 +713,8 @@ export default function AdminDashboardPage() {
                       {/* Side-by-side Buyer & Seller Contacts */}
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         {/* Inquiring Party (Buyer or Offer Submitter) */}
-                        <div className="bg-teal-50/50 p-4 rounded-xl border border-teal-100 space-y-2">
-                          <span className="text-xs font-bold text-teal-800 uppercase tracking-wider block">
+                        <div className="bg-brand-blue-50/50 p-4 rounded-xl border border-brand-blue-100/60 space-y-2">
+                          <span className="text-xs font-bold text-brand-blue-900 uppercase tracking-wider block">
                             Interested Party (Inquirer)
                           </span>
                           <div className="space-y-1 text-xs text-slate-800">
@@ -722,7 +722,7 @@ export default function AdminDashboardPage() {
                               {inq.inquirer.name || "Name not provided"}
                             </p>
                             <div className="flex items-center space-x-1 text-slate-600">
-                              <Mail className="w-3.5 h-3.5 text-teal-600" />
+                              <Mail className="w-3.5 h-3.5 text-brand-blue" />
                               <a
                                 href={`mailto:${inq.inquirer.email}`}
                                 className="hover:underline"
@@ -731,10 +731,10 @@ export default function AdminDashboardPage() {
                               </a>
                             </div>
                             <div className="flex items-center space-x-1 text-slate-600">
-                              <Phone className="w-3.5 h-3.5 text-teal-600" />
+                              <Phone className="w-3.5 h-3.5 text-brand-blue" />
                               <a
                                 href={`tel:${inq.inquirer.phoneNumber}`}
-                                className="font-semibold text-teal-700 hover:underline"
+                                className="font-semibold text-brand-blue-700 hover:underline"
                               >
                                 {inq.inquirer.phoneNumber || "No phone saved"}
                               </a>
@@ -877,7 +877,7 @@ export default function AdminDashboardPage() {
 
             {tabLoading ? (
               <div className="p-16 text-center flex flex-col items-center justify-center space-y-3">
-                <div className="w-7 h-7 border-3 border-teal-600 border-t-transparent rounded-full animate-spin" />
+                <div className="w-7 h-7 border-3 border-brand-blue border-t-transparent rounded-full animate-spin" />
                 <span className="text-xs text-slate-500 font-semibold">
                   Loading registered users...
                 </span>
@@ -918,8 +918,8 @@ export default function AdminDashboardPage() {
                           </td>
                           <td className="p-3.5">
                             {u.phoneNumber ? (
-                              <div className="flex items-center space-x-1.5 font-bold text-teal-700">
-                                <Phone className="w-3 h-3 text-teal-600" />
+                              <div className="flex items-center space-x-1.5 font-bold text-brand-blue-700">
+                                <Phone className="w-3 h-3 text-brand-blue" />
                                 <span>{u.phoneNumber}</span>
                               </div>
                             ) : (
@@ -951,7 +951,7 @@ export default function AdminDashboardPage() {
                           </td>
                           <td className="p-3.5 text-right">
                             {isSelf ? (
-                              <span className="inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-bold bg-teal-50 text-teal-700 border border-teal-200">
+                              <span className="inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-bold bg-brand-blue-50 text-brand-blue-700 border border-brand-blue-200">
                                 You (Logged In)
                               </span>
                             ) : (
@@ -1021,7 +1021,7 @@ export default function AdminDashboardPage() {
 
             {tabLoading ? (
               <div className="p-16 text-center flex flex-col items-center justify-center space-y-3">
-                <div className="w-7 h-7 border-3 border-teal-600 border-t-transparent rounded-full animate-spin" />
+                <div className="w-7 h-7 border-3 border-brand-blue border-t-transparent rounded-full animate-spin" />
                 <span className="text-xs text-slate-500 font-semibold">
                   Loading equipment & parts listings...
                 </span>
@@ -1053,7 +1053,7 @@ export default function AdminDashboardPage() {
                           <Link
                             href={`/listings/${l.id}`}
                             target="_blank"
-                            className="hover:text-teal-600 hover:underline flex items-center space-x-1"
+                            className="hover:text-brand-blue hover:underline flex items-center space-x-1"
                           >
                             <span>{l.title}</span>
                             <ExternalLink className="w-3 h-3 text-slate-400" />
@@ -1075,7 +1075,7 @@ export default function AdminDashboardPage() {
                           <div className="font-semibold text-slate-900">
                             {l.seller.name || l.seller.email}
                           </div>
-                          <div className="text-[11px] text-teal-700 font-bold">
+                          <div className="text-[11px] text-brand-blue-700 font-bold">
                             {l.seller.phoneNumber || "No phone"}
                           </div>
                         </td>
@@ -1164,7 +1164,7 @@ export default function AdminDashboardPage() {
 
             {tabLoading ? (
               <div className="p-16 text-center flex flex-col items-center justify-center space-y-3">
-                <div className="w-7 h-7 border-3 border-teal-600 border-t-transparent rounded-full animate-spin" />
+                <div className="w-7 h-7 border-3 border-brand-blue border-t-transparent rounded-full animate-spin" />
                 <span className="text-xs text-slate-500 font-semibold">
                   Loading buyer requests...
                 </span>
@@ -1195,7 +1195,7 @@ export default function AdminDashboardPage() {
                         <Link
                           href={`/requests/${r.id}`}
                           target="_blank"
-                          className="hover:text-teal-600 hover:underline flex items-center space-x-1"
+                          className="hover:text-brand-blue hover:underline flex items-center space-x-1"
                         >
                           <span>{r.title}</span>
                           <ExternalLink className="w-3 h-3 text-slate-400" />
@@ -1213,7 +1213,7 @@ export default function AdminDashboardPage() {
                         <div className="font-semibold text-slate-900">
                           {r.buyer.name || r.buyer.email}
                         </div>
-                        <div className="text-[11px] text-teal-700 font-bold">
+                        <div className="text-[11px] text-brand-blue-700 font-bold">
                           {r.buyer.phoneNumber || "No phone"}
                         </div>
                       </td>

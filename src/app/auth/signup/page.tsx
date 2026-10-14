@@ -129,8 +129,8 @@ export default function SignUpPage() {
           )}
 
           {/* Quick Notice about phone number */}
-          <div className="mb-6 rounded-xl bg-slate-50 border border-slate-200/80 p-3.5 flex items-start space-x-3 text-xs text-slate-600">
-            <Info className="w-4 h-4 flex-shrink-0 text-teal-600 mt-0.5" />
+          <div className="mb-6 rounded-xl bg-brand-blue-50/60 border border-brand-blue-100 p-3.5 flex items-start space-x-3 text-xs text-slate-700">
+            <Info className="w-4 h-4 flex-shrink-0 text-brand-blue mt-0.5" />
             <span>
               <strong>Fast setup:</strong> No phone number required right now.
               We will only request phone and company details when you list or
@@ -143,7 +143,7 @@ export default function SignUpPage() {
             type="button"
             onClick={handleGoogleSignIn}
             disabled={googleLoading || loading}
-            className="w-full flex justify-center items-center gap-3 py-2.5 px-4 border border-slate-300 rounded-xl shadow-sm bg-white text-sm font-semibold text-slate-700 hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-teal-500 transition-all disabled:opacity-50"
+            className="w-full flex justify-center items-center gap-3 py-2.5 px-4 border border-slate-300 rounded-xl shadow-xs bg-white text-sm font-semibold text-slate-700 hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand-blue transition-all disabled:opacity-50"
           >
             <svg className="w-5 h-5" viewBox="0 0 24 24">
               <path
@@ -196,7 +196,7 @@ export default function SignUpPage() {
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   placeholder="Dr. Rajesh Sharma"
-                  className="block w-full pl-11 pr-3 py-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-teal-500 focus:border-teal-500 text-sm text-slate-900 placeholder-slate-400 transition-colors"
+                  className="block w-full pl-11 pr-3 py-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-brand-blue focus:border-brand-blue text-sm text-slate-900 placeholder-slate-400 transition-colors"
                 />
               </div>
             </div>
@@ -220,7 +220,7 @@ export default function SignUpPage() {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="analyst@labmatrix.com"
-                  className="block w-full pl-11 pr-3 py-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-teal-500 focus:border-teal-500 text-sm text-slate-900 placeholder-slate-400 transition-colors"
+                  className="block w-full pl-11 pr-3 py-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-brand-blue focus:border-brand-blue text-sm text-slate-900 placeholder-slate-400 transition-colors"
                 />
               </div>
             </div>
@@ -244,7 +244,7 @@ export default function SignUpPage() {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="••••••••"
-                  className="block w-full pl-11 pr-3 py-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-teal-500 focus:border-teal-500 text-sm text-slate-900 placeholder-slate-400 transition-colors"
+                  className="block w-full pl-11 pr-3 py-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-brand-blue focus:border-brand-blue text-sm text-slate-900 placeholder-slate-400 transition-colors"
                 />
               </div>
             </div>
@@ -268,7 +268,7 @@ export default function SignUpPage() {
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
                   placeholder="••••••••"
-                  className="block w-full pl-11 pr-3 py-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-teal-500 focus:border-teal-500 text-sm text-slate-900 placeholder-slate-400 transition-colors"
+                  className="block w-full pl-11 pr-3 py-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-brand-blue focus:border-brand-blue text-sm text-slate-900 placeholder-slate-400 transition-colors"
                 />
               </div>
             </div>
@@ -276,15 +276,15 @@ export default function SignUpPage() {
             <button
               type="submit"
               disabled={loading || googleLoading}
-              className="w-full flex justify-center items-center py-2.5 px-4 border border-transparent rounded-xl shadow-sm text-sm font-semibold text-white bg-teal-600 hover:bg-teal-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-teal-500 transition-all disabled:opacity-50 mt-2"
+              className="w-full flex justify-center items-center py-2.5 px-4 border border-transparent rounded-xl shadow-xs text-sm font-semibold text-white bg-brand-blue hover:bg-brand-blue-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand-blue transition-all disabled:opacity-50 mt-2"
             >
               {loading ? "Creating account..." : "Complete Registration"}
               {!loading && <ArrowRight className="ml-2 h-4 w-4" />}
             </button>
           </form>
 
-          <div className="mt-6 flex items-center justify-center space-x-1 text-xs text-slate-500">
-            <ShieldCheck className="w-4 h-4 text-teal-600" />
+          <div className="mt-6 flex items-center justify-center space-x-1.5 text-xs text-slate-500">
+            <ShieldCheck className="w-4 h-4 text-brand-gold-600" />
             <span>Buyer & Seller privacy guaranteed. Zero spam.</span>
           </div>
         </div>
@@ -293,7 +293,7 @@ export default function SignUpPage() {
           Already registered?{" "}
           <Link
             href="/auth/signin"
-            className="font-semibold text-teal-600 hover:text-teal-700 underline underline-offset-4"
+            className="font-semibold text-brand-blue hover:text-brand-blue-500 underline underline-offset-4"
           >
             Sign in here
           </Link>

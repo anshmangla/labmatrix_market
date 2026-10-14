@@ -153,7 +153,7 @@ export function NotificationBell() {
                 Notifications
               </span>
               {unreadCount > 0 && (
-                <span className="text-[11px] font-bold bg-teal-50 text-teal-700 px-2 py-0.5 rounded-full">
+                <span className="text-[11px] font-bold bg-brand-gold text-brand-blue px-2 py-0.5 rounded-full shadow-xs">
                   {unreadCount} new
                 </span>
               )}
@@ -163,7 +163,7 @@ export function NotificationBell() {
               <button
                 onClick={handleMarkAllAsRead}
                 disabled={loading}
-                className="text-[11px] font-semibold text-teal-600 hover:text-teal-700 hover:underline flex items-center space-x-1"
+                className="text-[11px] font-semibold text-brand-blue hover:text-brand-blue-500 hover:underline flex items-center space-x-1"
               >
                 <CheckCheck className="w-3.5 h-3.5" />
                 <span>Mark all as read</span>
@@ -189,7 +189,7 @@ export function NotificationBell() {
                     key={item.id}
                     onClick={() => handleMarkAsRead(item.id, item.link)}
                     className={`p-3.5 hover:bg-slate-50 transition-colors cursor-pointer flex items-start space-x-3 ${
-                      !item.isRead ? "bg-teal-50/40 border-l-3 border-teal-500" : ""
+                      !item.isRead ? "bg-brand-blue-50/50 border-l-3 border-brand-blue" : ""
                     }`}
                   >
                     {/* Icon */}
@@ -226,7 +226,7 @@ export function NotificationBell() {
                       </p>
 
                       {item.link && (
-                        <span className="inline-flex items-center space-x-1 text-[11px] font-semibold text-teal-600 hover:underline mt-1.5">
+                        <span className="inline-flex items-center space-x-1 text-[11px] font-semibold text-brand-blue hover:underline mt-1.5">
                           <span>View on marketplace</span>
                           <ExternalLink className="w-3 h-3" />
                         </span>
@@ -243,7 +243,7 @@ export function NotificationBell() {
             <Link
               href="/dashboard"
               onClick={() => setIsOpen(false)}
-              className="text-xs font-semibold text-slate-600 hover:text-teal-600 transition-colors"
+              className="text-xs font-semibold text-slate-600 hover:text-brand-blue transition-colors"
             >
               Go to User Dashboard →
             </Link>

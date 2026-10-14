@@ -87,8 +87,8 @@ export default function InquiryBox({
 
   return (
     <div className="bg-white rounded-2xl border border-slate-200 shadow-md p-6">
-      <div className="flex items-center space-x-2 text-xs font-bold text-teal-600 bg-teal-50 px-2.5 py-1 rounded-md w-fit mb-3">
-        <ShieldCheck className="w-4 h-4" />
+      <div className="flex items-center space-x-2 text-xs font-bold text-brand-blue bg-brand-blue-50 border border-brand-blue-100 px-3 py-1 rounded-md w-fit mb-3">
+        <ShieldCheck className="w-4 h-4 text-brand-gold-600" />
         <span>
           {isOfferToRequirement
             ? "Submit Equipment Proposal"
@@ -122,7 +122,7 @@ export default function InquiryBox({
           </p>
           <Link
             href="/auth/signin"
-            className="mt-3 inline-block px-4 py-2 bg-teal-600 hover:bg-teal-700 text-white font-semibold text-xs rounded-xl transition-colors"
+            className="mt-3 inline-block px-4 py-2 bg-brand-blue hover:bg-brand-blue-500 text-white font-semibold text-xs rounded-xl transition-colors shadow-xs"
           >
             Sign In with Email or Google
           </Link>
@@ -138,7 +138,7 @@ export default function InquiryBox({
               required
               value={message}
               onChange={(e) => setMessage(e.target.value)}
-              className="w-full p-2.5 border border-slate-300 rounded-xl text-xs focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
+              className="w-full p-2.5 border border-slate-300 rounded-xl text-xs focus:ring-2 focus:ring-brand-blue focus:border-brand-blue"
             />
           </div>
 
@@ -153,7 +153,7 @@ export default function InquiryBox({
                 placeholder="+91 98765 43210"
                 value={phone}
                 onChange={(e) => setPhone(e.target.value)}
-                className="w-full pl-9 pr-3 py-2 border border-slate-300 rounded-xl text-xs focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
+                className="w-full pl-9 pr-3 py-2 border border-slate-300 rounded-xl text-xs focus:ring-2 focus:ring-brand-blue focus:border-brand-blue"
               />
             </div>
           </div>
@@ -161,9 +161,9 @@ export default function InquiryBox({
           <button
             type="submit"
             disabled={loading}
-            className="w-full py-2.5 px-4 bg-teal-600 hover:bg-teal-700 text-white font-bold rounded-xl text-xs shadow-md transition-all flex items-center justify-center space-x-2 disabled:opacity-50"
+            className="w-full py-2.5 px-4 bg-brand-blue hover:bg-brand-blue-500 text-white font-bold rounded-xl text-xs shadow-md transition-all flex items-center justify-center space-x-2 disabled:opacity-50"
           >
-            <Send className="w-3.5 h-3.5" />
+            <Send className="w-3.5 h-3.5 text-brand-gold" />
             <span>
               {loading
                 ? "Sending..."

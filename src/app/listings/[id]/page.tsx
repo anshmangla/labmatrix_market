@@ -66,13 +66,13 @@ export default async function ListingDetailPage({
       <div className="max-w-7xl mx-auto">
         {/* Breadcrumb Navigation */}
         <div className="mb-6 flex items-center space-x-2 text-xs font-semibold text-slate-500">
-          <Link href="/" className="hover:text-teal-600 transition-colors">
+          <Link href="/" className="hover:text-brand-blue transition-colors">
             Home
           </Link>
           <span>/</span>
           <Link
             href="/listings"
-            className="hover:text-teal-600 transition-colors"
+            className="hover:text-brand-blue transition-colors"
           >
             Listings
           </Link>
@@ -110,7 +110,7 @@ export default async function ListingDetailPage({
             {/* Description & Technical Specs */}
             <div className="bg-white rounded-2xl p-6 sm:p-8 shadow-xs border border-slate-200 space-y-6">
               <div>
-                <span className="text-xs font-bold uppercase tracking-wider text-teal-600">
+                <span className="text-xs font-bold uppercase tracking-wider text-brand-blue">
                   {listing.category}
                 </span>
                 <h1 className="text-2xl sm:text-3xl font-black text-slate-900 mt-1">
@@ -122,7 +122,7 @@ export default async function ListingDetailPage({
                     {listing.location || "India"}
                   </span>
                   <span>•</span>
-                  <span className="text-teal-700 bg-teal-50 px-2 py-0.5 rounded font-semibold">
+                  <span className="text-brand-blue bg-brand-blue-50 px-2 py-0.5 rounded font-semibold">
                     {listing.condition}
                   </span>
                   <span>•</span>
@@ -133,7 +133,7 @@ export default async function ListingDetailPage({
                 </div>
 
                 {listing.itemType === "SPARE_PART" && (
-                  <div className="mt-4 p-3.5 bg-teal-50/70 rounded-xl border border-teal-200/80 flex flex-wrap gap-5 text-xs">
+                  <div className="mt-4 p-3.5 bg-brand-blue-50/70 rounded-xl border border-brand-blue-200/80 flex flex-wrap gap-5 text-xs">
                     {listing.compatibleWith && (
                       <div>
                         <span className="text-slate-400 block font-bold text-[10px] uppercase">
@@ -156,7 +156,7 @@ export default async function ListingDetailPage({
 
               <div className="border-t border-slate-100 pt-6">
                 <h2 className="text-base font-bold text-slate-900 mb-3 flex items-center space-x-2">
-                  <FileText className="w-4 h-4 text-teal-600" />
+                  <FileText className="w-4 h-4 text-brand-blue" />
                   <span>Technical Description & Details</span>
                 </h2>
                 <div className="text-sm text-slate-700 leading-relaxed whitespace-pre-line bg-slate-50 p-5 rounded-xl border border-slate-100">
@@ -165,12 +165,12 @@ export default async function ListingDetailPage({
               </div>
 
               {/* Marketplace Assurance Box */}
-              <div className="bg-slate-900 text-white rounded-xl p-5 flex items-start space-x-3.5 shadow-sm">
-                <div className="w-8 h-8 rounded-lg bg-teal-500/20 text-teal-400 flex items-center justify-center flex-shrink-0 mt-0.5">
-                  <ShieldCheck className="w-4 h-4" />
+              <div className="bg-brand-blue-950 text-white rounded-xl p-5 flex items-start space-x-3.5 shadow-sm border border-brand-blue-800">
+                <div className="w-8 h-8 rounded-lg bg-brand-gold/20 text-brand-gold flex items-center justify-center flex-shrink-0 mt-0.5">
+                  <ShieldCheck className="w-4 h-4 text-brand-gold" />
                 </div>
                 <div>
-                  <h4 className="text-xs font-bold text-teal-400 uppercase tracking-wider">
+                  <h4 className="text-xs font-bold text-brand-gold uppercase tracking-wider">
                     Verified Equipment Listing
                   </h4>
                   <p className="text-xs text-slate-300 mt-1 leading-relaxed">
@@ -189,7 +189,7 @@ export default async function ListingDetailPage({
               <span className="text-xs font-semibold text-slate-400 block mb-1">
                 Approximate Price Expectation
               </span>
-              <div className="text-2xl sm:text-3xl font-black text-slate-900">
+              <div className="text-2xl sm:text-3xl font-black text-brand-blue">
                 ₹{listing.minPrice.toLocaleString("en-IN")} - ₹
                 {listing.maxPrice.toLocaleString("en-IN")}
               </div>
@@ -200,15 +200,15 @@ export default async function ListingDetailPage({
 
               <div className="mt-4 pt-4 border-t border-slate-100 space-y-2 text-xs text-slate-600">
                 <div className="flex items-center space-x-2">
-                  <CheckCircle className="w-3.5 h-3.5 text-teal-600 flex-shrink-0" />
+                  <CheckCircle className="w-3.5 h-3.5 text-brand-gold-600 flex-shrink-0" />
                   <span>Verified laboratory equipment listing</span>
                 </div>
                 <div className="flex items-center space-x-2">
-                  <CheckCircle className="w-3.5 h-3.5 text-teal-600 flex-shrink-0" />
+                  <CheckCircle className="w-3.5 h-3.5 text-brand-gold-600 flex-shrink-0" />
                   <span>On-site or video inspection coordinated</span>
                 </div>
                 <div className="flex items-center space-x-2">
-                  <CheckCircle className="w-3.5 h-3.5 text-teal-600 flex-shrink-0" />
+                  <CheckCircle className="w-3.5 h-3.5 text-brand-gold-600 flex-shrink-0" />
                   <span>Complete escrow & handover assistance</span>
                 </div>
               </div>

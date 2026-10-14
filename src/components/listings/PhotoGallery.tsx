@@ -42,7 +42,7 @@ export default function PhotoGallery({
               onClick={() => setActiveIdx(idx)}
               className={`relative rounded-xl overflow-hidden w-20 h-20 flex-shrink-0 border-2 transition-all ${
                 activeIdx === idx
-                  ? "border-teal-600 ring-2 ring-teal-600/30"
+                  ? "border-brand-blue ring-2 ring-brand-blue/30"
                   : "border-slate-200 opacity-70 hover:opacity-100"
               }`}
             >
