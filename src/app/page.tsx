@@ -247,27 +247,6 @@ export default function Home() {
           </div>
         </div>
       </section>
-
-      {/* Footer */}
-      <footer className="mt-auto bg-slate-900 text-slate-400 py-12 border-t border-slate-800">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4">
-          <Link
-            href="/"
-            className="inline-flex items-center bg-white/95 hover:bg-white px-3 py-1.5 rounded-xl transition-all shadow-xs"
-          >
-            <Image
-              src="/logo.png"
-              alt="Labmatrix - Keeping Science Ahead"
-              width={150}
-              height={32}
-              className="h-7 w-auto object-contain"
-            />
-          </Link>
-          <p className="text-xs text-slate-500">
-            &copy; 2026 LabMatrix. B2B Marketplace for Pharma & Analytical Equipment.
-          </p>
-        </div>
-      </footer>
     </div>
   );
 }

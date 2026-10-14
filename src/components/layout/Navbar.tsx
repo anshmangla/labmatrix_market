@@ -69,6 +69,12 @@ export default function Navbar() {
               <span>How It Works</span>
             </Link>
             <Link
+              href="/contact"
+              className="px-3 py-2 rounded-lg hover:text-brand-blue hover:bg-brand-blue-50/60 transition-colors"
+            >
+              Contact
+            </Link>
+            <Link
               href="/listings/create"
               className="px-3.5 py-2 rounded-xl text-brand-blue bg-brand-gold hover:bg-brand-gold-300 font-bold shadow-xs hover:shadow-sm transition-all flex items-center space-x-1.5"
             >
@@ -188,6 +194,13 @@ export default function Navbar() {
             >
               <Shield className="w-4 h-4 text-brand-gold-600" />
               <span>How It Works</span>
+            </Link>
+            <Link
+              href="/contact"
+              onClick={() => setMobileMenuOpen(false)}
+              className="px-3 py-2.5 rounded-xl hover:bg-brand-blue-50/70 hover:text-brand-blue flex items-center justify-between"
+            >
+              <span>Contact Us</span>
             </Link>
             <Link
               href="/listings/create"
