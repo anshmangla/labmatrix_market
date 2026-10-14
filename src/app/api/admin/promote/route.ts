@@ -9,44 +9,45 @@ export async function POST() {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const adminCount = await prisma.user.count({
-      where: { role: "ADMIN" },
-    });
-
     const currentUser = await prisma.user.findUnique({
       where: { id: session.user.id },
     });
 
-    if (!currentUser) {
-      return NextResponse.json({ error: "User not found" }, { status: 404 });
+    if (!currentUser || !currentUser.email) {
+      return NextResponse.json({ error: "User not found or email missing" }, { status: 404 });
     }
 
-    // Allow promotion if: no admin exists yet OR user's email matches ADMIN_EMAIL/ADMIN_EMAILS env (supports comma-separated list)
+    // Strictly allow promotion ONLY if user's email matches ADMIN_EMAIL/ADMIN_EMAILS environment variable
     const configuredAdminEmails = (process.env.ADMIN_EMAIL || process.env.ADMIN_EMAILS || "")
       .split(",")
       .map((e) => e.trim().toLowerCase())
       .filter(Boolean);
 
-    const isOwnerEmail =
-      configuredAdminEmails.length > 0 &&
-      configuredAdminEmails.includes(currentUser.email.toLowerCase());
-
-    if (adminCount === 0 || isOwnerEmail) {
-      const updated = await prisma.user.update({
-        where: { id: currentUser.id },
-        data: { role: "ADMIN" },
-      });
-
-      return NextResponse.json({
-        message: "Your account has been elevated to Platform Administrator.",
-        role: updated.role,
-      });
+    if (configuredAdminEmails.length === 0) {
+      return NextResponse.json(
+        { error: "Admin bootstrap is not configured on this server. Please set ADMIN_EMAIL in environment." },
+        { status: 403 }
+      );
     }
 
-    return NextResponse.json(
-      { error: "Admin already exists. Please contact the existing administrator." },
-      { status: 403 }
-    );
+    const isOwnerEmail = configuredAdminEmails.includes(currentUser.email.toLowerCase());
+
+    if (!isOwnerEmail) {
+      return NextResponse.json(
+        { error: "Forbidden: Your email address is not authorized for administrator access." },
+        { status: 403 }
+      );
+    }
+
+    const updated = await prisma.user.update({
+      where: { id: currentUser.id },
+      data: { role: "ADMIN" },
+    });
+
+    return NextResponse.json({
+      message: "Your account has been elevated to Platform Administrator.",
+      role: updated.role,
+    });
   } catch (error: any) {
     console.error("Promote admin error:", error);
     return NextResponse.json(

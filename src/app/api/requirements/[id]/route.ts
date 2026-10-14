@@ -82,8 +82,14 @@ export async function PATCH(
       return NextResponse.json({ error: "Requirement not found" }, { status: 404 });
     }
 
+    // Verify user role directly from database
+    const user = await prisma.user.findUnique({
+      where: { id: session.user.id },
+      select: { role: true },
+    });
+
     const isOwner = req.buyerId === session.user.id;
-    const isAdmin = (session.user as any)?.role === "ADMIN";
+    const isAdmin = user?.role === "ADMIN";
 
     if (!isOwner && !isAdmin) {
       return NextResponse.json(

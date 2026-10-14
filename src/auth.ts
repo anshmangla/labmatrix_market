@@ -57,14 +57,21 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     }),
   ],
   callbacks: {
-    async jwt({ token, user, trigger, session }) {
+    async jwt({ token, user, trigger }) {
       if (user) {
         token.id = user.id;
         token.role = (user as any).role || "USER";
       }
 
-      if (trigger === "update" && session?.user) {
-        token.role = session.user.role ?? token.role;
+      if (trigger === "update" && token.id) {
+        // Query the database for the user's authentic role to prevent client-forged role elevation
+        const freshUser = await prisma.user.findUnique({
+          where: { id: token.id as string },
+          select: { role: true },
+        });
+        if (freshUser) {
+          token.role = freshUser.role;
+        }
       }
 
       return token;

@@ -19,10 +19,20 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "No file provided" }, { status: 400 });
     }
 
-    // Verify it is an image
-    if (!file.type.startsWith("image/")) {
+    // 1. File size enforcement: Maximum 5 MB per image to prevent server memory exhaustion
+    const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5 MB
+    if (file.size > MAX_FILE_SIZE) {
       return NextResponse.json(
-        { error: "Only image files (JPG, PNG, WEBP) are allowed." },
+        { error: "File exceeds 5MB size limit. Please upload a smaller image." },
+        { status: 400 }
+      );
+    }
+
+    // 2. Strict MIME type verification: Allow raster image formats only (explicitly disallowing SVG to prevent XSS)
+    const ALLOWED_MIME_TYPES = ["image/jpeg", "image/png", "image/webp", "image/jpg"];
+    if (!ALLOWED_MIME_TYPES.includes(file.type.toLowerCase())) {
+      return NextResponse.json(
+        { error: "Only JPEG, PNG, and WEBP image files are allowed." },
         { status: 400 }
       );
     }
