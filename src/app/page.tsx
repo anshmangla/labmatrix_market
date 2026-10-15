@@ -29,6 +29,47 @@ export default function Home() {
     { name: "DSC-TGA & DMA", count: "Thermal Analysis", icon: Thermometer },
   ];
 
+  const faqs = [
+    {
+      question: "What types of analytical instruments and spare parts can I trade on LabMatrix?",
+      answer:
+        "LabMatrix specializes in high-precision laboratory and pharmaceutical equipment, including HPLC, UHPLC, GC, GC-MS, ICP-OES, ICP-MS, AAS, UV-Vis, FTIR, DSC-TGA, and genuine replacement spare parts such as PPC modules, power supplies, deuterium lamps, and boards from manufacturers like PerkinElmer, Agilent, Waters, and Shimadzu.",
+    },
+    {
+      question: "How does LabMatrix ensure equipment quality and verification?",
+      answer:
+        "Every listing submitted to LabMatrix undergoes review by our Deal Desk before appearing publicly. We cross-verify technical specifications, serial numbers, module configurations, and operational history. On-site or video technical inspections can be arranged prior to final transaction closing.",
+    },
+    {
+      question: "Can I find hard-to-source or obsolete spare parts for older instruments?",
+      answer:
+        "Yes. In our dedicated Spare Parts hub (/spare-parts), laboratories and service engineers can source tested working surplus, replacement boards, power supplies, and OEM modules. If you cannot find a specific part, you can post a wanted requirement to notify suppliers nationwide.",
+    },
+    {
+      question: "How is buyer and seller confidentiality maintained?",
+      answer:
+        "To protect your laboratory from spam and unsolicited outreach, personal contact details (phone numbers and emails) remain completely confidential. Communications and offers are facilitated securely through your dashboard and coordinated via our technical Deal Desk.",
+    },
+    {
+      question: "How do I list surplus laboratory instruments for sale?",
+      answer:
+        "Simply sign in with your email or Google account, click 'Post / Sell', select whether you are listing a complete machine or a spare part, provide instrument specifications with photos and expected price range, and submit. Once verified by our administration team, your listing will be published live.",
+    },
+  ];
+
+  const faqJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    mainEntity: faqs.map((faq) => ({
+      "@type": "Question",
+      name: faq.question,
+      acceptedAnswer: {
+        "@type": "Answer",
+        text: faq.answer,
+      },
+    })),
+  };
+
   return (
     <div className="flex flex-col min-h-screen">
       {/* Hero Section */}
@@ -246,6 +287,65 @@ export default function Home() {
                 Coordinate instrument inspections, calibration records verification, and
                 secure delivery between laboratories.
               </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Frequently Asked Questions (FAQ) Section with Schema */}
+      <section className="py-20 bg-slate-50 border-t border-slate-200">
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }}
+        />
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-12">
+            <span className="text-xs font-bold uppercase tracking-wider text-brand-blue">
+              Common Questions
+            </span>
+            <h2 className="text-3xl font-black text-slate-900 mt-1">
+              Frequently Asked Questions
+            </h2>
+            <p className="text-sm text-slate-600 mt-2">
+              Everything you need to know about buying, selling, and sourcing analytical instruments on LabMatrix.
+            </p>
+          </div>
+
+          <div className="space-y-4">
+            {faqs.map((faq, idx) => (
+              <div
+                key={idx}
+                className="bg-white rounded-2xl border border-slate-200 p-6 shadow-xs"
+              >
+                <h3 className="font-bold text-slate-900 text-base flex items-start space-x-3">
+                  <span className="text-brand-gold font-black text-lg select-none">Q.</span>
+                  <span>{faq.question}</span>
+                </h3>
+                <p className="text-sm text-slate-600 mt-3 leading-relaxed pl-7">
+                  {faq.answer}
+                </p>
+              </div>
+            ))}
+          </div>
+
+          <div className="mt-12 text-center bg-brand-blue-950 text-white p-8 rounded-3xl border border-brand-blue-800 shadow-md">
+            <h3 className="text-xl font-bold">Have a Specific Equipment or Spare Part Sourcing Need?</h3>
+            <p className="text-xs text-slate-300 mt-2 max-w-xl mx-auto">
+              Our engineering procurement team coordinates with accredited labs across India to find matching machinery or replacement modules.
+            </p>
+            <div className="mt-6 flex flex-wrap justify-center gap-3">
+              <Link
+                href="/requests/create"
+                className="px-5 py-2.5 bg-brand-gold hover:bg-brand-gold-500 text-brand-blue-950 font-bold text-xs rounded-xl shadow-xs transition-colors"
+              >
+                Post Buyer Request
+              </Link>
+              <Link
+                href="/contact"
+                className="px-5 py-2.5 bg-white/10 hover:bg-white/20 text-white font-semibold text-xs rounded-xl transition-colors border border-white/20"
+              >
+                Contact Technical Support
+              </Link>
             </div>
           </div>
         </div>

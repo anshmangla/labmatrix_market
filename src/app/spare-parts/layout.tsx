@@ -7,6 +7,18 @@ export const metadata: Metadata = {
   alternates: {
     canonical: "/spare-parts",
   },
+  keywords: [
+    "analytical instrument spare parts India",
+    "PerkinElmer GC spare parts",
+    "PerkinElmer Clarus PPC module",
+    "PerkinElmer PPC board pre-owned",
+    "PerkinElmer Clarus power supply",
+    "HPLC replacement modules",
+    "GC power supply replacement",
+    "deuterium lamps HPLC",
+    "used chromatography detectors",
+    "laboratory equipment consumables surplus",
+  ],
   openGraph: {
     title: "Analytical Instrument Spare Parts & Consumables | LabMatrix",
     description:

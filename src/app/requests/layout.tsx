@@ -7,6 +7,15 @@ export const metadata: Metadata = {
   alternates: {
     canonical: "/requests",
   },
+  keywords: [
+    "laboratory equipment wanted",
+    "sell used HPLC to buyers",
+    "sell surplus GC-MS",
+    "buy requests analytical instruments India",
+    "pharma equipment procurement",
+    "sell used ICP-OES India",
+    "laboratory testing instrument buyers",
+  ],
   openGraph: {
     title: "Buyer Sourcing Requirements Board | LabMatrix Marketplace",
     description:

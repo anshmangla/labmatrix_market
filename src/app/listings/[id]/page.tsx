@@ -32,6 +32,9 @@ export async function generateMetadata({
       title: true,
       description: true,
       category: true,
+      itemType: true,
+      partNumber: true,
+      compatibleWith: true,
       condition: true,
       minPrice: true,
       maxPrice: true,
@@ -48,14 +51,33 @@ export async function generateMetadata({
     };
   }
 
-  const title = `${listing.title} | Used & Refurbished ${listing.category}`;
-  const desc = `Buy verified pre-owned ${listing.title} in ${listing.location || "India"}. Condition: ${listing.condition || "Used"}. Approx Price: ₹${listing.minPrice.toLocaleString("en-IN")} - ₹${listing.maxPrice.toLocaleString("en-IN")}. Contact LabMatrix for inspection and quotations.`;
+  const isSpare = listing.itemType === "SPARE_PART";
+  const title = isSpare
+    ? `${listing.title}${listing.partNumber ? ` (Part #${listing.partNumber})` : ""} | Spare Parts India`
+    : `${listing.title} | Pre-Owned ${listing.category} in ${listing.location || "India"}`;
+
+  const desc = isSpare
+    ? `Buy verified pre-owned ${listing.title} in ${listing.location || "India"}.${listing.compatibleWith ? ` Compatible with ${listing.compatibleWith}.` : ""}${listing.partNumber ? ` Part Number: ${listing.partNumber}.` : ""} Condition: ${listing.condition || "Used"}. Expected Price: ₹${listing.minPrice.toLocaleString("en-IN")} - ₹${listing.maxPrice.toLocaleString("en-IN")}. Contact LabMatrix for prompt delivery.`
+    : `Buy verified pre-owned ${listing.title} in ${listing.location || "India"}. Category: ${listing.category}. Condition: ${listing.condition || "Used"}. Approx Price: ₹${listing.minPrice.toLocaleString("en-IN")} - ₹${listing.maxPrice.toLocaleString("en-IN")}. Contact LabMatrix for inspection and quotations.`;
+
   const image =
     listing.photos && listing.photos.length > 0 ? listing.photos[0] : "/logo.png";
+
+  const keywords = [
+    listing.title,
+    listing.category,
+    listing.partNumber,
+    listing.compatibleWith,
+    isSpare ? "analytical instrument spare parts India" : "used lab equipment India",
+    listing.location,
+    "refurbished analytical instruments",
+    "LabMatrix marketplace",
+  ].filter(Boolean) as string[];
 
   return {
     title,
     description: desc,
+    keywords,
     alternates: {
       canonical: `/listings/${id}`,
     },
@@ -123,6 +145,25 @@ export default async function ListingDetailPage({
     notFound();
   }
 
+  const knownBrands = [
+    "PerkinElmer",
+    "Perkin Elmer",
+    "Agilent",
+    "Waters",
+    "Shimadzu",
+    "Thermo Fisher",
+    "Thermo",
+    "Bruker",
+    "Metrohm",
+    "Sartorius",
+    "Mettler Toledo",
+    "Hitachi",
+  ];
+  const matchedBrand =
+    knownBrands.find((b) =>
+      listing.title.toLowerCase().includes(b.toLowerCase())
+    ) || "LabMatrix";
+
   const productJsonLd = {
     "@context": "https://schema.org",
     "@graph": [
@@ -132,12 +173,20 @@ export default async function ListingDetailPage({
         name: listing.title,
         description: listing.description.slice(0, 300),
         category: listing.category,
+        sku: listing.id,
+        ...(listing.partNumber ? { mpn: listing.partNumber } : {}),
+        brand: {
+          "@type": "Brand",
+          name: matchedBrand,
+        },
         image:
           listing.photos && listing.photos.length > 0
             ? listing.photos
             : ["https://surplus.labmatrixindia.com/logo.png"],
         itemCondition: listing.condition?.toLowerCase().includes("refurbished")
           ? "https://schema.org/RefurbishedCondition"
+          : listing.condition?.toLowerCase().includes("brand new")
+          ? "https://schema.org/NewCondition"
           : "https://schema.org/UsedCondition",
         offers: {
           "@type": "AggregateOffer",

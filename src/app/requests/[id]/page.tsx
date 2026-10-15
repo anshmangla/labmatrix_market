@@ -30,6 +30,8 @@ export async function generateMetadata({
       description: true,
       category: true,
       itemType: true,
+      partNumber: true,
+      compatibleWith: true,
       isApproved: true,
     },
   });
@@ -41,12 +43,29 @@ export async function generateMetadata({
     };
   }
 
-  const title = `Wanted: ${req.title} (${req.category}) | Buyer Requirement`;
-  const desc = `Buyer sourcing request for ${req.title}. Category: ${req.category}. Have this equipment or spare part available? Connect and submit your offer on LabMatrix Marketplace.`;
+  const isSpare = req.itemType === "SPARE_PART";
+  const title = isSpare
+    ? `Wanted: ${req.title}${req.partNumber ? ` (Part #${req.partNumber})` : ""}${req.compatibleWith ? ` for ${req.compatibleWith}` : ""} | Spare Parts Wanted`
+    : `Wanted: ${req.title} (${req.category}) | Buyer Sourcing Request`;
+
+  const desc = isSpare
+    ? `Buyer procurement request for ${req.title}.${req.compatibleWith ? ` Compatible with: ${req.compatibleWith}.` : ""}${req.partNumber ? ` Part Number: ${req.partNumber}.` : ""} Submit quote or matching inventory on LabMatrix.`
+    : `Buyer sourcing request for ${req.title}. Category: ${req.category}. Have this equipment available? Connect and submit your offer on LabMatrix Marketplace.`;
+
+  const keywords = [
+    `buy ${req.title}`,
+    `wanted ${req.title}`,
+    req.category,
+    req.partNumber,
+    req.compatibleWith,
+    isSpare ? "wanted lab spare parts" : "buy used lab instrument",
+    "laboratory equipment procurement India",
+  ].filter(Boolean) as string[];
 
   return {
     title,
     description: desc,
+    keywords,
     alternates: {
       canonical: `/requests/${id}`,
     },
