@@ -3,6 +3,52 @@ import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { checkRateLimit } from "@/lib/rate-limit";
 
+export async function GET() {
+  try {
+    const session = await auth();
+    if (!session?.user?.id) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const [received, sent] = await Promise.all([
+      prisma.inquiry.findMany({
+        where: {
+          OR: [
+            { listing: { sellerId: session.user.id } },
+            { requirement: { buyerId: session.user.id } },
+          ],
+        },
+        orderBy: { createdAt: "desc" },
+        include: {
+          listing: {
+            select: { id: true, title: true, itemType: true, minPrice: true, maxPrice: true },
+          },
+          requirement: {
+            select: { id: true, title: true, itemType: true },
+          },
+        },
+      }),
+      prisma.inquiry.findMany({
+        where: { inquirerId: session.user.id },
+        orderBy: { createdAt: "desc" },
+        include: {
+          listing: {
+            select: { id: true, title: true, itemType: true, minPrice: true, maxPrice: true },
+          },
+          requirement: {
+            select: { id: true, title: true, itemType: true },
+          },
+        },
+      }),
+    ]);
+
+    return NextResponse.json({ received, sent });
+  } catch (error: any) {
+    console.error("Fetch inquiries error:", error);
+    return NextResponse.json({ error: "Failed to fetch inquiries" }, { status: 500 });
+  }
+}
+
 export async function POST(request: Request) {
   try {
     const session = await auth();

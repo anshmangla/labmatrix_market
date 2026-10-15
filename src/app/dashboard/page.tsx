@@ -1,7 +1,8 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, Suspense } from "react";
 import { useSession } from "next-auth/react";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import {
   Tag,
@@ -21,18 +22,54 @@ import {
   Bell,
   CheckCheck,
   Pencil,
+  MessageSquare,
+  ArrowRight,
+  Inbox,
+  Send,
 } from "lucide-react";
 
-export default function UserDashboardPage() {
+function DashboardContent() {
   const { data: session, status } = useSession();
+  const router = useRouter();
+  const searchParams = useSearchParams();
+
+  const rawTab = searchParams.get("tab");
+  const initialTab =
+    rawTab === "requests"
+      ? "requests"
+      : rawTab === "inquiries" || rawTab === "notifications" || rawTab === "messages"
+      ? "inquiries"
+      : "listings";
+
   const [profile, setProfile] = useState<any>(null);
   const [listings, setListings] = useState<any[]>([]);
   const [requirements, setRequirements] = useState<any[]>([]);
   const [notifications, setNotifications] = useState<any[]>([]);
+  const [inquiries, setInquiries] = useState<{ received: any[]; sent: any[] }>({
+    received: [],
+    sent: [],
+  });
   const [unreadCount, setUnreadCount] = useState(0);
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState<"listings" | "requests" | "notifications">("listings");
+  const [activeTab, setActiveTab] = useState<"listings" | "requests" | "inquiries">(initialTab);
   const [updatingId, setUpdatingId] = useState<string | null>(null);
+
+  // Sync tab with URL search parameter
+  useEffect(() => {
+    const tab = searchParams.get("tab");
+    if (tab === "requests") {
+      setActiveTab("requests");
+    } else if (tab === "inquiries" || tab === "notifications" || tab === "messages") {
+      setActiveTab("inquiries");
+    } else if (tab === "listings") {
+      setActiveTab("listings");
+    }
+  }, [searchParams]);
+
+  const switchTab = (tab: "listings" | "requests" | "inquiries") => {
+    setActiveTab(tab);
+    router.replace(`/dashboard?tab=${tab}`, { scroll: false });
+  };
 
   useEffect(() => {
     if (session?.user) {
@@ -43,15 +80,17 @@ export default function UserDashboardPage() {
   const loadUserData = async () => {
     setLoading(true);
     try {
-      const [profRes, itemsRes, notifRes] = await Promise.all([
+      const [profRes, itemsRes, notifRes, inqRes] = await Promise.all([
         fetch("/api/user/profile"),
         fetch("/api/user/my-items"),
         fetch("/api/notifications"),
+        fetch("/api/inquiries"),
       ]);
 
       const profData = await profRes.json();
       const itemsData = await itemsRes.json();
       const notifData = await notifRes.json();
+      const inqData = await inqRes.json();
 
       if (profData?.user) setProfile(profData.user);
       if (itemsData?.listings) setListings(itemsData.listings);
@@ -59,6 +98,12 @@ export default function UserDashboardPage() {
       if (notifData?.notifications) {
         setNotifications(notifData.notifications);
         setUnreadCount(notifData.unreadCount || 0);
+      }
+      if (inqData?.received || inqData?.sent) {
+        setInquiries({
+          received: inqData.received || [],
+          sent: inqData.sent || [],
+        });
       }
     } catch (err) {
       console.error("Dashboard error:", err);
@@ -142,8 +187,7 @@ export default function UserDashboardPage() {
           <Lock className="w-12 h-12 text-brand-blue mx-auto mb-4" />
           <h2 className="text-xl font-bold text-slate-900">Sign In Required</h2>
           <p className="text-sm text-slate-600 mt-2">
-            Please sign in to view your dashboard, active listings, and equipment
-            requests.
+            Please sign in to view your dashboard, active listings, and equipment requests.
           </p>
           <Link
             href="/auth/signin"
@@ -155,6 +199,9 @@ export default function UserDashboardPage() {
       </div>
     );
   }
+
+  const totalInquiriesAndNotifications =
+    inquiries.received.length + inquiries.sent.length + notifications.length;
 
   return (
     <div className="min-h-screen bg-slate-50 py-10 px-4 sm:px-6 lg:px-8">
@@ -240,10 +287,10 @@ export default function UserDashboardPage() {
         </div>
 
         {/* Tab Controls */}
-        <div className="flex space-x-2 border-b border-slate-200 pb-2">
+        <div className="flex flex-wrap gap-2 border-b border-slate-200 pb-2">
           <button
             type="button"
-            onClick={() => setActiveTab("listings")}
+            onClick={() => switchTab("listings")}
             className={`px-4 py-2 rounded-xl text-xs font-bold transition-all ${
               activeTab === "listings"
                 ? "bg-brand-blue text-white shadow-xs"
@@ -254,7 +301,7 @@ export default function UserDashboardPage() {
           </button>
           <button
             type="button"
-            onClick={() => setActiveTab("requests")}
+            onClick={() => switchTab("requests")}
             className={`px-4 py-2 rounded-xl text-xs font-bold transition-all ${
               activeTab === "requests"
                 ? "bg-brand-blue text-white shadow-xs"
@@ -265,15 +312,15 @@ export default function UserDashboardPage() {
           </button>
           <button
             type="button"
-            onClick={() => setActiveTab("notifications")}
+            onClick={() => switchTab("inquiries")}
             className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center space-x-1.5 ${
-              activeTab === "notifications"
+              activeTab === "inquiries"
                 ? "bg-brand-blue text-white shadow-xs"
                 : "bg-white text-slate-600 hover:bg-slate-200"
             }`}
           >
-            <Bell className="w-3.5 h-3.5" />
-            <span>Activity Notifications ({notifications.length})</span>
+            <MessageSquare className="w-3.5 h-3.5" />
+            <span>Inquiries & Messages ({totalInquiriesAndNotifications})</span>
             {unreadCount > 0 && (
               <span className="bg-red-500 text-white text-[10px] px-1.5 py-0.2 rounded-full font-bold">
                 {unreadCount}
@@ -536,16 +583,18 @@ export default function UserDashboardPage() {
           </div>
         )}
 
-        {/* Tab 3: Notifications */}
-        {activeTab === "notifications" && (
-          <div className="space-y-4">
+        {/* Tab 3: Inquiries & Messages */}
+        {activeTab === "inquiries" && (
+          <div className="space-y-6">
+            {/* Header with Mark all read button */}
             <div className="bg-white rounded-2xl border border-slate-200 p-5 shadow-xs flex items-center justify-between">
               <div>
-                <h2 className="text-base font-bold text-slate-900">
-                  Activity & Entry Notifications
+                <h2 className="text-base font-bold text-slate-900 flex items-center space-x-2">
+                  <MessageSquare className="w-4 h-4 text-brand-blue" />
+                  <span>Inquiries, Messages & Activity</span>
                 </h2>
                 <p className="text-xs text-slate-500 mt-0.5">
-                  Real-time updates regarding admin reviews, listing approvals, and procurement requests.
+                  Track direct buyer inquiries, listing reviews, and marketplace transactions coordinated by the Deal Desk.
                 </p>
               </div>
 
@@ -560,79 +609,273 @@ export default function UserDashboardPage() {
               )}
             </div>
 
-            {notifications.length === 0 ? (
-              <div className="bg-white rounded-2xl border border-slate-200 p-12 text-center">
-                <Bell className="w-10 h-10 text-slate-300 mx-auto mb-3" />
-                <h3 className="text-base font-bold text-slate-800">
-                  No notifications yet
-                </h3>
-                <p className="text-xs text-slate-500 mt-1 max-w-sm mx-auto">
-                  When you submit a machine listing or procurement request, we will notify you here as soon as our admin team approves it.
-                </p>
-              </div>
-            ) : (
+            {/* Inquiries Received on Your Equipment */}
+            {inquiries.received.length > 0 && (
               <div className="space-y-3">
-                {notifications.map((item) => {
-                  const isApproved = item.type === "ENTRY_APPROVED";
-                  return (
-                    <div
-                      key={item.id}
-                      className={`bg-white rounded-2xl border p-5 shadow-xs transition-colors flex items-start space-x-4 ${
-                        !item.isRead
-                          ? "border-brand-blue-200 bg-brand-blue-50/30"
-                          : "border-slate-200"
-                      }`}
-                    >
-                      <div className="flex-shrink-0 mt-0.5">
-                        {isApproved ? (
-                          <div className="w-10 h-10 rounded-xl bg-emerald-100 text-emerald-600 flex items-center justify-center shadow-xs">
-                            <CheckCircle2 className="w-5 h-5" />
-                          </div>
-                        ) : (
-                          <div className="w-10 h-10 rounded-xl bg-amber-100 text-amber-700 flex items-center justify-center shadow-xs">
-                            <Clock className="w-5 h-5" />
-                          </div>
-                        )}
-                      </div>
+                <div className="flex items-center space-x-2">
+                  <Inbox className="w-4 h-4 text-brand-blue" />
+                  <h3 className="text-sm font-bold text-slate-900">
+                    Inquiries Received on Your Equipment ({inquiries.received.length})
+                  </h3>
+                </div>
 
-                      <div className="flex-1 min-w-0">
-                        <div className="flex flex-wrap items-center justify-between gap-2">
-                          <h4 className="text-sm font-bold text-slate-900">
-                            {item.title}
-                          </h4>
-                          <span className="text-[11px] text-slate-400">
-                            {new Date(item.createdAt).toLocaleString("en-IN", {
-                              month: "short",
-                              day: "numeric",
-                              hour: "2-digit",
-                              minute: "2-digit",
-                            })}
+                <div className="space-y-3">
+                  {inquiries.received.map((inq: any) => (
+                    <div
+                      key={inq.id}
+                      className="bg-white rounded-2xl border border-slate-200 p-5 shadow-xs space-y-3 hover:border-slate-300 transition-colors"
+                    >
+                      <div className="flex flex-wrap items-center justify-between gap-2">
+                        <div className="flex items-center space-x-2">
+                          <span className="text-xs font-bold text-brand-blue bg-brand-blue-50 border border-brand-blue-100 px-2.5 py-0.5 rounded-md">
+                            {inq.listing ? "Machine Listing" : "Buyer Request"}
+                          </span>
+                          <span className="text-xs font-bold text-slate-900">
+                            {inq.listing?.title || inq.requirement?.title || "Item"}
                           </span>
                         </div>
-                        <p className="text-xs text-slate-600 mt-1 leading-relaxed">
-                          {item.message}
-                        </p>
+                        <div className="flex items-center space-x-2">
+                          <span
+                            className={`text-[10px] font-bold px-2 py-0.5 rounded-md uppercase tracking-wider ${
+                              inq.status === "NEW"
+                                ? "bg-amber-50 text-amber-800 border border-amber-200"
+                                : inq.status === "IN_PROGRESS"
+                                ? "bg-brand-blue-50 text-brand-blue-700 border border-brand-blue-200"
+                                : "bg-slate-100 text-slate-600 border border-slate-200"
+                            }`}
+                          >
+                            {inq.status === "NEW"
+                              ? "New Inquiry"
+                              : inq.status === "IN_PROGRESS"
+                              ? "In Coordination"
+                              : "Closed"}
+                          </span>
+                          <span className="text-[11px] text-slate-400">
+                            {new Date(inq.createdAt).toLocaleDateString()}
+                          </span>
+                        </div>
+                      </div>
 
-                        {item.link && (
-                          <div className="mt-3">
-                            <Link
-                              href={item.link}
-                              className="inline-flex items-center space-x-1.5 text-xs font-bold text-brand-blue hover:text-brand-blue-500 hover:underline"
-                            >
-                              <span>View Listing / Request</span>
-                              <ExternalLink className="w-3.5 h-3.5" />
-                            </Link>
-                          </div>
+                      <div className="p-3 bg-slate-50 rounded-xl text-xs text-slate-700 leading-relaxed border border-slate-100">
+                        <span className="font-semibold text-slate-900 block mb-0.5">
+                          Buyer Message / Offer:
+                        </span>
+                        {inq.message}
+                      </div>
+
+                      <div className="flex items-center justify-between pt-1 text-xs">
+                        <span className="text-[11px] text-slate-500">
+                          🔒 Direct Deal Desk coordination active. Our broker coordinates terms with the buyer.
+                        </span>
+                        {inq.listing?.id && (
+                          <Link
+                            href={`/listings/${inq.listing.id}`}
+                            className="inline-flex items-center space-x-1 font-semibold text-brand-blue hover:underline"
+                          >
+                            <span>View Listing</span>
+                            <ExternalLink className="w-3 h-3" />
+                          </Link>
+                        )}
+                        {inq.requirement?.id && (
+                          <Link
+                            href={`/requests/${inq.requirement.id}`}
+                            className="inline-flex items-center space-x-1 font-semibold text-brand-blue hover:underline"
+                          >
+                            <span>View Request</span>
+                            <ExternalLink className="w-3 h-3" />
+                          </Link>
                         )}
                       </div>
                     </div>
-                  );
-                })}
+                  ))}
+                </div>
               </div>
             )}
+
+            {/* Inquiries Sent by User */}
+            {inquiries.sent.length > 0 && (
+              <div className="space-y-3">
+                <div className="flex items-center space-x-2">
+                  <Send className="w-4 h-4 text-brand-blue" />
+                  <h3 className="text-sm font-bold text-slate-900">
+                    Inquiries Sent by You ({inquiries.sent.length})
+                  </h3>
+                </div>
+
+                <div className="space-y-3">
+                  {inquiries.sent.map((inq: any) => (
+                    <div
+                      key={inq.id}
+                      className="bg-white rounded-2xl border border-slate-200 p-5 shadow-xs space-y-3 hover:border-slate-300 transition-colors"
+                    >
+                      <div className="flex flex-wrap items-center justify-between gap-2">
+                        <div className="flex items-center space-x-2">
+                          <span className="text-xs font-bold text-slate-700 bg-slate-100 border border-slate-200 px-2.5 py-0.5 rounded-md">
+                            Target: {inq.listing ? "Equipment" : "Request"}
+                          </span>
+                          <span className="text-xs font-bold text-slate-900">
+                            {inq.listing?.title || inq.requirement?.title || "Item"}
+                          </span>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <span
+                            className={`text-[10px] font-bold px-2 py-0.5 rounded-md uppercase tracking-wider ${
+                              inq.status === "NEW"
+                                ? "bg-amber-50 text-amber-800 border border-amber-200"
+                                : inq.status === "IN_PROGRESS"
+                                ? "bg-brand-blue-50 text-brand-blue-700 border border-brand-blue-200"
+                                : "bg-slate-100 text-slate-600 border border-slate-200"
+                            }`}
+                          >
+                            {inq.status === "NEW"
+                              ? "In Review"
+                              : inq.status === "IN_PROGRESS"
+                              ? "In Coordination"
+                              : "Closed"}
+                          </span>
+                          <span className="text-[11px] text-slate-400">
+                            {new Date(inq.createdAt).toLocaleDateString()}
+                          </span>
+                        </div>
+                      </div>
+
+                      <div className="p-3 bg-slate-50 rounded-xl text-xs text-slate-700 leading-relaxed border border-slate-100">
+                        <span className="font-semibold text-slate-900 block mb-0.5">
+                          Your Inquiry Message:
+                        </span>
+                        {inq.message}
+                      </div>
+
+                      <div className="flex items-center justify-end pt-1 text-xs">
+                        {inq.listing?.id && (
+                          <Link
+                            href={`/listings/${inq.listing.id}`}
+                            className="inline-flex items-center space-x-1 font-semibold text-brand-blue hover:underline"
+                          >
+                            <span>View Listing</span>
+                            <ExternalLink className="w-3 h-3" />
+                          </Link>
+                        )}
+                        {inq.requirement?.id && (
+                          <Link
+                            href={`/requests/${inq.requirement.id}`}
+                            className="inline-flex items-center space-x-1 font-semibold text-brand-blue hover:underline"
+                          >
+                            <span>View Request</span>
+                            <ExternalLink className="w-3 h-3" />
+                          </Link>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Notifications Feed */}
+            <div className="space-y-3">
+              <div className="flex items-center space-x-2">
+                <Bell className="w-4 h-4 text-brand-blue" />
+                <h3 className="text-sm font-bold text-slate-900">
+                  Activity & Verification Alerts ({notifications.length})
+                </h3>
+              </div>
+
+              {notifications.length === 0 &&
+              inquiries.received.length === 0 &&
+              inquiries.sent.length === 0 ? (
+                <div className="bg-white rounded-2xl border border-slate-200 p-12 text-center">
+                  <MessageSquare className="w-10 h-10 text-slate-300 mx-auto mb-3" />
+                  <h3 className="text-base font-bold text-slate-800">
+                    No inquiries or notifications yet
+                  </h3>
+                  <p className="text-xs text-slate-500 mt-1 max-w-sm mx-auto">
+                    When buyers submit inquiries on your listed equipment or your items get reviewed by our Deal Desk, they will appear here.
+                  </p>
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  {notifications.map((item) => {
+                    const isApproved = item.type === "ENTRY_APPROVED";
+                    const isReview = item.type === "ENTRY_PENDING";
+                    return (
+                      <div
+                        key={item.id}
+                        className={`bg-white rounded-2xl border p-5 shadow-xs transition-colors flex items-start space-x-4 ${
+                          !item.isRead
+                            ? "border-brand-blue-200 bg-brand-blue-50/30"
+                            : "border-slate-200"
+                        }`}
+                      >
+                        <div className="flex-shrink-0 mt-0.5">
+                          {isApproved ? (
+                            <div className="w-10 h-10 rounded-xl bg-emerald-100 text-emerald-600 flex items-center justify-center shadow-xs">
+                              <CheckCircle2 className="w-5 h-5" />
+                            </div>
+                          ) : isReview ? (
+                            <div className="w-10 h-10 rounded-xl bg-amber-100 text-amber-700 flex items-center justify-center shadow-xs">
+                              <Clock className="w-5 h-5" />
+                            </div>
+                          ) : (
+                            <div className="w-10 h-10 rounded-xl bg-brand-blue-50 text-brand-blue flex items-center justify-center shadow-xs">
+                              <Bell className="w-5 h-5" />
+                            </div>
+                          )}
+                        </div>
+
+                        <div className="flex-1 min-w-0">
+                          <div className="flex flex-wrap items-center justify-between gap-2">
+                            <h4 className="text-sm font-bold text-slate-900">
+                              {item.title}
+                            </h4>
+                            <span className="text-[11px] text-slate-400">
+                              {new Date(item.createdAt).toLocaleString("en-IN", {
+                                month: "short",
+                                day: "numeric",
+                                hour: "2-digit",
+                                minute: "2-digit",
+                              })}
+                            </span>
+                          </div>
+                          <p className="text-xs text-slate-600 mt-1 leading-relaxed">
+                            {item.message}
+                          </p>
+
+                          {item.link && (
+                            <div className="mt-3">
+                              <Link
+                                href={item.link}
+                                className="inline-flex items-center space-x-1.5 text-xs font-bold text-brand-blue hover:text-brand-blue-500 hover:underline"
+                              >
+                                <span>View Details</span>
+                                <ExternalLink className="w-3.5 h-3.5" />
+                              </Link>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
           </div>
         )}
       </div>
     </div>
+  );
+}
+
+export default function UserDashboardPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-screen bg-slate-50 flex items-center justify-center">
+          <div className="w-8 h-8 border-4 border-brand-blue border-t-transparent rounded-full animate-spin" />
+        </div>
+      }
+    >
+      <DashboardContent />
+    </Suspense>
   );
 }
