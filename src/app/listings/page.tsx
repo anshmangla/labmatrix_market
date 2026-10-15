@@ -42,7 +42,6 @@ const CATEGORIES = [
   "Particle Analyzers",
   "Centrifuges & Shakers",
   "Karl Fischer & Titrators",
-  "Spare Parts & Consumables",
   "Other Lab Equipment",
 ];
 
@@ -89,7 +88,7 @@ function ListingsContent() {
   const fetchListings = async () => {
     setLoading(true);
     try {
-      let url = `/api/listings?`;
+      let url = `/api/listings?itemType=MACHINE&`;
       if (selectedCategory !== "ALL") {
         url += `category=${encodeURIComponent(selectedCategory)}&`;
       }

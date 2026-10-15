@@ -20,6 +20,7 @@ import {
   Wrench,
   Bell,
   CheckCheck,
+  Pencil,
 } from "lucide-react";
 
 export default function UserDashboardPage() {
@@ -362,13 +363,22 @@ export default function UserDashboardPage() {
                             ₹{item.minPrice.toLocaleString("en-IN")} - ₹{item.maxPrice.toLocaleString("en-IN")}
                           </span>
                         </div>
-                        <Link
-                          href={`/listings/${item.id}`}
-                          className="inline-flex items-center space-x-1 text-xs font-semibold text-brand-blue hover:text-brand-blue-500 hover:underline"
-                        >
-                          <span>View Page</span>
-                          <ExternalLink className="w-3.5 h-3.5" />
-                        </Link>
+                        <div className="flex items-center space-x-2">
+                          <Link
+                            href={`/listings/${item.id}/edit`}
+                            className="inline-flex items-center space-x-1 text-xs font-bold text-slate-700 hover:text-brand-blue bg-slate-100 hover:bg-slate-200 px-2.5 py-1 rounded-lg transition-colors border border-slate-200"
+                          >
+                            <Pencil className="w-3.5 h-3.5" />
+                            <span>Edit</span>
+                          </Link>
+                          <Link
+                            href={`/listings/${item.id}`}
+                            className="inline-flex items-center space-x-1 text-xs font-semibold text-brand-blue hover:text-brand-blue-500 hover:underline"
+                          >
+                            <span>View</span>
+                            <ExternalLink className="w-3.5 h-3.5" />
+                          </Link>
+                        </div>
                       </div>
 
                       {/* Status toggle for listing owner */}
@@ -502,13 +512,22 @@ export default function UserDashboardPage() {
                         </div>
                       </div>
 
-                      <Link
-                        href={`/requests/${req.id}`}
-                        className="inline-flex items-center space-x-1 text-xs font-semibold text-brand-blue hover:text-brand-blue-500 hover:underline self-start sm:self-auto"
-                      >
-                        <span>View Requirement</span>
-                        <ExternalLink className="w-3.5 h-3.5" />
-                      </Link>
+                      <div className="flex items-center space-x-2 self-start sm:self-auto">
+                        <Link
+                          href={`/requests/${req.id}/edit`}
+                          className="inline-flex items-center space-x-1 text-xs font-bold text-slate-700 hover:text-brand-blue bg-slate-100 hover:bg-slate-200 px-2.5 py-1 rounded-lg transition-colors border border-slate-200"
+                        >
+                          <Pencil className="w-3.5 h-3.5" />
+                          <span>Edit</span>
+                        </Link>
+                        <Link
+                          href={`/requests/${req.id}`}
+                          className="inline-flex items-center space-x-1 text-xs font-semibold text-brand-blue hover:text-brand-blue-500 hover:underline"
+                        >
+                          <span>View</span>
+                          <ExternalLink className="w-3.5 h-3.5" />
+                        </Link>
+                      </div>
                     </div>
                   </div>
                 ))}

@@ -15,6 +15,7 @@ import {
   BadgeAlert,
   Layers,
   PhoneOff,
+  Pencil,
 } from "lucide-react";
 
 export const dynamic = "force-dynamic";
@@ -209,6 +210,35 @@ export default async function ListingDetailPage({
           <span>/</span>
           <span className="text-slate-800 truncate max-w-xs">{listing.title}</span>
         </div>
+
+        {/* Owner / Admin Management Bar */}
+        {(isOwner || isAdmin) && (
+          <div className="mb-6 p-4 rounded-2xl bg-white border border-brand-blue-200 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div className="flex items-center space-x-2.5">
+              <span className="w-2.5 h-2.5 rounded-full bg-brand-blue animate-pulse" />
+              <span className="text-xs font-bold text-slate-800">
+                {isAdmin ? "Administrator Controls Active" : "You are the owner of this listing"}
+              </span>
+              <span className="text-slate-300">•</span>
+              <span
+                className={`text-[11px] font-bold px-2 py-0.5 rounded-md ${
+                  listing.isApproved
+                    ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
+                    : "bg-amber-50 text-amber-800 border border-amber-200"
+                }`}
+              >
+                {listing.isApproved ? "Approved & Live" : "Pending Admin Approval"}
+              </span>
+            </div>
+            <Link
+              href={`/listings/${listing.id}/edit`}
+              className="inline-flex items-center justify-center space-x-1.5 px-4 py-2 bg-brand-gold hover:bg-brand-gold-500 text-brand-blue-950 font-bold text-xs rounded-xl shadow-xs transition-colors self-start sm:self-auto"
+            >
+              <Pencil className="w-3.5 h-3.5 text-brand-blue-950" />
+              <span>Edit Listing</span>
+            </Link>
+          </div>
+        )}
 
         {/* Pending Approval Banner for Owner/Admin */}
         {!listing.isApproved && (
