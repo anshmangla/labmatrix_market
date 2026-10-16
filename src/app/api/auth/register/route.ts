@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import crypto from "crypto";
 import bcrypt from "bcryptjs";
 import { prisma } from "@/lib/prisma";
 import { checkRateLimit, getClientIp } from "@/lib/rate-limit";
@@ -6,7 +7,7 @@ import { checkRateLimit, getClientIp } from "@/lib/rate-limit";
 export async function POST(request: Request) {
   try {
     const ip = getClientIp(request);
-    const rateLimit = checkRateLimit(`register:${ip}`, 5, 10 * 60 * 1000); // 5 registrations per 10 mins per IP
+    const rateLimit = checkRateLimit(`register:${ip}`, 10, 10 * 60 * 1000); // 10 registrations per 10 mins per IP
     if (!rateLimit.success) {
       return NextResponse.json(
         { error: "Too many registration attempts. Please try again in a few minutes." },
@@ -18,7 +19,7 @@ export async function POST(request: Request) {
     }
 
     const body = await request.json();
-    const { name, email, password } = body;
+    const { name, email, password, otp } = body;
 
     if (!email || !password || typeof email !== "string" || typeof password !== "string") {
       return NextResponse.json(
@@ -50,19 +51,72 @@ export async function POST(request: Request) {
       );
     }
 
-    const cleanName = typeof name === "string" ? name.trim().slice(0, 100) : null;
+    // 1. Validate OTP presence
+    const cleanOtp = typeof otp === "string" ? otp.trim() : "";
+    if (!cleanOtp || cleanOtp.length !== 6 || !/^\d{6}$/.test(cleanOtp)) {
+      return NextResponse.json(
+        { error: "Please enter the valid 6-digit verification code sent to your email." },
+        { status: 400 }
+      );
+    }
 
+    // 2. Prevent brute-force OTP guessing: Max 5 verification attempts per 10 minutes per email
+    const verifyLimit = checkRateLimit(`otp_verify:${cleanEmail}`, 5, 10 * 60 * 1000);
+    if (!verifyLimit.success) {
+      return NextResponse.json(
+        { error: "Too many incorrect verification attempts. Please request a fresh verification code." },
+        { status: 429 }
+      );
+    }
+
+    // 3. Verify OTP against stored token
+    const tokenRecord = await prisma.verificationToken.findFirst({
+      where: { identifier: cleanEmail },
+    });
+
+    if (!tokenRecord) {
+      return NextResponse.json(
+        { error: "No verification code found for this email. Please request a new code." },
+        { status: 400 }
+      );
+    }
+
+    if (tokenRecord.expires < new Date()) {
+      await prisma.verificationToken.deleteMany({
+        where: { identifier: cleanEmail },
+      });
+      return NextResponse.json(
+        { error: "Verification code has expired. Please click Resend Code to get a fresh one." },
+        { status: 400 }
+      );
+    }
+
+    const hashedInput = crypto.createHash("sha256").update(cleanOtp).digest("hex");
+    if (hashedInput !== tokenRecord.token) {
+      return NextResponse.json(
+        { error: "Incorrect verification code. Please check your inbox or request a new code." },
+        { status: 400 }
+      );
+    }
+
+    // 4. Code is valid! Delete used verification token
+    await prisma.verificationToken.deleteMany({
+      where: { identifier: cleanEmail },
+    });
+
+    // 5. Check if user already exists (e.g. registered in parallel or OAuth)
     const existingUser = await prisma.user.findUnique({
       where: { email: cleanEmail },
     });
 
     if (existingUser) {
       return NextResponse.json(
-        { error: "An account with this email already exists." },
+        { error: "An account with this email already exists. Please sign in." },
         { status: 400 }
       );
     }
 
+    const cleanName = typeof name === "string" ? name.trim().slice(0, 100) : null;
     const hashedPassword = await bcrypt.hash(password, 10);
 
     const user = await prisma.user.create({
@@ -70,12 +124,13 @@ export async function POST(request: Request) {
         name: cleanName,
         email: cleanEmail,
         password: hashedPassword,
+        emailVerified: new Date(),
       },
     });
 
     return NextResponse.json(
       {
-        message: "User created successfully.",
+        message: "Email verified and account registered successfully.",
         user: { id: user.id, email: user.email, name: user.name },
       },
       { status: 201 }
