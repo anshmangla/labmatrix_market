@@ -16,6 +16,7 @@ import {
   Package,
   Cpu,
 } from "lucide-react";
+import { getOptimizedImageUrl, IMAGE_PRESETS } from "@/lib/images";
 
 interface Listing {
   id: string;
@@ -268,7 +269,7 @@ export default function SparePartsHubPage() {
               </div>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-                {listings.map((item) => (
+                {listings.map((item, idx) => (
                   <Link
                     key={item.id}
                     href={`/listings/${item.id}`}
@@ -279,8 +280,13 @@ export default function SparePartsHubPage() {
                       {item.photos && item.photos.length > 0 ? (
                         <div className="w-full h-44 rounded-xl overflow-hidden bg-slate-100 border border-slate-100 relative">
                           <img
-                            src={item.photos[0]}
+                            src={getOptimizedImageUrl(item.photos[0], IMAGE_PRESETS.CARD)}
                             alt={item.title}
+                            width={600}
+                            height={350}
+                            loading={idx < 3 ? "eager" : "lazy"}
+                            fetchPriority={idx === 0 ? "high" : "auto"}
+                            decoding="async"
                             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                           />
                           {item.status === "SOLD" && (

@@ -18,6 +18,7 @@ import {
   Pencil,
   Copy,
 } from "lucide-react";
+import { getOptimizedImageUrl } from "@/lib/images";
 
 export const dynamic = "force-dynamic";
 
@@ -62,7 +63,9 @@ export async function generateMetadata({
     : `Buy verified pre-owned ${listing.title} in ${listing.location || "India"}. Category: ${listing.category}. Condition: ${listing.condition || "Used"}. Approx Price: ₹${listing.minPrice.toLocaleString("en-IN")} - ₹${listing.maxPrice.toLocaleString("en-IN")}. Contact LabMatrix for inspection and quotations.`;
 
   const image =
-    listing.photos && listing.photos.length > 0 ? listing.photos[0] : "/logo.png";
+    listing.photos && listing.photos.length > 0
+      ? getOptimizedImageUrl(listing.photos[0], { width: 1200, height: 630, crop: "fill" })
+      : "/logo.png";
 
   const keywords = [
     listing.title,

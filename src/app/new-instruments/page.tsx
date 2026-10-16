@@ -15,6 +15,7 @@ import {
   Award,
   ArrowRight,
 } from "lucide-react";
+import { getOptimizedImageUrl, IMAGE_PRESETS } from "@/lib/images";
 
 interface Listing {
   id: string;
@@ -272,7 +273,7 @@ function NewInstrumentsContent() {
           </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {listings.map((item) => (
+            {listings.map((item, idx) => (
               <Link
                 key={item.id}
                 href={`/listings/${item.id}`}
@@ -282,8 +283,13 @@ function NewInstrumentsContent() {
                 <div className="relative aspect-[4/3] bg-slate-100 overflow-hidden">
                   {item.photos && item.photos.length > 0 ? (
                     <img
-                      src={item.photos[0]}
+                      src={getOptimizedImageUrl(item.photos[0], IMAGE_PRESETS.CARD)}
                       alt={item.title}
+                      width={600}
+                      height={450}
+                      loading={idx < 3 ? "eager" : "lazy"}
+                      fetchPriority={idx === 0 ? "high" : "auto"}
+                      decoding="async"
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                     />
                   ) : (

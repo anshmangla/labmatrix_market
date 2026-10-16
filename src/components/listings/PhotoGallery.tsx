@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import { Tag } from "lucide-react";
+import { getOptimizedImageUrl, IMAGE_PRESETS } from "@/lib/images";
 
 export default function PhotoGallery({
   photos,
@@ -26,8 +27,12 @@ export default function PhotoGallery({
       {/* Active Photo */}
       <div className="bg-slate-900 rounded-2xl overflow-hidden aspect-[16/10] relative border border-slate-200 shadow-sm flex items-center justify-center">
         <img
-          src={photos[activeIdx]}
+          src={getOptimizedImageUrl(photos[activeIdx], IMAGE_PRESETS.GALLERY_HERO)}
           alt={`${title} - view ${activeIdx + 1}`}
+          fetchPriority="high"
+          decoding="async"
+          width={1200}
+          height={750}
           className="w-full h-full object-contain"
         />
       </div>
@@ -47,8 +52,12 @@ export default function PhotoGallery({
               }`}
             >
               <img
-                src={url}
+                src={getOptimizedImageUrl(url, IMAGE_PRESETS.THUMBNAIL)}
                 alt="thumbnail"
+                loading="lazy"
+                decoding="async"
+                width={160}
+                height={160}
                 className="w-full h-full object-cover"
               />
             </button>
