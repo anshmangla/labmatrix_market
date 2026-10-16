@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { checkRateLimit } from "@/lib/rate-limit";
+import { sendAdminNewListingEmail } from "@/lib/resend";
 
 // GET /api/listings - Get all listings with optional filtering and pagination
 export async function GET(request: Request) {
@@ -275,6 +276,27 @@ export async function POST(request: Request) {
         quantity: parsedQuantity,
         sellerId: session.user.id,
       },
+    });
+
+    // Notify sales@labmatrixindia.com about the new submission awaiting review
+    sendAdminNewListingEmail({
+      listingId: listing.id,
+      title: listing.title,
+      category: listing.category,
+      itemType: listing.itemType,
+      minPrice: listing.minPrice,
+      maxPrice: listing.maxPrice,
+      condition: listing.condition,
+      quantity: listing.quantity,
+      location: listing.location,
+      partNumber: listing.partNumber,
+      compatibleWith: listing.compatibleWith,
+      sellerName: session.user.name,
+      sellerEmail: session.user.email || "",
+      sellerPhone: finalPhone,
+      sellerCompany: finalCompany,
+    }).catch((emailErr) => {
+      console.error("[Listing Post] Failed to dispatch admin review notification:", emailErr);
     });
 
     // Create an in-app notification for the user

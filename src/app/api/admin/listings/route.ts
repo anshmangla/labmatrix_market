@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
+import { sendUserListingApprovedEmail } from "@/lib/resend";
 
 export async function GET(request: Request) {
   try {
@@ -89,6 +90,11 @@ export async function PATCH(request: Request) {
       return NextResponse.json({ error: "ID is required" }, { status: 400 });
     }
 
+    const existing = await prisma.listing.findUnique({
+      where: { id },
+      select: { isApproved: true },
+    });
+
     const updateData: any = {};
     if (status) updateData.status = status;
     if (typeof isApproved === "boolean") updateData.isApproved = isApproved;
@@ -96,10 +102,19 @@ export async function PATCH(request: Request) {
     const updated = await prisma.listing.update({
       where: { id },
       data: updateData,
+      include: {
+        seller: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+          },
+        },
+      },
     });
 
-    // Notify user if listing was just approved
-    if (isApproved === true) {
+    // Notify user if listing was just approved (and was not already approved)
+    if (isApproved === true && !existing?.isApproved) {
       try {
         await prisma.notification.create({
           data: {
@@ -107,11 +122,32 @@ export async function PATCH(request: Request) {
             type: "ENTRY_APPROVED",
             title: "🎉 Listing Approved & Live!",
             message: `Your listing "${updated.title}" has been approved by admin and is now publicly live on the marketplace.`,
-            link: updated.itemType === "SPARE_PART" ? "/spare-parts" : `/listings/${updated.id}`,
+            link:
+              updated.itemType === "SPARE_PART"
+                ? "/spare-parts"
+                : updated.itemType === "NEW_INSTRUMENT"
+                ? "/new-instruments"
+                : `/listings/${updated.id}`,
           },
         });
       } catch (notifErr) {
         console.error("Failed to create approval notification for listing:", notifErr);
+      }
+
+      // Dispatch congratulatory email to user with live listing link
+      if (updated.seller?.email) {
+        sendUserListingApprovedEmail({
+          userEmail: updated.seller.email,
+          userName: updated.seller.name,
+          listingId: updated.id,
+          title: updated.title,
+          itemType: updated.itemType,
+          category: updated.category,
+          minPrice: updated.minPrice,
+          maxPrice: updated.maxPrice,
+        }).catch((emailErr) => {
+          console.error("[Admin Approval] Failed to dispatch user approval email:", emailErr);
+        });
       }
     }
 

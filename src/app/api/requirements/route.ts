@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { checkRateLimit } from "@/lib/rate-limit";
+import { sendAdminNewRequirementEmail } from "@/lib/resend";
 
 // GET /api/requirements - List all open machine requirements with pagination
 export async function GET(request: Request) {
@@ -196,6 +197,23 @@ export async function POST(request: Request) {
         buyerId: session.user.id,
         status: "OPEN",
       },
+    });
+
+    // Notify sales@labmatrixindia.com about the new procurement request awaiting review
+    sendAdminNewRequirementEmail({
+      requirementId: requirement.id,
+      title: requirement.title,
+      category: requirement.category,
+      itemType: requirement.itemType,
+      partNumber: requirement.partNumber,
+      compatibleWith: requirement.compatibleWith,
+      description: requirement.description,
+      buyerName: session.user.name,
+      buyerEmail: session.user.email || "",
+      buyerPhone: finalPhone,
+      buyerCompany: finalCompany,
+    }).catch((emailErr) => {
+      console.error("[Requirement Post] Failed to dispatch admin review notification:", emailErr);
     });
 
     // Create an in-app notification for the user

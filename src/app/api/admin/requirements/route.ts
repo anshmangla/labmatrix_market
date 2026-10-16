@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
+import { sendUserRequirementApprovedEmail } from "@/lib/resend";
 
 export async function GET(request: Request) {
   try {
@@ -89,6 +90,11 @@ export async function PATCH(request: Request) {
       return NextResponse.json({ error: "ID is required" }, { status: 400 });
     }
 
+    const existing = await prisma.requirement.findUnique({
+      where: { id },
+      select: { isApproved: true },
+    });
+
     const updateData: any = {};
     if (status) updateData.status = status;
     if (typeof isApproved === "boolean") updateData.isApproved = isApproved;
@@ -96,10 +102,19 @@ export async function PATCH(request: Request) {
     const updated = await prisma.requirement.update({
       where: { id },
       data: updateData,
+      include: {
+        buyer: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+          },
+        },
+      },
     });
 
-    // Notify user if requirement was just approved
-    if (isApproved === true) {
+    // Notify user if requirement was just approved (and was not already approved)
+    if (isApproved === true && !existing?.isApproved) {
       try {
         await prisma.notification.create({
           data: {
@@ -112,6 +127,20 @@ export async function PATCH(request: Request) {
         });
       } catch (notifErr) {
         console.error("Failed to create approval notification for requirement:", notifErr);
+      }
+
+      // Dispatch approval email to buyer
+      if (updated.buyer?.email) {
+        sendUserRequirementApprovedEmail({
+          userEmail: updated.buyer.email,
+          userName: updated.buyer.name,
+          requirementId: updated.id,
+          title: updated.title,
+          itemType: updated.itemType,
+          category: updated.category,
+        }).catch((emailErr) => {
+          console.error("[Admin Approval] Failed to dispatch user requirement approval email:", emailErr);
+        });
       }
     }
 
