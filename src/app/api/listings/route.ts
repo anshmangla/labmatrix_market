@@ -18,10 +18,17 @@ export async function GET(request: Request) {
     const limit = Math.min(50, Math.max(1, parseInt(searchParams.get("limit") || "30") || 30));
     const skip = (page - 1) * limit;
 
+    const statusParam = searchParams.get("status");
+
     const where: any = {
       isApproved: true,
-      status: "AVAILABLE",
     };
+
+    if (statusParam && statusParam !== "ALL") {
+      where.status = statusParam;
+    } else {
+      where.status = { in: ["AVAILABLE", "SOLD"] };
+    }
 
     if (itemType && itemType !== "ALL") {
       where.itemType = itemType;

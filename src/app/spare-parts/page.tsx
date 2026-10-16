@@ -31,6 +31,7 @@ interface Listing {
   location: string;
   photos: string[];
   createdAt: string;
+  status: string;
 }
 
 interface Requirement {
@@ -274,16 +275,30 @@ export default function SparePartsHubPage() {
                     <div className="space-y-3">
                       {/* Photos Thumbnail if available */}
                       {item.photos && item.photos.length > 0 ? (
-                        <div className="w-full h-44 rounded-xl overflow-hidden bg-slate-100 border border-slate-100">
+                        <div className="w-full h-44 rounded-xl overflow-hidden bg-slate-100 border border-slate-100 relative">
                           <img
                             src={item.photos[0]}
                             alt={item.title}
                             className="w-full h-full object-cover"
                           />
+                          {item.status === "SOLD" && (
+                            <div className="absolute inset-0 bg-slate-950/35 backdrop-blur-[1px] flex items-center justify-center">
+                              <span className="bg-rose-600 text-white text-xs font-black uppercase tracking-widest px-3 py-1 rounded-md shadow-md border border-white/40 transform -rotate-3">
+                                SOLD
+                              </span>
+                            </div>
+                          )}
                         </div>
                       ) : (
-                        <div className="w-full h-28 rounded-xl bg-brand-blue-50/50 border border-brand-blue-100 flex items-center justify-center text-brand-blue">
+                        <div className="w-full h-28 rounded-xl bg-brand-blue-50/50 border border-brand-blue-100 flex items-center justify-center text-brand-blue relative">
                           <Wrench className="w-8 h-8 opacity-60" />
+                          {item.status === "SOLD" && (
+                            <div className="absolute inset-0 bg-slate-950/35 rounded-xl flex items-center justify-center">
+                              <span className="bg-rose-600 text-white text-xs font-black uppercase tracking-widest px-3 py-1 rounded-md shadow-md">
+                                SOLD
+                              </span>
+                            </div>
+                          )}
                         </div>
                       )}
 
@@ -294,6 +309,11 @@ export default function SparePartsHubPage() {
                         {item.condition && (
                           <span className="bg-slate-100 text-slate-700 px-2 py-0.5 rounded text-[10px] font-semibold">
                             {item.condition}
+                          </span>
+                        )}
+                        {item.status === "SOLD" && (
+                          <span className="bg-rose-100 text-rose-700 border border-rose-200 px-2 py-0.5 rounded text-[10px] font-black uppercase">
+                            SOLD
                           </span>
                         )}
                       </div>
@@ -321,12 +341,19 @@ export default function SparePartsHubPage() {
                     <div className="pt-3 border-t border-slate-100 flex items-center justify-between">
                       <div>
                         <span className="text-[10px] text-slate-400 block font-semibold">
-                          Expected Price:
+                          {item.status === "SOLD" ? "Sold Price:" : "Expected Price:"}
                         </span>
-                        <span className="text-sm font-black text-slate-900">
-                          ₹{item.minPrice.toLocaleString("en-IN")} - ₹
-                          {item.maxPrice.toLocaleString("en-IN")}
-                        </span>
+                        <div className="flex items-center space-x-1.5">
+                          <span className="text-sm font-black text-slate-900">
+                            ₹{item.minPrice.toLocaleString("en-IN")} - ₹
+                            {item.maxPrice.toLocaleString("en-IN")}
+                          </span>
+                          {item.status === "SOLD" && (
+                            <span className="text-[10px] font-black uppercase px-1.5 py-0.5 rounded bg-rose-100 text-rose-700 border border-rose-200">
+                              SOLD
+                            </span>
+                          )}
+                        </div>
                       </div>
 
                       <Link

@@ -27,6 +27,7 @@ interface Listing {
   location: string;
   photos: string[];
   createdAt: string;
+  status: string;
 }
 
 const CATEGORIES = [
@@ -281,11 +282,25 @@ function ListingsContent() {
                   )}
 
                   {/* Badges */}
-                  <div className="absolute top-3 left-3 flex flex-wrap gap-1.5">
+                  <div className="absolute top-3 left-3 flex flex-wrap gap-1.5 items-center">
                     <span className="bg-brand-blue-900/85 backdrop-blur-md text-white text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md">
                       {item.category}
                     </span>
+                    {item.status === "SOLD" && (
+                      <span className="bg-rose-600 text-white text-[10px] font-black uppercase tracking-wider px-2.5 py-0.5 rounded-md shadow-sm border border-rose-400">
+                        SOLD
+                      </span>
+                    )}
                   </div>
+
+                  {/* SOLD OUT Overlay */}
+                  {item.status === "SOLD" && (
+                    <div className="absolute inset-0 bg-slate-950/35 backdrop-blur-[1px] flex items-center justify-center">
+                      <span className="bg-rose-600 text-white text-xs sm:text-sm font-black uppercase tracking-widest px-4 py-1 rounded-lg shadow-lg border border-white/40 transform -rotate-6">
+                        SOLD OUT
+                      </span>
+                    </div>
+                  )}
 
                   <div className="absolute bottom-3 right-3 bg-brand-blue/90 backdrop-blur-md text-white text-[10px] font-semibold px-2 py-0.5 rounded-md flex items-center space-x-1 border border-brand-gold/30">
                     <ShieldCheck className="w-3 h-3 text-brand-gold" />
@@ -309,12 +324,19 @@ function ListingsContent() {
                     {/* Price Range */}
                     <div className="flex items-baseline justify-between">
                       <span className="text-xs font-medium text-slate-400">
-                        Approx. Range:
+                        {item.status === "SOLD" ? "Sold Price Range:" : "Approx. Range:"}
                       </span>
-                      <span className="text-base font-black text-brand-blue">
-                        ₹{item.minPrice.toLocaleString("en-IN")} - ₹
-                        {item.maxPrice.toLocaleString("en-IN")}
-                      </span>
+                      <div className="flex items-center space-x-1.5">
+                        <span className="text-base font-black text-brand-blue">
+                          ₹{item.minPrice.toLocaleString("en-IN")} - ₹
+                          {item.maxPrice.toLocaleString("en-IN")}
+                        </span>
+                        {item.status === "SOLD" && (
+                          <span className="px-1.5 py-0.5 text-[10px] font-extrabold uppercase rounded bg-rose-100 text-rose-700 border border-rose-200">
+                            SOLD
+                          </span>
+                        )}
+                      </div>
                     </div>
 
                     {/* Metadata */}

@@ -307,6 +307,24 @@ export default async function ListingDetailPage({
           </div>
         )}
 
+        {/* SOLD Banner */}
+        {listing.status === "SOLD" && (
+          <div className="mb-6 p-4 rounded-2xl bg-rose-50 border border-rose-200 text-rose-900 flex items-start space-x-3 shadow-xs">
+            <BadgeAlert className="w-5 h-5 text-rose-600 flex-shrink-0 mt-0.5" />
+            <div>
+              <div className="flex items-center space-x-2">
+                <span className="text-xs font-black uppercase tracking-wider bg-rose-600 text-white px-2.5 py-0.5 rounded">
+                  SOLD OUT
+                </span>
+                <span className="text-xs font-bold text-rose-800">• This item is marked as SOLD</span>
+              </div>
+              <p className="text-xs text-rose-700 mt-1">
+                This equipment is no longer available. You can still submit an inquiry below to ask for equivalent instruments or join the priority waiting list for incoming inventory.
+              </p>
+            </div>
+          </div>
+        )}
+
         {/* Main Content Layout */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Left Column (2 Cols): Photos & Specifications */}
@@ -334,6 +352,14 @@ export default async function ListingDetailPage({
                   <span className="text-brand-blue bg-brand-blue-50 px-2 py-0.5 rounded font-semibold">
                     {listing.condition}
                   </span>
+                  {listing.status === "SOLD" && (
+                    <>
+                      <span>•</span>
+                      <span className="bg-rose-100 text-rose-700 border border-rose-200 px-2 py-0.5 rounded font-black text-xs uppercase">
+                        SOLD
+                      </span>
+                    </>
+                  )}
                   <span>•</span>
                   <span className="flex items-center">
                     <Clock className="w-3.5 h-3.5 mr-1 text-slate-400" />
@@ -395,8 +421,13 @@ export default async function ListingDetailPage({
           <div className="space-y-6">
             {/* Price Box */}
             <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-xs">
+              {listing.status === "SOLD" && (
+                <div className="inline-block px-2.5 py-1 rounded-md text-xs font-black uppercase tracking-wider bg-rose-100 text-rose-700 border border-rose-200 mb-3">
+                  Status: SOLD OUT
+                </div>
+              )}
               <span className="text-xs font-semibold text-slate-400 block mb-1">
-                Approximate Price Expectation
+                {listing.status === "SOLD" ? "Recorded Price Range" : "Approximate Price Expectation"}
               </span>
               <div className="text-2xl sm:text-3xl font-black text-brand-blue">
                 ₹{listing.minPrice.toLocaleString("en-IN")} - ₹
