@@ -1,14 +1,17 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, Suspense } from "react";
 import { signIn } from "next-auth/react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
-import { ArrowRight, Lock, Mail, AlertCircle, ShieldCheck } from "lucide-react";
+import { ArrowRight, Lock, Mail, AlertCircle, ShieldCheck, CheckCircle2 } from "lucide-react";
 
-export default function SignInPage() {
+function SignInContent() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const resetSuccess = searchParams.get("reset") === "success";
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -76,6 +79,19 @@ export default function SignInPage() {
 
       <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
         <div className="bg-white py-8 px-6 shadow-xl rounded-2xl sm:px-10 border border-slate-100">
+          {/* Password Reset Success Banner */}
+          {resetSuccess && (
+            <div className="mb-6 rounded-xl bg-emerald-50 p-4 border border-emerald-200 flex items-start space-x-3 text-emerald-800 text-sm">
+              <CheckCircle2 className="w-5 h-5 flex-shrink-0 text-emerald-600 mt-0.5" />
+              <div>
+                <p className="font-bold text-emerald-900">Password reset successful!</p>
+                <p className="mt-0.5 text-xs sm:text-sm text-emerald-700">
+                  Your password has been updated. Please sign in with your new password.
+                </p>
+              </div>
+            </div>
+          )}
+
           {error && (
             <div className="mb-6 rounded-lg bg-red-50 p-4 border border-red-200 flex items-start space-x-3 text-red-700 text-sm">
               <AlertCircle className="w-5 h-5 flex-shrink-0 text-red-500 mt-0.5" />
@@ -149,12 +165,20 @@ export default function SignInPage() {
             </div>
 
             <div>
-              <label
-                htmlFor="password"
-                className="block text-sm font-semibold text-slate-700"
-              >
-                Password
-              </label>
+              <div className="flex items-center justify-between">
+                <label
+                  htmlFor="password"
+                  className="block text-sm font-semibold text-slate-700"
+                >
+                  Password
+                </label>
+                <Link
+                  href="/auth/forgot-password"
+                  className="text-xs font-semibold text-brand-blue hover:text-brand-blue-600 hover:underline transition-colors"
+                >
+                  Forgot password?
+                </Link>
+              </div>
               <div className="mt-1 relative rounded-xl shadow-sm">
                 <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
                   <Lock className="h-5 w-5" />
@@ -200,5 +224,19 @@ export default function SignInPage() {
         </p>
       </div>
     </div>
+  );
+}
+
+export default function SignInPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-screen bg-slate-50 flex items-center justify-center">
+          <div className="w-8 h-8 border-3 border-brand-blue border-t-transparent rounded-full animate-spin" />
+        </div>
+      }
+    >
+      <SignInContent />
+    </Suspense>
   );
 }

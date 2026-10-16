@@ -325,3 +325,104 @@ export async function sendOtpEmail(payload: SendOtpPayload) {
   }
 }
 
+/**
+ * Send 6-digit password reset OTP via Resend.
+ */
+export async function sendPasswordResetOtpEmail(payload: SendOtpPayload) {
+  const { email, name, otpCode } = payload;
+  const fromEmail =
+    process.env.RESEND_FROM_EMAIL || "LabMatrix Security <onboarding@resend.dev>";
+
+  if (!resend) {
+    console.log(
+      `\n========================================\n[LOCAL PASSWORD RESET OTP SIMULATION]\nTo: ${email}\nName: ${name || "User"}\nReset OTP Code: ${otpCode}\nValid for: 10 minutes\n========================================\n`
+    );
+    return {
+      success: true,
+      simulated: true,
+      message: "RESEND_API_KEY not configured. Password reset code simulated in console.",
+    };
+  }
+
+  const otpHtml = `
+    <!DOCTYPE html>
+    <html>
+      <head>
+        <meta charset="utf-8" />
+        <title>Reset Your LabMatrix Password</title>
+      </head>
+      <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: #f8fafc; margin: 0; padding: 24px; color: #1e293b;">
+        <div style="max-width: 540px; margin: 0 auto; background-color: #ffffff; border-radius: 20px; border: 1px solid #e2e8f0; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);">
+          <!-- Header Banner -->
+          <div style="background: linear-gradient(135deg, #02244E 0%, #033A7D 100%); padding: 32px 32px 28px; text-align: center; color: #ffffff;">
+            <div style="font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 2px; color: #FBC634; margin-bottom: 8px;">
+              LabMatrix Instrument India
+            </div>
+            <h1 style="margin: 0; font-size: 22px; font-weight: 800; color: #ffffff;">
+              Password Reset Request
+            </h1>
+            <p style="margin: 6px 0 0; font-size: 13px; color: #cbd5e1;">
+              Use the verification code below to set a new password
+            </p>
+          </div>
+
+          <!-- Body Content -->
+          <div style="padding: 32px; text-align: center;">
+            <p style="font-size: 15px; color: #334155; margin-top: 0; margin-bottom: 20px; line-height: 1.5;">
+              Hello${name ? ` <strong>${name}</strong>` : ""},<br />
+              We received a request to reset the password for your LabMatrix Marketplace account. Enter this 6-digit code on the reset page:
+            </p>
+
+            <!-- OTP Display Card -->
+            <div style="background-color: #f8fafc; border: 2px dashed #033A7D; border-radius: 16px; padding: 20px 24px; margin: 24px auto; max-width: 320px;">
+              <span style="font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace; font-size: 36px; font-weight: 900; letter-spacing: 10px; color: #02244E; display: inline-block; padding-left: 10px;">
+                ${otpCode}
+              </span>
+            </div>
+
+            <p style="font-size: 13px; color: #64748b; margin: 16px 0 0;">
+              ⏱️ This code will expire in <strong>10 minutes</strong>.
+            </p>
+
+            <div style="background-color: #fef3c7; border: 1px solid #fde68a; border-radius: 12px; padding: 12px 16px; margin: 24px 0 0; text-align: left;">
+              <p style="margin: 0; font-size: 12px; color: #92400e; line-height: 1.5;">
+                <strong>Security Alert:</strong> Never share this code with anyone. LabMatrix representatives will never ask for your verification code or password.
+              </p>
+            </div>
+
+            <p style="font-size: 12px; color: #94a3b8; margin: 20px 0 0; line-height: 1.5;">
+              If you didn&apos;t make this request, you can safely ignore this email. Your current password remains active and secure.
+            </p>
+          </div>
+
+          <!-- Footer -->
+          <div style="background-color: #f8fafc; border-top: 1px solid #e2e8f0; padding: 18px 32px; font-size: 11px; color: #94a3b8; text-align: center;">
+            LABMATRIX INSTRUMENT INDIA PVT LTD • 514/5, Mehrauli, New Delhi – 110030<br />
+            Support: <a href="mailto:sales@labmatrixindia.com" style="color: #033A7D; text-decoration: none;">sales@labmatrixindia.com</a> • Website: <a href="https://surplus.labmatrixindia.com" style="color: #033A7D; text-decoration: none;">surplus.labmatrixindia.com</a>
+          </div>
+        </div>
+      </body>
+    </html>
+  `;
+
+  try {
+    const result = await resend.emails.send({
+      from: fromEmail,
+      to: [email],
+      subject: `Your LabMatrix Password Reset Code: ${otpCode}`,
+      html: otpHtml,
+    });
+
+    return {
+      success: true,
+      data: result,
+    };
+  } catch (error: any) {
+    console.error("[Resend] Error sending password reset OTP email:", error);
+    return {
+      success: false,
+      error: error?.message || "Failed to dispatch password reset code via email.",
+    };
+  }
+}
+
