@@ -43,6 +43,10 @@ export default function AdminDashboardPage() {
   const [tabLoading, setTabLoading] = useState(false);
   const [actionLoading, setActionLoading] = useState(false);
   const [claimSuccess, setClaimSuccess] = useState("");
+  const [deleteTargetUser, setDeleteTargetUser] = useState<any | null>(null);
+  const [deleteConfirmText, setDeleteConfirmText] = useState("");
+  const [deleteLoading, setDeleteLoading] = useState(false);
+  const [deleteError, setDeleteError] = useState("");
 
   const sessionUserId = session?.user?.id;
   const sessionUserEmail = session?.user?.email;
@@ -351,6 +355,46 @@ export default function AdminDashboardPage() {
     } catch (err) {
       console.error("Update user role error:", err);
       alert("An error occurred while updating user role.");
+    }
+  };
+
+  const handleConfirmDeleteUser = async () => {
+    if (!deleteTargetUser) return;
+    setDeleteLoading(true);
+    setDeleteError("");
+    try {
+      const res = await fetch("/api/admin/users", {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userId: deleteTargetUser.id }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setDeleteError(data.error || "Failed to delete user account");
+        setDeleteLoading(false);
+        return;
+      }
+      // Update local users state: mark as archived
+      setUsers((prev) =>
+        prev.map((u) =>
+          u.id === deleteTargetUser.id
+            ? {
+                ...u,
+                name: "Deleted User",
+                email: "(Archived)",
+                phoneNumber: null,
+                companyName: null,
+                role: "USER",
+              }
+            : u
+        )
+      );
+      setDeleteTargetUser(null);
+      setDeleteConfirmText("");
+    } catch (err: any) {
+      setDeleteError("Network error. Please try again.");
+    } finally {
+      setDeleteLoading(false);
     }
   };
 
@@ -954,8 +998,12 @@ export default function AdminDashboardPage() {
                               <span className="inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-bold bg-brand-blue-50 text-brand-blue-700 border border-brand-blue-200">
                                 You (Logged In)
                               </span>
+                            ) : u.email?.includes("@archived.labmatrixindia.com") || u.email === "(Archived)" ? (
+                              <span className="inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-bold bg-slate-100 text-slate-500 border border-slate-200">
+                                Deactivated & Archived
+                              </span>
                             ) : (
-                              <div className="inline-flex items-center justify-end">
+                              <div className="inline-flex items-center justify-end space-x-2">
                                 {u.role === "ADMIN" ? (
                                   <button
                                     onClick={() =>
@@ -989,6 +1037,19 @@ export default function AdminDashboardPage() {
                                     <span>Make Admin</span>
                                   </button>
                                 )}
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    setDeleteTargetUser(u);
+                                    setDeleteConfirmText("");
+                                    setDeleteError("");
+                                  }}
+                                  disabled={actionLoading}
+                                  className="inline-flex items-center p-1.5 rounded-lg text-slate-400 hover:text-red-600 hover:bg-red-50 border border-transparent hover:border-red-200 transition-colors cursor-pointer"
+                                  title="Deactivate and archive this user account"
+                                >
+                                  <Trash2 className="w-4 h-4 text-red-500" />
+                                </button>
                               </div>
                             )}
                           </td>
@@ -997,6 +1058,92 @@ export default function AdminDashboardPage() {
                     })}
                   </tbody>
                 </table>
+              </div>
+            )}
+
+            {/* Admin Delete User Confirmation Modal */}
+            {deleteTargetUser && (
+              <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs">
+                <div className="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl border border-slate-200">
+                  <div className="flex items-center space-x-3 text-red-600 mb-3">
+                    <div className="p-2.5 bg-red-100 rounded-xl">
+                      <Trash2 className="w-6 h-6" />
+                    </div>
+                    <div>
+                      <h3 className="text-base font-bold text-slate-900">
+                        Deactivate & Archive User
+                      </h3>
+                      <p className="text-xs text-slate-500">
+                        Marketplace user account deactivation
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="bg-slate-50 rounded-xl p-3.5 border border-slate-200/80 my-4 text-xs space-y-1.5">
+                    <div className="flex justify-between">
+                      <span className="text-slate-500">User:</span>
+                      <span className="font-bold text-slate-900">{deleteTargetUser.name || "Anonymous"}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-slate-500">Email:</span>
+                      <span className="font-bold text-slate-900">{deleteTargetUser.email}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-slate-500">Associated Data:</span>
+                      <span className="font-semibold text-slate-700">
+                        {deleteTargetUser._count?.listings ?? 0} listings • {deleteTargetUser._count?.requirements ?? 0} reqs
+                      </span>
+                    </div>
+                  </div>
+
+                  <p className="text-xs text-slate-600 leading-relaxed mb-4">
+                    This will anonymize the user&apos;s personal details, revoke all active sessions, and remove their listings and requirements from the public marketplace. All past inquiries and transaction records will be retained in an archived state.
+                  </p>
+
+                  {deleteError && (
+                    <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-xl text-xs text-red-700 flex items-center space-x-2">
+                      <AlertCircle className="w-4 h-4 shrink-0 text-red-500" />
+                      <span>{deleteError}</span>
+                    </div>
+                  )}
+
+                  <div className="mb-5">
+                    <label className="block text-xs font-semibold text-slate-700 mb-1.5">
+                      Type <span className="font-bold text-red-600 uppercase">DELETE</span> to confirm:
+                    </label>
+                    <input
+                      type="text"
+                      value={deleteConfirmText}
+                      onChange={(e) => setDeleteConfirmText(e.target.value)}
+                      placeholder="DELETE"
+                      className="w-full text-xs px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 font-mono"
+                    />
+                  </div>
+
+                  <div className="flex items-center justify-end space-x-2.5">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setDeleteTargetUser(null);
+                        setDeleteConfirmText("");
+                        setDeleteError("");
+                      }}
+                      disabled={deleteLoading}
+                      className="px-4 py-2 rounded-xl text-xs font-bold text-slate-600 bg-slate-100 hover:bg-slate-200 transition-colors"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      type="button"
+                      onClick={handleConfirmDeleteUser}
+                      disabled={deleteLoading || deleteConfirmText.trim().toUpperCase() !== "DELETE"}
+                      className="px-4 py-2 rounded-xl text-xs font-bold text-white bg-red-600 hover:bg-red-700 disabled:opacity-40 transition-all flex items-center space-x-1.5 shadow-xs"
+                    >
+                      <Trash2 className="w-3.5 h-3.5" />
+                      <span>{deleteLoading ? "Archiving User..." : "Deactivate & Archive"}</span>
+                    </button>
+                  </div>
+                </div>
               </div>
             )}
           </div>

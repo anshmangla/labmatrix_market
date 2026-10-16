@@ -17,10 +17,23 @@ export async function GET() {
         email: true,
         phoneNumber: true,
         companyName: true,
+        role: true,
+        createdAt: true,
+        password: true,
       },
     });
 
-    return NextResponse.json({ user });
+    if (!user) {
+      return NextResponse.json({ error: "User not found" }, { status: 404 });
+    }
+
+    const { password, ...safeUser } = user;
+    return NextResponse.json({
+      user: {
+        ...safeUser,
+        hasPassword: Boolean(password),
+      },
+    });
   } catch (error: any) {
     return NextResponse.json(
       { error: "Failed to fetch user profile" },

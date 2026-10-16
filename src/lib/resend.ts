@@ -426,3 +426,104 @@ export async function sendPasswordResetOtpEmail(payload: SendOtpPayload) {
   }
 }
 
+export interface AccountDeletionEmailPayload {
+  email: string;
+  name?: string | null;
+}
+
+/**
+ * Send account deletion confirmation email via Resend.
+ */
+export async function sendAccountDeletionEmail(payload: AccountDeletionEmailPayload) {
+  const { email, name } = payload;
+  const fromEmail =
+    process.env.RESEND_FROM_EMAIL || "LabMatrix Security <onboarding@resend.dev>";
+
+  if (!resend) {
+    console.log(
+      `\n========================================\n[LOCAL ACCOUNT DELETION NOTICE SIMULATION]\nTo: ${email}\nName: ${name || "User"}\nNotice: Account and credentials successfully deactivated.\n========================================\n`
+    );
+    return {
+      success: true,
+      simulated: true,
+      message: "RESEND_API_KEY not configured. Deletion email simulated in console.",
+    };
+  }
+
+  const html = `
+    <!DOCTYPE html>
+    <html>
+      <head>
+        <meta charset="utf-8" />
+        <title>LabMatrix Account Deleted</title>
+      </head>
+      <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: #f8fafc; margin: 0; padding: 24px; color: #1e293b;">
+        <div style="max-width: 540px; margin: 0 auto; background-color: #ffffff; border-radius: 20px; border: 1px solid #e2e8f0; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);">
+          <!-- Header Banner -->
+          <div style="background: linear-gradient(135deg, #02244E 0%, #033A7D 100%); padding: 32px 32px 28px; text-align: center; color: #ffffff;">
+            <div style="font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 2px; color: #FBC634; margin-bottom: 8px;">
+              LabMatrix Instrument India
+            </div>
+            <h1 style="margin: 0; font-size: 22px; font-weight: 800; color: #ffffff;">
+              Account Deactivated
+            </h1>
+            <p style="margin: 6px 0 0; font-size: 13px; color: #cbd5e1;">
+              Confirmation of account removal and data archival
+            </p>
+          </div>
+
+          <!-- Body Content -->
+          <div style="padding: 32px; text-align: left;">
+            <p style="font-size: 15px; color: #334155; margin-top: 0; margin-bottom: 16px; line-height: 1.5;">
+              Hello${name ? ` <strong>${name}</strong>` : ""},<br /><br />
+              This email confirms that your account on the <strong>LabMatrix Marketplace</strong> has been closed and deactivated.
+            </p>
+
+            <ul style="font-size: 13px; color: #475569; line-height: 1.6; margin-bottom: 24px; padding-left: 20px;">
+              <li>Your login credentials and active sessions have been terminated.</li>
+              <li>Your personal phone number and profile info have been removed.</li>
+              <li>Your equipment listings and buyer requests have been removed from the public marketplace and archived for compliance.</li>
+            </ul>
+
+            <div style="background-color: #f1f5f9; border-radius: 12px; padding: 14px 18px; margin-bottom: 20px;">
+              <p style="margin: 0; font-size: 12px; color: #475569; line-height: 1.5;">
+                If this action was taken by mistake or you need assistance with previous transactions, please reach out directly to our operations desk at <a href="mailto:sales@labmatrixindia.com" style="color: #033A7D; font-weight: bold; text-decoration: none;">sales@labmatrixindia.com</a>.
+              </p>
+            </div>
+
+            <p style="font-size: 13px; color: #64748b; margin: 0; line-height: 1.5;">
+              Thank you for having been part of the LabMatrix community.
+            </p>
+          </div>
+
+          <!-- Footer -->
+          <div style="background-color: #f8fafc; border-top: 1px solid #e2e8f0; padding: 18px 32px; font-size: 11px; color: #94a3b8; text-align: center;">
+            LABMATRIX INSTRUMENT INDIA PVT LTD • 514/5, Mehrauli, New Delhi – 110030<br />
+            Support: <a href="mailto:sales@labmatrixindia.com" style="color: #033A7D; text-decoration: none;">sales@labmatrixindia.com</a> • Website: <a href="https://surplus.labmatrixindia.com" style="color: #033A7D; text-decoration: none;">surplus.labmatrixindia.com</a>
+          </div>
+        </div>
+      </body>
+    </html>
+  `;
+
+  try {
+    const result = await resend.emails.send({
+      from: fromEmail,
+      to: [email],
+      subject: `Your LabMatrix Account Has Been Closed`,
+      html,
+    });
+
+    return {
+      success: true,
+      data: result,
+    };
+  } catch (error: any) {
+    console.error("[Resend] Error sending account deletion email:", error);
+    return {
+      success: false,
+      error: error?.message || "Failed to dispatch account closure email.",
+    };
+  }
+}
+

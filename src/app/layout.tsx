@@ -4,6 +4,7 @@ import "./globals.css";
 import AuthProvider from "@/components/providers/AuthProvider";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
+import AccountDeletedBanner from "@/components/AccountDeletedBanner";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -157,6 +158,7 @@ export default function RootLayout({
       <body className="min-h-full flex flex-col bg-slate-50 text-slate-900">
         <AuthProvider>
           <Navbar />
+          <AccountDeletedBanner />
           <main className="flex-1">{children}</main>
           <Footer />
         </AuthProvider>

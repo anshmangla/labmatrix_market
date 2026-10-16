@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, Suspense } from "react";
-import { useSession } from "next-auth/react";
+import { useSession, signOut } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import {
@@ -26,6 +26,10 @@ import {
   ArrowRight,
   Inbox,
   Send,
+  Settings,
+  Trash2,
+  AlertCircle,
+  ShieldAlert,
 } from "lucide-react";
 
 function DashboardContent() {
@@ -39,6 +43,8 @@ function DashboardContent() {
       ? "requests"
       : rawTab === "inquiries" || rawTab === "notifications" || rawTab === "messages"
       ? "inquiries"
+      : rawTab === "settings" || rawTab === "profile"
+      ? "settings"
       : "listings";
 
   const [profile, setProfile] = useState<any>(null);
@@ -51,8 +57,17 @@ function DashboardContent() {
   });
   const [unreadCount, setUnreadCount] = useState(0);
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState<"listings" | "requests" | "inquiries">(initialTab);
+  const [activeTab, setActiveTab] = useState<
+    "listings" | "requests" | "inquiries" | "settings"
+  >(initialTab);
   const [updatingId, setUpdatingId] = useState<string | null>(null);
+
+  // Self-deletion modal state
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [deletePassword, setDeletePassword] = useState("");
+  const [deleteConfirmation, setDeleteConfirmation] = useState("");
+  const [deleteLoading, setDeleteLoading] = useState(false);
+  const [deleteError, setDeleteError] = useState("");
 
   // Sync tab with URL search parameter
   useEffect(() => {
@@ -61,12 +76,14 @@ function DashboardContent() {
       setActiveTab("requests");
     } else if (tab === "inquiries" || tab === "notifications" || tab === "messages") {
       setActiveTab("inquiries");
+    } else if (tab === "settings" || tab === "profile") {
+      setActiveTab("settings");
     } else if (tab === "listings") {
       setActiveTab("listings");
     }
   }, [searchParams]);
 
-  const switchTab = (tab: "listings" | "requests" | "inquiries") => {
+  const switchTab = (tab: "listings" | "requests" | "inquiries" | "settings") => {
     setActiveTab(tab);
     router.replace(`/dashboard?tab=${tab}`, { scroll: false });
   };
@@ -169,6 +186,36 @@ function DashboardContent() {
       alert("Error updating requirement status");
     } finally {
       setUpdatingId(null);
+    }
+  };
+
+  const handleUserDeleteAccount = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setDeleteError("");
+    setDeleteLoading(true);
+
+    try {
+      const res = await fetch("/api/user/delete-account", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          password: deletePassword,
+          confirmation: deleteConfirmation,
+        }),
+      });
+
+      const data = await res.json();
+      if (!res.ok) {
+        setDeleteError(data.error || "Failed to delete account. Please try again.");
+        setDeleteLoading(false);
+        return;
+      }
+
+      // Success: Sign out and redirect to homepage with query param
+      await signOut({ callbackUrl: "/?account_deleted=true" });
+    } catch (err: any) {
+      setDeleteError("Network error. Please try again.");
+      setDeleteLoading(false);
     }
   };
 
@@ -326,6 +373,18 @@ function DashboardContent() {
                 {unreadCount}
               </span>
             )}
+          </button>
+          <button
+            type="button"
+            onClick={() => switchTab("settings")}
+            className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center space-x-1.5 ${
+              activeTab === "settings"
+                ? "bg-brand-blue text-white shadow-xs"
+                : "bg-white text-slate-600 hover:bg-slate-200"
+            }`}
+          >
+            <Settings className="w-3.5 h-3.5" />
+            <span>Account Settings</span>
           </button>
         </div>
 
@@ -858,6 +917,179 @@ function DashboardContent() {
                   })}
                 </div>
               )}
+            </div>
+          </div>
+        )}
+
+        {/* Tab 4: Account Settings */}
+        {activeTab === "settings" && (
+          <div className="space-y-6">
+            {/* Profile Overview Card */}
+            <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-xs">
+              <div className="flex items-center space-x-3 mb-5 pb-4 border-b border-slate-100">
+                <div className="w-10 h-10 rounded-xl bg-brand-blue-50 text-brand-blue flex items-center justify-center font-bold">
+                  <User className="w-5 h-5" />
+                </div>
+                <div>
+                  <h2 className="text-base font-bold text-slate-900">Account Profile</h2>
+                  <p className="text-xs text-slate-500">Your verified marketplace credentials</p>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
+                <div className="bg-slate-50 p-3.5 rounded-xl border border-slate-200/80">
+                  <span className="text-slate-500 font-medium block mb-1">Full Name</span>
+                  <span className="font-bold text-slate-900 text-sm">{profile?.name || "Not provided"}</span>
+                </div>
+                <div className="bg-slate-50 p-3.5 rounded-xl border border-slate-200/80">
+                  <span className="text-slate-500 font-medium block mb-1">Email Address</span>
+                  <span className="font-bold text-slate-900 text-sm">{profile?.email}</span>
+                </div>
+                <div className="bg-slate-50 p-3.5 rounded-xl border border-slate-200/80">
+                  <span className="text-slate-500 font-medium block mb-1">Phone / Mobile</span>
+                  <span className="font-bold text-slate-900 text-sm">{profile?.phoneNumber || "Not provided"}</span>
+                </div>
+                <div className="bg-slate-50 p-3.5 rounded-xl border border-slate-200/80">
+                  <span className="text-slate-500 font-medium block mb-1">Company / Lab</span>
+                  <span className="font-bold text-slate-900 text-sm">{profile?.companyName || "Not provided"}</span>
+                </div>
+              </div>
+
+              <div className="mt-5 p-3.5 bg-blue-50/70 border border-blue-200 rounded-xl flex items-start space-x-2.5 text-xs text-blue-900">
+                <ShieldCheck className="w-4 h-4 text-blue-600 mt-0.5 shrink-0" />
+                <span>
+                  <strong>Privacy Protected:</strong> Your email and phone are never displayed publicly. Verified inquiries are routed safely through our encrypted messaging system.
+                </span>
+              </div>
+            </div>
+
+            {/* Danger Zone Card */}
+            <div className="bg-white rounded-2xl border-2 border-red-200 p-6 shadow-xs overflow-hidden">
+              <div className="flex items-center space-x-3 mb-3 text-red-600">
+                <div className="p-2.5 bg-red-100 rounded-xl">
+                  <Trash2 className="w-5 h-5 text-red-600" />
+                </div>
+                <div>
+                  <h3 className="text-base font-bold text-red-950">Danger Zone</h3>
+                  <p className="text-xs text-red-700">Permanent account deactivation & data archival</p>
+                </div>
+              </div>
+
+              <p className="text-xs text-slate-600 leading-relaxed mt-2 mb-4">
+                Deactivating your account will immediately remove all your listed equipment and machine requests from the public marketplace. Your phone number and profile info will be permanently cleared from our database, and your active sessions will be terminated. Historical inquiries and transaction data will be retained in an archived state for regulatory and platform compliance.
+              </p>
+
+              <button
+                type="button"
+                onClick={() => {
+                  setShowDeleteModal(true);
+                  setDeletePassword("");
+                  setDeleteConfirmation("");
+                  setDeleteError("");
+                }}
+                className="inline-flex items-center space-x-1.5 px-4 py-2.5 rounded-xl text-xs font-bold text-white bg-red-600 hover:bg-red-700 transition-colors shadow-xs cursor-pointer"
+              >
+                <Trash2 className="w-4 h-4" />
+                <span>Deactivate & Delete My Account</span>
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* User Account Deletion Modal */}
+        {showDeleteModal && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs">
+            <div className="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl border border-slate-200">
+              <div className="flex items-center space-x-3 text-red-600 mb-3">
+                <div className="p-2.5 bg-red-100 rounded-xl">
+                  <AlertCircle className="w-6 h-6" />
+                </div>
+                <div>
+                  <h3 className="text-base font-bold text-slate-900">Confirm Account Deactivation</h3>
+                  <p className="text-xs text-slate-500">This action cannot be undone</p>
+                </div>
+              </div>
+
+              <p className="text-xs text-slate-600 leading-relaxed mb-4">
+                Are you sure you want to deactivate your LabMatrix account? Your listings ({listings.length}) and buyer requests ({requirements.length}) will be removed from public view and archived.
+              </p>
+
+              {deleteError && (
+                <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-xl text-xs text-red-700 flex items-center space-x-2">
+                  <AlertCircle className="w-4 h-4 shrink-0 text-red-500" />
+                  <span>{deleteError}</span>
+                </div>
+              )}
+
+              <form onSubmit={handleUserDeleteAccount} className="space-y-4">
+                {profile?.hasPassword ? (
+                  <div>
+                    <label className="block text-xs font-semibold text-slate-700 mb-1.5">
+                      Enter your account password to confirm:
+                    </label>
+                    <input
+                      type="password"
+                      required
+                      value={deletePassword}
+                      onChange={(e) => setDeletePassword(e.target.value)}
+                      placeholder="••••••••"
+                      className="w-full text-xs px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500"
+                    />
+                  </div>
+                ) : (
+                  <div>
+                    <label className="block text-xs font-semibold text-slate-700 mb-1.5">
+                      Type <span className="font-bold text-red-600 uppercase">DELETE</span> to confirm:
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      value={deleteConfirmation}
+                      onChange={(e) => setDeleteConfirmation(e.target.value)}
+                      placeholder="DELETE"
+                      className="w-full text-xs px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 font-mono"
+                    />
+                  </div>
+                )}
+
+                <div className="flex items-center justify-end space-x-2.5 pt-2">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setShowDeleteModal(false);
+                      setDeletePassword("");
+                      setDeleteConfirmation("");
+                      setDeleteError("");
+                    }}
+                    disabled={deleteLoading}
+                    className="px-4 py-2 rounded-xl text-xs font-bold text-slate-600 bg-slate-100 hover:bg-slate-200 transition-colors"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={
+                      deleteLoading ||
+                      (profile?.hasPassword
+                        ? !deletePassword
+                        : deleteConfirmation.trim().toUpperCase() !== "DELETE")
+                    }
+                    className="px-4 py-2 rounded-xl text-xs font-bold text-white bg-red-600 hover:bg-red-700 disabled:opacity-40 transition-all flex items-center space-x-1.5 shadow-xs"
+                  >
+                    {deleteLoading ? (
+                      <>
+                        <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                        <span>Deactivating...</span>
+                      </>
+                    ) : (
+                      <>
+                        <Trash2 className="w-3.5 h-3.5" />
+                        <span>Permanently Deactivate</span>
+                      </>
+                    )}
+                  </button>
+                </div>
+              </form>
             </div>
           </div>
         )}
