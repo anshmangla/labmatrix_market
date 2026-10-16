@@ -1,4 +1,4 @@
-import React from "react";
+import React, { cache } from "react";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import type { Metadata } from "next";
@@ -22,15 +22,11 @@ import { getOptimizedImageUrl } from "@/lib/images";
 
 export const dynamic = "force-dynamic";
 
-export async function generateMetadata({
-  params,
-}: {
-  params: Promise<{ id: string }>;
-}): Promise<Metadata> {
-  const { id } = await params;
-  const listing = await prisma.listing.findUnique({
+const getListing = cache(async (id: string) => {
+  return prisma.listing.findUnique({
     where: { id },
     select: {
+      id: true,
       title: true,
       description: true,
       category: true,
@@ -42,9 +38,22 @@ export async function generateMetadata({
       maxPrice: true,
       photos: true,
       location: true,
+      quantity: true,
+      status: true,
       isApproved: true,
+      sellerId: true,
+      createdAt: true,
     },
   });
+});
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}): Promise<Metadata> {
+  const { id } = await params;
+  const listing = await getListing(id);
 
   if (!listing || !listing.isApproved) {
     return {
@@ -112,31 +121,10 @@ export default async function ListingDetailPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const session = await auth();
-
-  const listing = await prisma.listing.findUnique({
-    where: { id },
-    select: {
-      id: true,
-      title: true,
-      description: true,
-      category: true,
-      itemType: true,
-      partNumber: true,
-      compatibleWith: true,
-      minPrice: true,
-      maxPrice: true,
-      condition: true,
-      location: true,
-      photos: true,
-      quantity: true,
-      status: true,
-      isApproved: true,
-      sellerId: true,
-      createdAt: true,
-      // CRITICAL PRIVACY: Seller name, phone, company, and email are strictly NOT selected!
-    },
-  });
+  const [listing, session] = await Promise.all([
+    getListing(id),
+    auth(),
+  ]);
 
   if (!listing) {
     notFound();

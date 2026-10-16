@@ -1,4 +1,4 @@
-import React from "react";
+import React, { cache } from "react";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import type { Metadata } from "next";
@@ -17,24 +17,32 @@ import {
 
 export const dynamic = "force-dynamic";
 
-export async function generateMetadata({
-  params,
-}: {
-  params: Promise<{ id: string }>;
-}): Promise<Metadata> {
-  const { id } = await params;
-  const req = await prisma.requirement.findUnique({
+const getRequirement = cache(async (id: string) => {
+  return prisma.requirement.findUnique({
     where: { id },
     select: {
+      id: true,
       title: true,
       description: true,
       category: true,
       itemType: true,
       partNumber: true,
       compatibleWith: true,
+      status: true,
       isApproved: true,
+      buyerId: true,
+      createdAt: true,
     },
   });
+});
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}): Promise<Metadata> {
+  const { id } = await params;
+  const req = await getRequirement(id);
 
   if (!req || !req.isApproved) {
     return {
@@ -96,25 +104,10 @@ export default async function RequirementDetailPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const session = await auth();
-
-  const req = await prisma.requirement.findUnique({
-    where: { id },
-    select: {
-      id: true,
-      title: true,
-      description: true,
-      category: true,
-      itemType: true,
-      partNumber: true,
-      compatibleWith: true,
-      status: true,
-      isApproved: true,
-      buyerId: true,
-      createdAt: true,
-      // PRIVACY RULE: Buyer personal details are NOT selected!
-    },
-  });
+  const [req, session] = await Promise.all([
+    getRequirement(id),
+    auth(),
+  ]);
 
   if (!req) {
     notFound();
