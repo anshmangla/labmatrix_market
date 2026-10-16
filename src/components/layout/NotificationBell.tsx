@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
 import {
   Bell,
   CheckCircle2,
@@ -38,6 +39,7 @@ function formatRelativeTime(dateString: string) {
 }
 
 export function NotificationBell() {
+  const { data: session } = useSession();
   const [isOpen, setIsOpen] = useState(false);
   const [notifications, setNotifications] = useState<NotificationItem[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
@@ -46,6 +48,7 @@ export function NotificationBell() {
   const router = useRouter();
 
   const fetchNotifications = async () => {
+    if (!session?.user?.id) return;
     try {
       const res = await fetch("/api/notifications");
       if (res.ok) {
@@ -59,12 +62,13 @@ export function NotificationBell() {
   };
 
   useEffect(() => {
+    if (!session?.user?.id) return;
     fetchNotifications();
 
-    // Poll every 30 seconds to catch approvals in near real-time
+    // Poll every 30 seconds only for authenticated users
     const interval = setInterval(fetchNotifications, 30000);
     return () => clearInterval(interval);
-  }, []);
+  }, [session?.user?.id]);
 
   // Close dropdown on click outside
   useEffect(() => {

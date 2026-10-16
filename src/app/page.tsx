@@ -120,6 +120,7 @@ export default function Home() {
           <div className="flex flex-wrap justify-center gap-4 pt-4">
             <Link
               href="/listings/create"
+              prefetch={false}
               className="inline-flex items-center space-x-2 bg-brand-gold text-brand-blue hover:bg-brand-gold-300 font-bold px-5 py-2.5 rounded-xl text-sm transition-all shadow-md"
             >
               <PlusCircle className="w-4 h-4 text-brand-blue" />
@@ -127,6 +128,7 @@ export default function Home() {
             </Link>
             <Link
               href="/requests/create"
+              prefetch={false}
               className="inline-flex items-center space-x-2 bg-brand-blue-900/80 hover:bg-brand-blue-800 border border-brand-blue-700/60 text-white font-semibold px-5 py-2.5 rounded-xl text-sm transition-all"
             >
               <FileQuestion className="w-4 h-4 text-brand-gold" />
@@ -336,12 +338,14 @@ export default function Home() {
             <div className="mt-6 flex flex-wrap justify-center gap-3">
               <Link
                 href="/requests/create"
+                prefetch={false}
                 className="px-5 py-2.5 bg-brand-gold hover:bg-brand-gold-500 text-brand-blue-950 font-bold text-xs rounded-xl shadow-xs transition-colors"
               >
                 Post Buyer Request
               </Link>
               <Link
                 href="/contact"
+                prefetch={false}
                 className="px-5 py-2.5 bg-white/10 hover:bg-white/20 text-white font-semibold text-xs rounded-xl transition-colors border border-white/20"
               >
                 Contact Technical Support

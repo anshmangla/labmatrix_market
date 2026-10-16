@@ -73,6 +73,7 @@ export default function Navbar() {
             </Link>
             <Link
               href="/#how-it-works"
+              prefetch={false}
               className="px-2.5 xl:px-3 py-1.5 rounded-xl hover:text-brand-blue hover:bg-slate-100/70 transition-colors whitespace-nowrap"
             >
               How It Works
@@ -102,6 +103,7 @@ export default function Navbar() {
               <div className="flex items-center space-x-2 pl-1">
                 <Link
                   href="/auth/signin"
+                  prefetch={false}
                   className="inline-flex items-center space-x-1 px-3 py-1.5 rounded-xl text-xs font-bold text-slate-700 hover:text-brand-blue hover:bg-slate-100 transition-colors"
                 >
                   <LogIn className="w-3.5 h-3.5 text-slate-500" />
@@ -109,6 +111,7 @@ export default function Navbar() {
                 </Link>
                 <Link
                   href="/auth/signup"
+                  prefetch={false}
                   className="inline-flex items-center space-x-1 px-3.5 py-1.5 rounded-xl text-xs font-bold text-white bg-brand-blue hover:bg-brand-blue-500 shadow-xs transition-all"
                 >
                   <UserPlus className="w-3.5 h-3.5" />
