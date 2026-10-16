@@ -30,6 +30,7 @@ import {
   Trash2,
   AlertCircle,
   ShieldAlert,
+  Copy,
 } from "lucide-react";
 
 function DashboardContent() {
@@ -419,15 +420,25 @@ function DashboardContent() {
                     <div className="space-y-3">
                       {/* Top Badges */}
                       <div className="flex flex-wrap items-center justify-between gap-2">
-                        <div className="flex items-center space-x-1.5">
+                        <div className="flex flex-wrap items-center gap-1.5">
                           <span className="font-bold text-brand-blue-700 bg-brand-blue-50 border border-brand-blue-100/60 px-2.5 py-1 rounded-md text-xs">
                             {item.category}
                           </span>
+                          {item.itemType === "NEW_INSTRUMENT" && (
+                            <span className="bg-emerald-50 text-emerald-800 border border-emerald-200 px-2 py-0.5 rounded text-[10px] font-bold">
+                              ✨ New Instrument
+                            </span>
+                          )}
                           {item.itemType === "SPARE_PART" && (
                             <span className="bg-amber-50 text-amber-800 border border-amber-200 px-2 py-0.5 rounded text-[10px] font-bold">
                               ⚙️ Spare Part
                             </span>
                           )}
+                          {(item as any).quantity && (item as any).quantity > 1 ? (
+                            <span className="bg-amber-100 text-amber-800 border border-amber-200 px-2 py-0.5 rounded text-[10px] font-bold">
+                              Qty: {(item as any).quantity}
+                            </span>
+                          ) : null}
                         </div>
                         {item.isApproved ? (
                           <span className="inline-flex items-center space-x-1 text-[11px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200 px-2 py-0.5 rounded-md">
@@ -470,6 +481,14 @@ function DashboardContent() {
                           </span>
                         </div>
                         <div className="flex items-center space-x-2">
+                          <Link
+                            href={`/listings/create?duplicate=${item.id}`}
+                            className="inline-flex items-center space-x-1 text-xs font-bold text-slate-700 hover:text-brand-blue bg-slate-100 hover:bg-slate-200 px-2.5 py-1 rounded-lg transition-colors border border-slate-200"
+                            title="Duplicate this listing as a new entry"
+                          >
+                            <Copy className="w-3.5 h-3.5" />
+                            <span>Duplicate</span>
+                          </Link>
                           <Link
                             href={`/listings/${item.id}/edit`}
                             className="inline-flex items-center space-x-1 text-xs font-bold text-slate-700 hover:text-brand-blue bg-slate-100 hover:bg-slate-200 px-2.5 py-1 rounded-lg transition-colors border border-slate-200"

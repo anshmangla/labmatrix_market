@@ -30,6 +30,7 @@ interface Listing {
   condition: string;
   location: string;
   photos: string[];
+  quantity?: number;
   createdAt: string;
   status: string;
 }
@@ -268,9 +269,10 @@ export default function SparePartsHubPage() {
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
                 {listings.map((item) => (
-                  <div
+                  <Link
                     key={item.id}
-                    className="bg-white rounded-2xl border border-slate-200 p-5 shadow-xs hover:border-slate-300 transition-all flex flex-col justify-between space-y-4"
+                    href={`/listings/${item.id}`}
+                    className="group bg-white rounded-2xl border border-slate-200 hover:border-brand-blue p-5 shadow-xs hover:shadow-lg transition-all flex flex-col justify-between space-y-4 cursor-pointer"
                   >
                     <div className="space-y-3">
                       {/* Photos Thumbnail if available */}
@@ -279,7 +281,7 @@ export default function SparePartsHubPage() {
                           <img
                             src={item.photos[0]}
                             alt={item.title}
-                            className="w-full h-full object-cover"
+                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                           />
                           {item.status === "SOLD" && (
                             <div className="absolute inset-0 bg-slate-950/35 backdrop-blur-[1px] flex items-center justify-center">
@@ -311,6 +313,11 @@ export default function SparePartsHubPage() {
                             {item.condition}
                           </span>
                         )}
+                        {item.quantity && item.quantity > 1 ? (
+                          <span className="bg-amber-100 text-amber-800 border border-amber-200 px-2 py-0.5 rounded text-[10px] font-bold">
+                            Qty: {item.quantity}
+                          </span>
+                        ) : null}
                         {item.status === "SOLD" && (
                           <span className="bg-rose-100 text-rose-700 border border-rose-200 px-2 py-0.5 rounded text-[10px] font-black uppercase">
                             SOLD
@@ -319,7 +326,7 @@ export default function SparePartsHubPage() {
                       </div>
 
                       <div>
-                        <h3 className="font-bold text-slate-900 text-sm sm:text-base leading-snug line-clamp-2">
+                        <h3 className="font-bold text-slate-900 group-hover:text-brand-blue transition-colors text-sm sm:text-base leading-snug line-clamp-2">
                           {item.title}
                         </h3>
                         {item.compatibleWith && (
@@ -356,15 +363,12 @@ export default function SparePartsHubPage() {
                         </div>
                       </div>
 
-                      <Link
-                        href={`/listings/${item.id}`}
-                        className="inline-flex items-center space-x-1 text-xs font-bold text-brand-blue hover:text-brand-blue-500 hover:underline"
-                      >
+                      <div className="inline-flex items-center space-x-1 text-xs font-bold text-brand-blue group-hover:text-brand-blue-600">
                         <span>View Details</span>
-                        <ArrowRight className="w-3.5 h-3.5" />
-                      </Link>
+                        <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
+                      </div>
                     </div>
-                  </div>
+                  </Link>
                 ))}
               </div>
             )}

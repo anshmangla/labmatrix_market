@@ -26,6 +26,7 @@ interface Listing {
   condition: string;
   location: string;
   photos: string[];
+  quantity?: number;
   createdAt: string;
   status: string;
 }
@@ -286,6 +287,11 @@ function ListingsContent() {
                     <span className="bg-brand-blue-900/85 backdrop-blur-md text-white text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md">
                       {item.category}
                     </span>
+                    {item.quantity && item.quantity > 1 ? (
+                      <span className="bg-amber-500/90 backdrop-blur-md text-white text-[10px] font-bold px-2 py-0.5 rounded-md shadow-xs">
+                        Qty: {item.quantity}
+                      </span>
+                    ) : null}
                     {item.status === "SOLD" && (
                       <span className="bg-rose-600 text-white text-[10px] font-black uppercase tracking-wider px-2.5 py-0.5 rounded-md shadow-sm border border-rose-400">
                         SOLD

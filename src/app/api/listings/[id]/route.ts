@@ -25,6 +25,7 @@ export async function GET(
         condition: true,
         location: true,
         photos: true,
+        quantity: true,
         status: true,
         isApproved: true,
         sellerId: true,
@@ -100,6 +101,7 @@ export async function PATCH(
       condition,
       location,
       photos,
+      quantity,
       status,
       isApproved,
     } = body;
@@ -169,10 +171,16 @@ export async function PATCH(
     }
 
     if (itemType !== undefined) {
-      if (itemType === "MACHINE" || itemType === "SPARE_PART") {
+      if (itemType === "MACHINE" || itemType === "SPARE_PART" || itemType === "NEW_INSTRUMENT") {
         updateData.itemType = itemType;
         contentChanged = true;
       }
+    }
+
+    if (quantity !== undefined) {
+      const parsedQty = Math.max(1, parseInt(String(quantity), 10) || 1);
+      updateData.quantity = parsedQty;
+      contentChanged = true;
     }
 
     if (partNumber !== undefined) {
@@ -311,7 +319,12 @@ export async function PATCH(
             type: "ENTRY_APPROVED",
             title: "🎉 Listing Approved & Live!",
             message: `Your listing "${updated.title}" has been approved by admin and is now publicly live on the marketplace.`,
-            link: updated.itemType === "SPARE_PART" ? "/spare-parts" : `/listings/${updated.id}`,
+            link:
+              updated.itemType === "SPARE_PART"
+                ? "/spare-parts"
+                : updated.itemType === "NEW_INSTRUMENT"
+                ? "/new-instruments"
+                : `/listings/${updated.id}`,
           },
         });
       } catch (notifErr) {

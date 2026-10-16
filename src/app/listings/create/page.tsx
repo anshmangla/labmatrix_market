@@ -43,6 +43,12 @@ const MACHINE_CONDITIONS = [
   "For Parts / Non-operational",
 ];
 
+const NEW_INSTRUMENT_CONDITIONS = [
+  "Brand New - Factory Sealed",
+  "Brand New - Demo Unit",
+  "Brand New with OEM Warranty",
+];
+
 const SPARE_CONDITIONS = [
   "Brand New - Sealed OEM",
   "Tested Working Surplus",
@@ -55,8 +61,13 @@ function CreateListingForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
-  const initialType = searchParams.get("type") === "spare_part" ? "SPARE_PART" : "MACHINE";
-  const [itemType, setItemType] = useState<"MACHINE" | "SPARE_PART">(initialType);
+  const initialType =
+    searchParams.get("type") === "spare_part"
+      ? "SPARE_PART"
+      : searchParams.get("type") === "new_instrument"
+      ? "NEW_INSTRUMENT"
+      : "MACHINE";
+  const [itemType, setItemType] = useState<"MACHINE" | "NEW_INSTRUMENT" | "SPARE_PART">(initialType);
 
   // Listing fields
   const [title, setTitle] = useState("");
@@ -64,14 +75,20 @@ function CreateListingForm() {
     initialType === "SPARE_PART" ? "Spare Parts & Consumables" : CATEGORIES[0]
   );
   const [condition, setCondition] = useState(
-    initialType === "SPARE_PART" ? SPARE_CONDITIONS[0] : MACHINE_CONDITIONS[1]
+    initialType === "SPARE_PART"
+      ? SPARE_CONDITIONS[0]
+      : initialType === "NEW_INSTRUMENT"
+      ? NEW_INSTRUMENT_CONDITIONS[0]
+      : MACHINE_CONDITIONS[1]
   );
   const [compatibleWith, setCompatibleWith] = useState("");
   const [partNumber, setPartNumber] = useState("");
   const [location, setLocation] = useState("");
   const [minPrice, setMinPrice] = useState("");
   const [maxPrice, setMaxPrice] = useState("");
+  const [quantity, setQuantity] = useState("1");
   const [description, setDescription] = useState("");
+  const [duplicatingFrom, setDuplicatingFrom] = useState<string | null>(null);
 
   // Photos
   const [photos, setPhotos] = useState<string[]>([]);
@@ -103,6 +120,36 @@ function CreateListingForm() {
         .catch((err) => console.error("Profile check error:", err));
     }
   }, [session]);
+
+  // Check for duplicate query param to prefill fields
+  useEffect(() => {
+    const duplicateId = searchParams.get("duplicate");
+    if (!duplicateId) return;
+
+    fetch(`/api/listings/${duplicateId}`)
+      .then((res) => res.json())
+      .then((data) => {
+        if (data?.listing) {
+          const l = data.listing;
+          setTitle(l.title ? `Copy of ${l.title}` : "");
+          setDescription(l.description || "");
+          setCategory(l.category || CATEGORIES[0]);
+          if (l.itemType === "SPARE_PART" || l.itemType === "NEW_INSTRUMENT" || l.itemType === "MACHINE") {
+            setItemType(l.itemType);
+          }
+          setCondition(l.condition || "");
+          setPartNumber(l.partNumber || "");
+          setCompatibleWith(l.compatibleWith || "");
+          setLocation(l.location || "");
+          setMinPrice(l.minPrice !== undefined && l.minPrice !== null ? String(l.minPrice) : "");
+          setMaxPrice(l.maxPrice !== undefined && l.maxPrice !== null ? String(l.maxPrice) : "");
+          setPhotos(Array.isArray(l.photos) ? l.photos : []);
+          setQuantity(l.quantity ? String(l.quantity) : "1");
+          setDuplicatingFrom(l.title || "Selected Listing");
+        }
+      })
+      .catch((err) => console.error("Error fetching listing to duplicate:", err));
+  }, [searchParams]);
 
   if (status === "loading") {
     return (
@@ -203,6 +250,7 @@ function CreateListingForm() {
         location: location.trim(),
         minPrice,
         maxPrice,
+        quantity: Math.max(1, parseInt(quantity, 10) || 1),
         description: description.trim(),
         photos,
         phoneNumber,
@@ -235,7 +283,12 @@ function CreateListingForm() {
     }
   };
 
-  const currentConditions = itemType === "SPARE_PART" ? SPARE_CONDITIONS : MACHINE_CONDITIONS;
+  const currentConditions =
+    itemType === "SPARE_PART"
+      ? SPARE_CONDITIONS
+      : itemType === "NEW_INSTRUMENT"
+      ? NEW_INSTRUMENT_CONDITIONS
+      : MACHINE_CONDITIONS;
 
   if (submittedData) {
     return (
@@ -307,6 +360,18 @@ function CreateListingForm() {
           </p>
         </div>
 
+        {duplicatingFrom && (
+          <div className="mb-6 rounded-2xl bg-brand-gold/15 p-4 border border-brand-gold/40 flex items-start space-x-3 text-brand-blue-900 text-sm">
+            <Info className="w-5 h-5 flex-shrink-0 text-brand-blue mt-0.5" />
+            <div>
+              <span className="font-bold block">📋 Duplicating Listing</span>
+              <span>
+                Pre-filled specifications, photos, and pricing from &quot;{duplicatingFrom}&quot;. Modify any fields below as needed and submit as a brand-new listing.
+              </span>
+            </div>
+          </div>
+        )}
+
         {error && (
           <div className="mb-6 rounded-xl bg-red-50 p-4 border border-red-200 flex items-start space-x-3 text-red-700 text-sm">
             <AlertCircle className="w-5 h-5 flex-shrink-0 text-red-500 mt-0.5" />
@@ -320,7 +385,7 @@ function CreateListingForm() {
             <label className="block text-sm font-bold text-slate-900">
               What are you listing for sale? *
             </label>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
               <button
                 type="button"
                 onClick={() => {
@@ -346,10 +411,44 @@ function CreateListingForm() {
                   </div>
                   <div>
                     <span className="font-bold text-slate-900 text-sm block">
-                      Laboratory Machine / Instrument
+                      Pre-Owned Machine
                     </span>
                     <span className="text-xs text-slate-500">
-                      HPLC, GC-MS, UV-Vis, Dissolution Testers...
+                      Refurbished / Used instruments
+                    </span>
+                  </div>
+                </div>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => {
+                  setItemType("NEW_INSTRUMENT");
+                  setCondition(NEW_INSTRUMENT_CONDITIONS[0]);
+                  if (category === "Spare Parts & Consumables") setCategory(CATEGORIES[0]);
+                }}
+                className={`p-4 rounded-xl border-2 text-left transition-all cursor-pointer ${
+                  itemType === "NEW_INSTRUMENT"
+                    ? "border-emerald-600 bg-emerald-50/60 shadow-xs"
+                    : "border-slate-200 hover:border-slate-300 bg-white"
+                }`}
+              >
+                <div className="flex items-center space-x-3">
+                  <div
+                    className={`w-9 h-9 rounded-xl flex items-center justify-center font-bold text-base ${
+                      itemType === "NEW_INSTRUMENT"
+                        ? "bg-emerald-600 text-white"
+                        : "bg-slate-100 text-slate-600"
+                    }`}
+                  >
+                    ✨
+                  </div>
+                  <div>
+                    <span className="font-bold text-slate-900 text-sm block">
+                      Brand New Instrument
+                    </span>
+                    <span className="text-xs text-slate-500">
+                      Factory sealed with OEM warranty
                     </span>
                   </div>
                 </div>
@@ -380,10 +479,10 @@ function CreateListingForm() {
                   </div>
                   <div>
                     <span className="font-bold text-slate-900 text-sm block">
-                      Spare Part or Consumable
+                      Spare Part / Consumable
                     </span>
                     <span className="text-xs text-slate-500">
-                      Lamps, columns, detectors, seal kits, valves, boards...
+                      Lamps, columns, modules, valves...
                     </span>
                   </div>
                 </div>
@@ -394,7 +493,11 @@ function CreateListingForm() {
           {/* Card 1: Specifications */}
           <div className="bg-white rounded-2xl p-6 sm:p-8 shadow-xs border border-slate-200">
             <h2 className="text-lg font-bold text-slate-900 mb-5">
-              {itemType === "SPARE_PART" ? "1. Spare Part Specifications" : "1. Machine Specifications"}
+              {itemType === "SPARE_PART"
+                ? "1. Spare Part Specifications"
+                : itemType === "NEW_INSTRUMENT"
+                ? "1. New Instrument Specifications"
+                : "1. Machine Specifications"}
             </h2>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -491,6 +594,21 @@ function CreateListingForm() {
                   placeholder="e.g. Hyderabad, Telangana"
                   value={location}
                   onChange={(e) => setLocation(e.target.value)}
+                  className="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-sm text-slate-900 bg-white placeholder:text-slate-500 focus:ring-2 focus:ring-brand-blue focus:border-brand-blue"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-semibold text-slate-700 mb-1">
+                  Quantity Available *
+                </label>
+                <input
+                  type="number"
+                  required
+                  min="1"
+                  placeholder="1"
+                  value={quantity}
+                  onChange={(e) => setQuantity(e.target.value)}
                   className="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-sm text-slate-900 bg-white placeholder:text-slate-500 focus:ring-2 focus:ring-brand-blue focus:border-brand-blue"
                 />
               </div>
@@ -670,6 +788,8 @@ function CreateListingForm() {
                   ? "Publishing..."
                   : itemType === "SPARE_PART"
                   ? "Publish Spare Part Listing"
+                  : itemType === "NEW_INSTRUMENT"
+                  ? "Publish New Instrument Listing"
                   : "Publish Machine Listing"}
               </span>
               {!loading && <ArrowRight className="w-4 h-4" />}

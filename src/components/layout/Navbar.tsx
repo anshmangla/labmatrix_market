@@ -54,6 +54,12 @@ export default function Navbar() {
               Available Equipment
             </Link>
             <Link
+              href="/new-instruments"
+              className="px-3 py-2 rounded-xl hover:text-brand-blue hover:bg-slate-100/70 transition-colors"
+            >
+              New Instruments
+            </Link>
+            <Link
               href="/spare-parts"
               className="px-3 py-2 rounded-xl hover:text-brand-blue hover:bg-slate-100/70 transition-colors"
             >
@@ -170,6 +176,14 @@ export default function Navbar() {
                 className="px-3 py-2 rounded-xl hover:bg-slate-50 hover:text-brand-blue flex items-center justify-between"
               >
                 <span>Available Equipment</span>
+                <ChevronRight className="w-4 h-4 text-slate-300" />
+              </Link>
+              <Link
+                href="/new-instruments"
+                onClick={() => setMobileMenuOpen(false)}
+                className="px-3 py-2 rounded-xl hover:bg-slate-50 hover:text-brand-blue flex items-center justify-between"
+              >
+                <span>New Instruments</span>
                 <ChevronRight className="w-4 h-4 text-slate-300" />
               </Link>
               <Link

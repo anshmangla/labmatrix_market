@@ -44,6 +44,12 @@ const MACHINE_CONDITIONS = [
   "For Parts / Non-operational",
 ];
 
+const NEW_INSTRUMENT_CONDITIONS = [
+  "Brand New - Factory Sealed",
+  "Brand New - Demo Unit",
+  "Brand New with OEM Warranty",
+];
+
 const SPARE_CONDITIONS = [
   "Brand New - Sealed OEM",
   "Tested Working Surplus",
@@ -62,7 +68,7 @@ export default function EditListingPage() {
   const [isAdmin, setIsAdmin] = useState(false);
 
   // Listing fields
-  const [itemType, setItemType] = useState<"MACHINE" | "SPARE_PART">("MACHINE");
+  const [itemType, setItemType] = useState<"MACHINE" | "NEW_INSTRUMENT" | "SPARE_PART">("MACHINE");
   const [title, setTitle] = useState("");
   const [category, setCategory] = useState(CATEGORIES[0]);
   const [condition, setCondition] = useState(MACHINE_CONDITIONS[1]);
@@ -71,6 +77,7 @@ export default function EditListingPage() {
   const [location, setLocation] = useState("");
   const [minPrice, setMinPrice] = useState("");
   const [maxPrice, setMaxPrice] = useState("");
+  const [quantity, setQuantity] = useState("1");
   const [description, setDescription] = useState("");
   const [listingStatus, setListingStatus] = useState("AVAILABLE");
   const [photos, setPhotos] = useState<string[]>([]);
@@ -105,7 +112,11 @@ export default function EditListingPage() {
         setIsOwner(data.isOwner);
         setIsAdmin(data.isAdmin);
 
-        setItemType(l.itemType === "SPARE_PART" ? "SPARE_PART" : "MACHINE");
+        if (l.itemType === "SPARE_PART" || l.itemType === "NEW_INSTRUMENT" || l.itemType === "MACHINE") {
+          setItemType(l.itemType);
+        } else {
+          setItemType("MACHINE");
+        }
         setTitle(l.title || "");
         setCategory(l.category || CATEGORIES[0]);
         setCondition(l.condition || MACHINE_CONDITIONS[1]);
@@ -114,6 +125,7 @@ export default function EditListingPage() {
         setLocation(l.location || "");
         setMinPrice(l.minPrice !== undefined && l.minPrice !== null ? String(l.minPrice) : "");
         setMaxPrice(l.maxPrice !== undefined && l.maxPrice !== null ? String(l.maxPrice) : "");
+        setQuantity(l.quantity !== undefined && l.quantity !== null ? String(l.quantity) : "1");
         setDescription(l.description || "");
         setListingStatus(l.status || "AVAILABLE");
         setPhotos(Array.isArray(l.photos) ? l.photos : []);
@@ -256,6 +268,7 @@ export default function EditListingPage() {
         location: location.trim(),
         minPrice: parsedMin,
         maxPrice: parsedMax,
+        quantity: Math.max(1, parseInt(quantity, 10) || 1),
         description: description.trim(),
         photos,
         status: listingStatus,
@@ -286,7 +299,12 @@ export default function EditListingPage() {
     }
   };
 
-  const currentConditions = itemType === "SPARE_PART" ? SPARE_CONDITIONS : MACHINE_CONDITIONS;
+  const currentConditions =
+    itemType === "SPARE_PART"
+      ? SPARE_CONDITIONS
+      : itemType === "NEW_INSTRUMENT"
+      ? NEW_INSTRUMENT_CONDITIONS
+      : MACHINE_CONDITIONS;
 
   if (successResult) {
     return (
@@ -408,7 +426,7 @@ export default function EditListingPage() {
               <label className="block text-xs font-bold text-slate-700 mb-2">
                 Listing Type
               </label>
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                 <button
                   type="button"
                   onClick={() => {
@@ -417,13 +435,29 @@ export default function EditListingPage() {
                       setCategory(CATEGORIES[0]);
                     }
                   }}
-                  className={`py-3 px-4 rounded-xl border text-xs font-bold transition-all flex items-center justify-center space-x-2 ${
+                  className={`py-3 px-4 rounded-xl border text-xs font-bold transition-all flex items-center justify-center space-x-2 cursor-pointer ${
                     itemType === "MACHINE"
                       ? "bg-brand-blue text-white border-brand-blue shadow-xs"
                       : "bg-slate-50 border-slate-200 text-slate-600 hover:bg-slate-100"
                   }`}
                 >
-                  <span>Complete Laboratory Instrument</span>
+                  <span>Pre-Owned Machine</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setItemType("NEW_INSTRUMENT");
+                    if (category === "Spare Parts & Consumables") {
+                      setCategory(CATEGORIES[0]);
+                    }
+                  }}
+                  className={`py-3 px-4 rounded-xl border text-xs font-bold transition-all flex items-center justify-center space-x-2 cursor-pointer ${
+                    itemType === "NEW_INSTRUMENT"
+                      ? "bg-emerald-600 text-white border-emerald-600 shadow-xs"
+                      : "bg-slate-50 border-slate-200 text-slate-600 hover:bg-slate-100"
+                  }`}
+                >
+                  <span>Brand New Instrument</span>
                 </button>
                 <button
                   type="button"
@@ -431,14 +465,14 @@ export default function EditListingPage() {
                     setItemType("SPARE_PART");
                     setCategory("Spare Parts & Consumables");
                   }}
-                  className={`py-3 px-4 rounded-xl border text-xs font-bold transition-all flex items-center justify-center space-x-2 ${
+                  className={`py-3 px-4 rounded-xl border text-xs font-bold transition-all flex items-center justify-center space-x-2 cursor-pointer ${
                     itemType === "SPARE_PART"
                       ? "bg-brand-blue text-white border-brand-blue shadow-xs"
                       : "bg-slate-50 border-slate-200 text-slate-600 hover:bg-slate-100"
                   }`}
                 >
                   <Wrench className="w-3.5 h-3.5" />
-                  <span>Spare Part / Sub-Module / Detector</span>
+                  <span>Spare Part / Consumable</span>
                 </button>
               </div>
             </div>
@@ -564,8 +598,8 @@ export default function EditListingPage() {
               </div>
             </div>
 
-            {/* Location & Status */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {/* Location, Quantity & Status */}
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
               <div>
                 <label className="block text-xs font-bold text-slate-700 mb-1.5">
                   Location (City / State)
@@ -575,6 +609,21 @@ export default function EditListingPage() {
                   value={location}
                   onChange={(e) => setLocation(e.target.value)}
                   placeholder="e.g. Ahmedabad, Gujarat"
+                  className="w-full text-sm px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-brand-blue"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-slate-700 mb-1.5">
+                  Quantity Available <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="number"
+                  required
+                  min="1"
+                  value={quantity}
+                  onChange={(e) => setQuantity(e.target.value)}
+                  placeholder="1"
                   className="w-full text-sm px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-brand-blue"
                 />
               </div>

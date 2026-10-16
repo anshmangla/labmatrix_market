@@ -72,6 +72,7 @@ export async function GET(request: Request) {
           condition: true,
           location: true,
           photos: true,
+          quantity: true,
           status: true,
           createdAt: true,
           // NOTICE: Seller name, phone number, and email are NEVER returned to the client!
@@ -134,6 +135,7 @@ export async function POST(request: Request) {
       condition,
       location,
       photos,
+      quantity,
       phoneNumber,
       companyName,
     } = body;
@@ -187,6 +189,8 @@ export async function POST(request: Request) {
         { status: 400 }
       );
     }
+
+    const parsedQuantity = quantity !== undefined ? Math.max(1, parseInt(String(quantity), 10) || 1) : 1;
 
     // 3. Photo array sanitization and limit
     let sanitizedPhotos: string[] = [];
@@ -261,18 +265,26 @@ export async function POST(request: Request) {
         condition: condition && typeof condition === "string" ? condition.slice(0, 100) : "Used - Good",
         location: location && typeof location === "string" ? location.trim().slice(0, 100) : "India",
         photos: sanitizedPhotos,
+        quantity: parsedQuantity,
         sellerId: session.user.id,
       },
     });
 
     // Create an in-app notification for the user
     try {
+      const itemLabel =
+        resolvedItemType === "SPARE_PART"
+          ? "spare part"
+          : resolvedItemType === "NEW_INSTRUMENT"
+          ? "new instrument"
+          : "machine";
+
       await prisma.notification.create({
         data: {
           userId: session.user.id,
           type: "ENTRY_PENDING",
           title: "Entry Submitted for Approval",
-          message: `Your ${resolvedItemType === "SPARE_PART" ? "spare part" : "machine"} listing "${listing.title}" is under admin review. Once approved, it will be published on the marketplace.`,
+          message: `Your ${itemLabel} listing "${listing.title}" is under admin review. Once approved, it will be published on the marketplace.`,
           link: "/dashboard",
         },
       });
@@ -285,6 +297,8 @@ export async function POST(request: Request) {
         message:
           resolvedItemType === "SPARE_PART"
             ? "Spare part listing submitted successfully! It will be reviewed by the admin before appearing on the site."
+            : resolvedItemType === "NEW_INSTRUMENT"
+            ? "New instrument listing submitted successfully! It will be reviewed by the admin before appearing on the site."
             : "Machine listing submitted successfully! It will be reviewed by the admin before appearing on the site.",
         listingId: listing.id,
       },

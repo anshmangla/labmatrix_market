@@ -24,6 +24,8 @@ import {
   Trash2,
   Check,
   X,
+  Copy,
+  Pencil,
 } from "lucide-react";
 
 export default function AdminDashboardPage() {
@@ -1208,11 +1210,21 @@ export default function AdminDashboardPage() {
                         </td>
                         <td className="p-3.5 text-slate-600">
                           <span>{l.category}</span>
+                          {l.itemType === "NEW_INSTRUMENT" && (
+                            <span className="block text-[10px] text-emerald-700 font-bold">
+                              ✨ New Instrument
+                            </span>
+                          )}
                           {l.itemType === "SPARE_PART" && (
                             <span className="block text-[10px] text-amber-700 font-bold">
                               ⚙️ Spare Part
                             </span>
                           )}
+                          {(l as any).quantity && (l as any).quantity > 1 ? (
+                            <span className="block text-[10px] text-amber-800 font-semibold">
+                              Qty: {(l as any).quantity}
+                            </span>
+                          ) : null}
                         </td>
                         <td className="p-3.5 font-semibold text-slate-800">
                           ₹{l.minPrice.toLocaleString("en-IN")} - ₹
@@ -1274,14 +1286,31 @@ export default function AdminDashboardPage() {
                           </select>
                         </td>
                         <td className="p-3.5">
-                          <button
-                            type="button"
-                            onClick={() => handleDeleteListing(l.id, l.title)}
-                            className="inline-flex items-center space-x-1 text-[11px] font-bold text-rose-700 bg-rose-50 hover:bg-rose-100 border border-rose-200 px-2 py-1 rounded-lg transition-colors"
-                          >
-                            <Trash2 className="w-3.5 h-3.5 text-rose-600" />
-                            <span>Delete</span>
-                          </button>
+                          <div className="flex items-center space-x-1.5">
+                            <Link
+                              href={`/listings/create?duplicate=${l.id}`}
+                              className="inline-flex items-center space-x-1 text-[11px] font-bold text-slate-700 bg-slate-100 hover:bg-slate-200 border border-slate-200 px-2 py-1 rounded-lg transition-colors"
+                              title="Duplicate listing"
+                            >
+                              <Copy className="w-3 h-3 text-slate-600" />
+                              <span>Copy</span>
+                            </Link>
+                            <Link
+                              href={`/listings/${l.id}/edit`}
+                              className="inline-flex items-center space-x-1 text-[11px] font-bold text-slate-700 bg-slate-100 hover:bg-slate-200 border border-slate-200 px-2 py-1 rounded-lg transition-colors"
+                            >
+                              <Pencil className="w-3 h-3 text-slate-600" />
+                              <span>Edit</span>
+                            </Link>
+                            <button
+                              type="button"
+                              onClick={() => handleDeleteListing(l.id, l.title)}
+                              className="inline-flex items-center space-x-1 text-[11px] font-bold text-rose-700 bg-rose-50 hover:bg-rose-100 border border-rose-200 px-2 py-1 rounded-lg transition-colors"
+                            >
+                              <Trash2 className="w-3 h-3 text-rose-600" />
+                              <span>Delete</span>
+                            </button>
+                          </div>
                         </td>
                       </tr>
                     ))}
