@@ -81,15 +81,22 @@ export async function GET(request: Request) {
       prisma.listing.count({ where }),
     ]);
 
-    return NextResponse.json({
-      listings,
-      pagination: {
-        total,
-        page,
-        limit,
-        totalPages: Math.ceil(total / limit),
+    return NextResponse.json(
+      {
+        listings,
+        pagination: {
+          total,
+          page,
+          limit,
+          totalPages: Math.ceil(total / limit),
+        },
       },
-    });
+      {
+        headers: {
+          "Cache-Control": "public, s-maxage=60, stale-while-revalidate=300",
+        },
+      }
+    );
   } catch (error: any) {
     console.error("Fetch listings error:", error);
     return NextResponse.json(

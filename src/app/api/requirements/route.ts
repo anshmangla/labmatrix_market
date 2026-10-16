@@ -60,15 +60,22 @@ export async function GET(request: Request) {
       prisma.requirement.count({ where }),
     ]);
 
-    return NextResponse.json({
-      requirements,
-      pagination: {
-        total,
-        page,
-        limit,
-        totalPages: Math.ceil(total / limit),
+    return NextResponse.json(
+      {
+        requirements,
+        pagination: {
+          total,
+          page,
+          limit,
+          totalPages: Math.ceil(total / limit),
+        },
       },
-    });
+      {
+        headers: {
+          "Cache-Control": "public, s-maxage=60, stale-while-revalidate=300",
+        },
+      }
+    );
   } catch (error: any) {
     console.error("Fetch requirements error:", error);
     return NextResponse.json(
