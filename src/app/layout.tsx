@@ -14,12 +14,24 @@ const geistSans = Geist({
 export const metadata: Metadata = {
   metadataBase: new URL("https://surplus.labmatrixindia.com"),
   title: {
-    default: "LabMatrix Marketplace | Pre-Owned Analytical & Pharma Lab Instruments",
+    default: "LabMatrix Marketplace | Refurbished & Pre-Owned Analytical Lab Instruments",
     template: "%s | LabMatrix Instrument India",
   },
   description:
-    "The dedicated B2B marketplace for buying and selling pre-owned HPLC, GC-MS, UV-Vis, AAS, ICP, DSC-TGA, spare parts, and analytical laboratory machinery in India.",
+    "India's dedicated B2B marketplace to buy and sell certified refurbished & pre-owned HPLC, GC-MS, UV-Vis, AAS, ICP-OES, DSC-TGA, spare parts, and analytical laboratory machinery.",
   keywords: [
+    "refurbished analytical instruments India",
+    "refurbished HPLC systems",
+    "refurbished GC-MS machines",
+    "refurbished spectrophotometer India",
+    "refurbished AAS atomic absorption",
+    "refurbished ICP-OES ICP-MS",
+    "refurbished laboratory equipment Delhi NCR",
+    "refurbished Waters Agilent Shimadzu",
+    "refurbished lab instruments with warranty",
+    "refurbished pharma testing machinery",
+    "second hand lab equipment refurbished",
+    "pre-owned and refurbished lab instruments",
     "used HPLC machine India",
     "refurbished GC-MS",
     "UV-Vis spectrophotometer used",
@@ -34,9 +46,9 @@ export const metadata: Metadata = {
     "PerkinElmer ICP-OES Avio Optima",
     "Waters Agilent Shimadzu pre-owned",
     "laboratory instrument spare parts India",
+    "refurbished chromatography detectors",
     "chromatography power supply surplus",
     "pre-owned analytical instruments marketplace",
-    "refurbished laboratory equipment India",
     "buy used pharma instruments",
     "sell surplus lab equipment India",
     "lab instrument AMC calibration relocation",
@@ -49,23 +61,23 @@ export const metadata: Metadata = {
     locale: "en_IN",
     url: "https://surplus.labmatrixindia.com",
     siteName: "LabMatrix Instrument India Pvt Ltd",
-    title: "LabMatrix Marketplace | Pre-Owned Analytical & Pharma Lab Instruments",
+    title: "LabMatrix Marketplace | Refurbished & Pre-Owned Analytical Lab Instruments",
     description:
-      "Buy & sell certified pre-owned HPLC, GC-MS, Spectroscopy, Elemental & Thermal Analysis equipment and replacement spares.",
+      "Buy & sell certified refurbished and pre-owned HPLC, GC-MS, Spectroscopy, Elemental & Thermal Analysis equipment and replacement spares across India.",
     images: [
       {
         url: "/logo.png",
         width: 800,
         height: 200,
-        alt: "LabMatrix Instrument India Marketplace",
+        alt: "LabMatrix Marketplace - Refurbished & Pre-Owned Analytical Instruments",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "LabMatrix Marketplace | Pre-Owned Analytical & Pharma Lab Instruments",
+    title: "LabMatrix Marketplace | Refurbished & Pre-Owned Analytical Lab Instruments",
     description:
-      "Verified B2B marketplace for pre-owned laboratory machinery, spare parts, and analytical testing equipment.",
+      "Verified B2B marketplace for refurbished and pre-owned laboratory machinery, spare parts, and analytical testing equipment in India.",
     images: ["/logo.png"],
   },
   robots: {
@@ -96,7 +108,9 @@ const jsonLd = {
       "@type": "LocalBusiness",
       "@id": "https://surplus.labmatrixindia.com/#organization",
       name: "LABMATRIX INSTRUMENT INDIA PVT LTD",
-      alternateName: "LabMatrix Surplus Analytical Marketplace",
+      alternateName: "LabMatrix Refurbished & Surplus Analytical Marketplace",
+      description:
+        "Premier Indian marketplace and engineering provider for certified refurbished and pre-owned analytical instruments, replacement spare parts, and calibration services.",
       url: "https://surplus.labmatrixindia.com",
       logo: "https://surplus.labmatrixindia.com/logo.png",
       telephone: "+917303040804",
@@ -117,7 +131,9 @@ const jsonLd = {
       "@type": "WebSite",
       "@id": "https://surplus.labmatrixindia.com/#website",
       url: "https://surplus.labmatrixindia.com",
-      name: "LabMatrix Surplus Marketplace",
+      name: "LabMatrix Marketplace | Refurbished & Pre-Owned Analytical Instruments",
+      description:
+        "B2B marketplace to buy and sell certified refurbished & pre-owned HPLC, GC-MS, AAS, ICP-OES, spectrophotometers, and laboratory spare parts across India.",
       publisher: {
         "@id": "https://surplus.labmatrixindia.com/#organization",
       },

@@ -7,10 +7,18 @@ import { Listing } from "@/components/listings/ListingsClient";
 export const metadata: Metadata = {
   title: "Brand New Instruments | Authorized OEM Analytical Lab Machinery",
   description:
-    "Source factory-new analytical instruments with full manufacturer warranty and IQ/OQ validation protocols from authorized distributors.",
+    "Source factory-new analytical instruments with full manufacturer warranty and IQ/OQ validation protocols from authorized distributors alongside our certified refurbished range.",
   alternates: {
     canonical: "/new-instruments",
   },
+  keywords: [
+    "brand new analytical instruments India",
+    "OEM laboratory equipment India",
+    "new vs refurbished lab equipment",
+    "analytical instruments manufacturer warranty",
+    "laboratory instruments suppliers Delhi",
+    "HPLC GC-MS new instruments",
+  ],
 };
 
 export default async function NewInstrumentsPage({

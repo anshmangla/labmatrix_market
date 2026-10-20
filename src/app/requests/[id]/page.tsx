@@ -53,19 +53,22 @@ export async function generateMetadata({
 
   const isSpare = req.itemType === "SPARE_PART";
   const title = isSpare
-    ? `Wanted: ${req.title}${req.partNumber ? ` (Part #${req.partNumber})` : ""}${req.compatibleWith ? ` for ${req.compatibleWith}` : ""} | Spare Parts Wanted`
-    : `Wanted: ${req.title} (${req.category}) | Buyer Sourcing Request`;
+    ? `Wanted: ${req.title}${req.partNumber ? ` (Part #${req.partNumber})` : ""}${req.compatibleWith ? ` for ${req.compatibleWith}` : ""} | Refurbished & Replacement Spares Wanted`
+    : `Wanted: ${req.title} (${req.category}) | Refurbished & Pre-Owned Sourcing Request`;
 
   const desc = isSpare
-    ? `Buyer procurement request for ${req.title}.${req.compatibleWith ? ` Compatible with: ${req.compatibleWith}.` : ""}${req.partNumber ? ` Part Number: ${req.partNumber}.` : ""} Submit quote or matching inventory on LabMatrix.`
-    : `Buyer sourcing request for ${req.title}. Category: ${req.category}. Have this equipment available? Connect and submit your offer on LabMatrix Marketplace.`;
+    ? `Buyer procurement request for ${req.title}.${req.compatibleWith ? ` Compatible with: ${req.compatibleWith}.` : ""}${req.partNumber ? ` Part Number: ${req.partNumber}.` : ""} Submit quote for refurbished or surplus inventory on LabMatrix.`
+    : `Buyer sourcing request for ${req.title}. Category: ${req.category}. Have refurbished or surplus equipment available? Connect and submit your quotation on LabMatrix Marketplace.`;
 
   const keywords = [
     `buy ${req.title}`,
     `wanted ${req.title}`,
+    `refurbished ${req.title}`,
     req.category,
+    `refurbished ${req.category}`,
     req.partNumber,
     req.compatibleWith,
+    isSpare ? "wanted refurbished lab spare parts" : "buy refurbished lab instruments",
     isSpare ? "wanted lab spare parts" : "buy used lab instrument",
     "laboratory equipment procurement India",
   ].filter(Boolean) as string[];

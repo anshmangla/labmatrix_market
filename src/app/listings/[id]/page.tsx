@@ -64,12 +64,12 @@ export async function generateMetadata({
 
   const isSpare = listing.itemType === "SPARE_PART";
   const title = isSpare
-    ? `${listing.title}${listing.partNumber ? ` (Part #${listing.partNumber})` : ""} | Spare Parts India`
-    : `${listing.title} | Pre-Owned ${listing.category} in ${listing.location || "India"}`;
+    ? `${listing.title}${listing.partNumber ? ` (Part #${listing.partNumber})` : ""} | Refurbished & Replacement Spares India`
+    : `${listing.title} | Refurbished & Pre-Owned ${listing.category} in ${listing.location || "India"}`;
 
   const desc = isSpare
-    ? `Buy verified pre-owned ${listing.title} in ${listing.location || "India"}.${listing.compatibleWith ? ` Compatible with ${listing.compatibleWith}.` : ""}${listing.partNumber ? ` Part Number: ${listing.partNumber}.` : ""} Condition: ${listing.condition || "Used"}. Expected Price: ₹${listing.minPrice.toLocaleString("en-IN")} - ₹${listing.maxPrice.toLocaleString("en-IN")}. Contact LabMatrix for prompt delivery.`
-    : `Buy verified pre-owned ${listing.title} in ${listing.location || "India"}. Category: ${listing.category}. Condition: ${listing.condition || "Used"}. Approx Price: ₹${listing.minPrice.toLocaleString("en-IN")} - ₹${listing.maxPrice.toLocaleString("en-IN")}. Contact LabMatrix for inspection and quotations.`;
+    ? `Buy certified refurbished and pre-owned ${listing.title} in ${listing.location || "India"}.${listing.compatibleWith ? ` Compatible with ${listing.compatibleWith}.` : ""}${listing.partNumber ? ` Part Number: ${listing.partNumber}.` : ""} Condition: ${listing.condition || "Used"}. Expected Price: ₹${listing.minPrice.toLocaleString("en-IN")} - ₹${listing.maxPrice.toLocaleString("en-IN")}. Contact LabMatrix for prompt delivery.`
+    : `Buy certified refurbished and pre-owned ${listing.title} in ${listing.location || "India"}. Category: ${listing.category}. Condition: ${listing.condition || "Used"}. Approx Price: ₹${listing.minPrice.toLocaleString("en-IN")} - ₹${listing.maxPrice.toLocaleString("en-IN")}. Contact LabMatrix for inspection, testing, and quotations.`;
 
   const image =
     listing.photos && listing.photos.length > 0
@@ -78,12 +78,19 @@ export async function generateMetadata({
 
   const keywords = [
     listing.title,
+    `refurbished ${listing.title}`,
+    `used ${listing.title}`,
     listing.category,
+    `refurbished ${listing.category}`,
+    listing.partNumber ? `part ${listing.partNumber}` : null,
     listing.partNumber,
+    listing.compatibleWith ? `compatible with ${listing.compatibleWith}` : null,
     listing.compatibleWith,
+    isSpare ? "refurbished lab spare parts India" : "refurbished analytical instruments India",
     isSpare ? "analytical instrument spare parts India" : "used lab equipment India",
     listing.location,
     "refurbished analytical instruments",
+    "pre-owned scientific machinery",
     "LabMatrix marketplace",
   ].filter(Boolean) as string[];
 

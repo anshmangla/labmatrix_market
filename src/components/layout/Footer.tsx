@@ -16,7 +16,7 @@ export default function Footer() {
             >
               <Image
                 src="/logo.png"
-                alt="Labmatrix - Keeping Science Ahead"
+                alt="LabMatrix - Refurbished & Pre-Owned Analytical Laboratory Instruments"
                 width={150}
                 height={32}
                 className="h-7 w-auto object-contain"
@@ -24,7 +24,7 @@ export default function Footer() {
             </Link>
             <p className="text-xs text-slate-400 leading-relaxed">
               LabMatrix Instrument India Pvt. Ltd. is a premier Indian marketplace
-              and engineering provider for pre-owned analytical machinery, spare parts,
+              and engineering provider for certified refurbished and pre-owned analytical machinery, spare parts,
               and turnkey laboratory solutions.
             </p>
             <div className="inline-flex items-center space-x-1.5 text-[11px] font-bold text-brand-gold bg-brand-gold/10 border border-brand-gold/25 px-2.5 py-1 rounded-full">
@@ -44,7 +44,15 @@ export default function Footer() {
                   href="/listings"
                   className="hover:text-white transition-colors"
                 >
-                  Browse Analytical Equipment
+                  Browse Refurbished &amp; Used Equipment
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/new-instruments"
+                  className="hover:text-white transition-colors"
+                >
+                  Brand New Instruments
                 </Link>
               </li>
               <li>
@@ -52,7 +60,7 @@ export default function Footer() {
                   href="/spare-parts"
                   className="hover:text-white transition-colors"
                 >
-                  Spare Parts & Consumables
+                  Refurbished Spare Parts &amp; Modules
                 </Link>
               </li>
               <li>
@@ -68,7 +76,7 @@ export default function Footer() {
                   href="/listings/create"
                   className="hover:text-brand-gold font-semibold transition-colors"
                 >
-                  + List Surplus Machinery
+                  + List Surplus / Refurbished Machinery
                 </Link>
               </li>
               <li>

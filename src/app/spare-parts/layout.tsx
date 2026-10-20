@@ -1,13 +1,18 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Analytical Instrument Spare Parts & Consumables",
+  title: "Refurbished & Replacement Analytical Instrument Spare Parts & Modules",
   description:
-    "Source verified spare parts, replacement modules, deuterium lamps, detectors, valves, and consumables for HPLC, GC-MS, and analytical testing instruments in India.",
+    "Source certified refurbished spare parts, OEM replacement modules, deuterium lamps, detector boards, valves, and consumables for HPLC, GC-MS, and analytical testing instruments in India.",
   alternates: {
     canonical: "/spare-parts",
   },
   keywords: [
+    "refurbished lab spare parts India",
+    "refurbished HPLC spare parts",
+    "refurbished GC replacement modules",
+    "refurbished detector boards",
+    "refurbished chromatography power supply",
     "analytical instrument spare parts India",
     "PerkinElmer GC spare parts",
     "PerkinElmer Clarus PPC module",
@@ -18,11 +23,12 @@ export const metadata: Metadata = {
     "deuterium lamps HPLC",
     "used chromatography detectors",
     "laboratory equipment consumables surplus",
+    "refurbished laboratory components",
   ],
   openGraph: {
-    title: "Analytical Instrument Spare Parts & Consumables | LabMatrix",
+    title: "Refurbished & Replacement Analytical Spare Parts | LabMatrix",
     description:
-      "Verified replacement components, OEM consumables, and spare parts for laboratory machinery across India.",
+      "Verified refurbished components, OEM consumables, and spare parts for laboratory machinery across India.",
     url: "/spare-parts",
   },
 };

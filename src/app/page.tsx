@@ -1,6 +1,7 @@
 import React from "react";
 import Link from "next/link";
 import Image from "next/image";
+import type { Metadata } from "next";
 import {
   Search,
   ShieldCheck,
@@ -19,6 +20,27 @@ import {
   Thermometer,
 } from "lucide-react";
 
+export const metadata: Metadata = {
+  title: "LabMatrix Marketplace | Refurbished & Pre-Owned Analytical Lab Instruments",
+  description:
+    "India's dedicated B2B marketplace to buy and sell certified refurbished & pre-owned analytical equipment: HPLC, GC-MS, UV-Vis, AAS, ICP-OES, and spare parts with technical inspection.",
+  keywords: [
+    "refurbished analytical instruments India",
+    "refurbished HPLC machines",
+    "refurbished GC-MS systems",
+    "refurbished AAS spectrometer",
+    "refurbished ICP-OES India",
+    "refurbished laboratory equipment Delhi NCR",
+    "pre-owned analytical instruments marketplace",
+    "refurbished Waters Agilent Shimadzu PerkinElmer",
+    "buy used pharma instruments",
+    "refurbished lab instruments with warranty",
+  ],
+  alternates: {
+    canonical: "/",
+  },
+};
+
 export default function Home() {
   const categories = [
     { name: "HPLC & UHPLC", count: "Chromatography", icon: Gauge },
@@ -33,17 +55,17 @@ export default function Home() {
     {
       question: "What types of analytical instruments and spare parts can I trade on LabMatrix?",
       answer:
-        "LabMatrix specializes in high-precision laboratory and pharmaceutical equipment, including HPLC, UHPLC, GC, GC-MS, ICP-OES, ICP-MS, AAS, UV-Vis, FTIR, DSC-TGA, and genuine replacement spare parts such as PPC modules, power supplies, deuterium lamps, and boards from manufacturers like PerkinElmer, Agilent, Waters, and Shimadzu.",
+        "LabMatrix specializes in certified refurbished, pre-owned, and new analytical equipment including HPLC, UHPLC, GC, GC-MS, ICP-OES, ICP-MS, AAS, UV-Vis, FTIR, DSC-TGA, and genuine replacement spare parts such as PPC modules, power supplies, deuterium lamps, and boards from manufacturers like PerkinElmer, Agilent, Waters, and Shimadzu.",
     },
     {
-      question: "How does LabMatrix ensure equipment quality and verification?",
+      question: "How does LabMatrix ensure equipment quality and refurbished verification?",
       answer:
-        "Every listing submitted to LabMatrix undergoes review by our Deal Desk before appearing publicly. We cross-verify technical specifications, serial numbers, module configurations, and operational history. On-site or video technical inspections can be arranged prior to final transaction closing.",
+        "Every refurbished and pre-owned listing submitted to LabMatrix undergoes technical verification before appearing publicly. We cross-verify specifications, serial numbers, module configurations, refurbishment status, and operational history. On-site or video technical inspections can be arranged prior to final transaction closing.",
     },
     {
-      question: "Can I find hard-to-source or obsolete spare parts for older instruments?",
+      question: "Can I find hard-to-source or refurbished spare parts for older instruments?",
       answer:
-        "Yes. In our dedicated Spare Parts hub (/spare-parts), laboratories and service engineers can source tested working surplus, replacement boards, power supplies, and OEM modules. If you cannot find a specific part, you can post a wanted requirement to notify suppliers nationwide.",
+        "Yes. In our dedicated Spare Parts hub (/spare-parts), laboratories and service engineers can source tested working surplus, refurbished boards, replacement power supplies, and OEM modules. If you cannot find a specific part, you can post a wanted requirement to notify suppliers nationwide.",
     },
     {
       question: "How is buyer and seller confidentiality maintained?",
@@ -102,7 +124,7 @@ export default function Home() {
                 <input
                   name="query"
                   type="text"
-                  placeholder="Search HPLC, GC-MS, Agilent, Waters, Shimadzu..."
+                  placeholder="Search refurbished HPLC, GC-MS, Agilent, Waters, Shimadzu..."
                   className="w-full bg-transparent border-none focus:outline-none text-sm text-slate-900 placeholder-slate-400"
                 />
               </div>
@@ -184,11 +206,11 @@ export default function Home() {
               </div>
               <div>
                 <h3 className="font-bold text-slate-900 text-base">
-                  Quality Testing Equipment
+                  Refurbished &amp; Quality Tested
                 </h3>
                 <p className="text-xs text-slate-600 mt-1 leading-relaxed">
-                  Access premium chromatography, spectroscopy, elemental & thermal analysis systems, and
-                  genuine consumables from global industry leaders.
+                  Access certified refurbished and pre-owned chromatography, spectroscopy, elemental &amp; thermal analysis systems, and
+                  genuine replacement components.
                 </p>
               </div>
             </div>

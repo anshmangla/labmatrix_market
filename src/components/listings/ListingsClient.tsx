@@ -144,10 +144,10 @@ export default function ListingsClient({
               <span>Verified Equipment Catalog • Direct Quotations</span>
             </div>
             <h1 className="text-3xl font-extrabold text-slate-900">
-              Browse Pre-Owned Equipment
+              Refurbished &amp; Pre-Owned Equipment
             </h1>
             <p className="text-sm text-slate-600 mt-1">
-              Verified analytical instruments available across pharmaceutical &
+              Verified refurbished and pre-owned analytical instruments available across pharmaceutical &amp;
               chemical laboratories.
             </p>
           </div>
@@ -168,7 +168,7 @@ export default function ListingsClient({
               <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-3.5" />
               <input
                 type="text"
-                placeholder="Search models, brands (Waters, Agilent, Shimadzu, Thermo Fisher, Metrohm)..."
+                placeholder="Search refurbished models, brands (Waters, Agilent, Shimadzu, Thermo Fisher)..."
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 className="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-900 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-brand-blue focus:bg-white"

@@ -1,27 +1,31 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Browse Pre-Owned Analytical & Testing Equipment",
+  title: "Refurbished & Pre-Owned Analytical & Testing Equipment",
   description:
-    "Explore verified pre-owned HPLC, GC-MS, UV-Vis, AAS, ICP-OES, and DSC-TGA analytical instruments available across pharmaceutical laboratories in India.",
+    "Explore verified refurbished and pre-owned HPLC, GC-MS, UV-Vis, AAS, ICP-OES, and DSC-TGA analytical instruments available across pharmaceutical & chemical laboratories in India.",
   alternates: {
     canonical: "/listings",
   },
   keywords: [
-    "pre-owned HPLC machines",
-    "used GC-MS systems India",
-    "used ICP-OES",
+    "refurbished analytical instruments India",
+    "refurbished HPLC machines",
+    "refurbished GC-MS systems India",
+    "refurbished ICP-OES spectrometer",
     "refurbished AAS spectrometer",
-    "DSC-TGA thermal analyzers",
+    "refurbished UV-Vis spectrophotometer",
+    "DSC-TGA thermal analyzers refurbished",
+    "pre-owned HPLC machines",
     "used analytical laboratory instruments Delhi",
-    "buy pre-owned pharma testing equipment",
-    "Agilent Waters Shimadzu PerkinElmer pre-owned",
+    "buy refurbished pharma testing equipment",
+    "refurbished Agilent Waters Shimadzu PerkinElmer",
     "analytical equipment marketplace India",
+    "certified refurbished lab machinery",
   ],
   openGraph: {
-    title: "Browse Pre-Owned Equipment | LabMatrix Marketplace",
+    title: "Refurbished & Pre-Owned Equipment | LabMatrix Marketplace",
     description:
-      "Verified analytical instruments catalog from leading global manufacturers across India.",
+      "Verified refurbished and pre-owned analytical instruments catalog from leading global manufacturers across India.",
     url: "/listings",
   },
 };

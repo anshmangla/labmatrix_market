@@ -4,9 +4,9 @@ import { prisma } from "@/lib/prisma";
 import ListingsClient, { Listing } from "@/components/listings/ListingsClient";
 
 export const metadata: Metadata = {
-  title: "Available Equipment | Pre-Owned Analytical Laboratory Instruments",
+  title: "Available Equipment | Refurbished & Pre-Owned Analytical Laboratory Instruments",
   description:
-    "Browse verified pre-owned analytical instruments: HPLC, GC-MS, UV-Vis, AAS, ICP, DSC-TGA across top brands like Agilent, Waters, Shimadzu, and PerkinElmer in India.",
+    "Browse verified refurbished and pre-owned analytical instruments: HPLC, GC-MS, UV-Vis, AAS, ICP, DSC-TGA across top brands like Agilent, Waters, Shimadzu, and PerkinElmer in India.",
   alternates: {
     canonical: "/listings",
   },

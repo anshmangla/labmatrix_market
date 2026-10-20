@@ -36,7 +36,7 @@ export default function Navbar() {
             <Link href="/" className="flex items-center group py-1">
               <Image
                 src="/logo.png"
-                alt="Labmatrix - Keeping Science Ahead"
+                alt="LabMatrix Marketplace - Refurbished & Pre-Owned Analytical Laboratory Instruments"
                 width={170}
                 height={36}
                 priority

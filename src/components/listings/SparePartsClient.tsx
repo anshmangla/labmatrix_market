@@ -131,12 +131,12 @@ export default function SparePartsClient({
             </div>
 
             <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight">
-              Laboratory Spare Parts & Consumables
+              Refurbished &amp; Surplus Laboratory Spare Parts
             </h1>
 
             <p className="text-sm sm:text-base text-slate-300 leading-relaxed font-normal">
-              Source OEM lamps, HPLC/GC columns, seal kits, valves, detector boards, and
-              surplus consumables for Waters, Agilent, Shimadzu, Thermo Fisher, and more.
+              Source certified refurbished boards, OEM lamps, HPLC/GC columns, seal kits, valves, detector boards, and
+              surplus consumables for Waters, Agilent, Shimadzu, PerkinElmer, and Thermo Fisher.
             </p>
 
             <div className="flex flex-wrap items-center gap-3 pt-2">
@@ -218,7 +218,7 @@ export default function SparePartsClient({
               <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-3.5" />
               <input
                 type="text"
-                placeholder="Search part name, catalog #, instrument model (Agilent 1100, Waters 2695, lamp, column)..."
+                placeholder="Search refurbished part name, catalog #, instrument model (Agilent 1100, Waters 2695, lamp, column)..."
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 className="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm text-slate-900 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-brand-blue focus:bg-white"

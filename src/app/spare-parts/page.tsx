@@ -4,9 +4,9 @@ import { prisma } from "@/lib/prisma";
 import SparePartsClient, { SpareListing } from "@/components/listings/SparePartsClient";
 
 export const metadata: Metadata = {
-  title: "Laboratory Spare Parts & Consumables Hub | Replacement Boards & Modules",
+  title: "Laboratory Spare Parts & Consumables Hub | Refurbished & Replacement Boards & Modules",
   description:
-    "Source certified working spare parts, OEM detector boards, power supplies, deuterium lamps, and chromatography consumables for Waters, Agilent, Shimadzu, and PerkinElmer across India.",
+    "Source certified refurbished spare parts, OEM detector boards, power supplies, deuterium lamps, and chromatography consumables for Waters, Agilent, Shimadzu, and PerkinElmer across India.",
   alternates: {
     canonical: "/spare-parts",
   },

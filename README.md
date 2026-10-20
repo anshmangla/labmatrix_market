@@ -1,6 +1,6 @@
 # 🔬 LabMatrix Surplus Marketplace
 
-> **The Premier B2B Marketplace for Pre-Owned Analytical Instruments, Laboratory Equipment & Spare Parts**  
+> **The Premier B2B Marketplace for Refurbished & Pre-Owned Analytical Instruments, Laboratory Equipment & Spare Parts**  
 > Operated by **Labmatrix Instrument India Pvt. Ltd.** • [https://surplus.labmatrixindia.com](https://surplus.labmatrixindia.com)
 
 [![Next.js](https://img.shields.io/badge/Next.js-16.4.0-black?style=flat-square&logo=next.js)](https://nextjs.org/)
