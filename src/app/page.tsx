@@ -81,9 +81,9 @@ export default function Home() {
           </div>
 
           <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black tracking-tight">
-            Buy & Sell Pre-Owned <br className="hidden sm:inline" />
+            Buy & Sell Pre-Owned / Refurbished <br className="hidden sm:inline" />
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-brand-gold via-amber-300 to-yellow-200">
-              Pharma & Analytical Equipment
+              Analytical Equipments and Spare Parts
             </span>
           </h1>
 
