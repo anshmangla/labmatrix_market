@@ -12,6 +12,7 @@ const nextConfig: NextConfig = {
   },
   experimental: {
     optimizePackageImports: ["lucide-react"],
+    agentUpgrade: "security",
   },
   images: {
     formats: ["image/avif", "image/webp"],
