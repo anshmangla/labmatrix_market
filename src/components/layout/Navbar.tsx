@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
+import { usePathname } from "next/navigation";
 import { useSession, signOut } from "next-auth/react";
 import {
   Menu,
@@ -26,6 +27,13 @@ import PostActionMenu from "./PostActionMenu";
 export default function Navbar() {
   const { data: session, status } = useSession();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const pathname = usePathname();
+
+  const isEquipmentActive = pathname === "/listings" || (pathname.startsWith("/listings/") && !pathname.includes("/edit"));
+  const isNewInstrumentsActive = pathname === "/new-instruments";
+  const isSparePartsActive = pathname === "/spare-parts";
+  const isRequestsActive = pathname === "/requests" || (pathname.startsWith("/requests/") && !pathname.includes("/edit"));
+  const isContactActive = pathname === "/contact";
 
   return (
     <header className="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-slate-200 shadow-xs">
@@ -46,41 +54,61 @@ export default function Navbar() {
           </div>
 
           {/* Desktop Primary Navigation Links */}
-          <nav className="hidden lg:flex items-center space-x-1 xl:space-x-2 text-xs xl:text-sm font-semibold text-slate-600">
+          <nav className="hidden lg:flex items-center space-x-1 xl:space-x-1.5 text-xs xl:text-sm font-semibold">
             <Link
               href="/listings"
-              className="px-2.5 xl:px-3 py-1.5 rounded-xl hover:text-brand-blue hover:bg-slate-100/70 transition-colors whitespace-nowrap"
+              className={`px-2.5 xl:px-3 py-1.5 rounded-xl transition-all whitespace-nowrap ${
+                isEquipmentActive
+                  ? "text-brand-blue bg-blue-50/90 font-bold shadow-xs"
+                  : "text-slate-600 hover:text-brand-blue hover:bg-slate-100/70"
+              }`}
             >
               Available Equipment
             </Link>
             <Link
               href="/new-instruments"
-              className="px-2.5 xl:px-3 py-1.5 rounded-xl hover:text-brand-blue hover:bg-slate-100/70 transition-colors whitespace-nowrap"
+              className={`px-2.5 xl:px-3 py-1.5 rounded-xl transition-all whitespace-nowrap ${
+                isNewInstrumentsActive
+                  ? "text-brand-blue bg-blue-50/90 font-bold shadow-xs"
+                  : "text-slate-600 hover:text-brand-blue hover:bg-slate-100/70"
+              }`}
             >
               New Instruments
             </Link>
             <Link
               href="/spare-parts"
-              className="px-2.5 xl:px-3 py-1.5 rounded-xl hover:text-brand-blue hover:bg-slate-100/70 transition-colors whitespace-nowrap"
+              className={`px-2.5 xl:px-3 py-1.5 rounded-xl transition-all whitespace-nowrap ${
+                isSparePartsActive
+                  ? "text-brand-blue bg-blue-50/90 font-bold shadow-xs"
+                  : "text-slate-600 hover:text-brand-blue hover:bg-slate-100/70"
+              }`}
             >
               Spare Parts
             </Link>
             <Link
               href="/requests"
-              className="px-2.5 xl:px-3 py-1.5 rounded-xl hover:text-brand-blue hover:bg-slate-100/70 transition-colors whitespace-nowrap"
+              className={`px-2.5 xl:px-3 py-1.5 rounded-xl transition-all whitespace-nowrap ${
+                isRequestsActive
+                  ? "text-brand-blue bg-blue-50/90 font-bold shadow-xs"
+                  : "text-slate-600 hover:text-brand-blue hover:bg-slate-100/70"
+              }`}
             >
               Buyer Requests
             </Link>
             <Link
               href="/#how-it-works"
               prefetch={false}
-              className="px-2.5 xl:px-3 py-1.5 rounded-xl hover:text-brand-blue hover:bg-slate-100/70 transition-colors whitespace-nowrap"
+              className="px-2.5 xl:px-3 py-1.5 rounded-xl text-slate-600 hover:text-brand-blue hover:bg-slate-100/70 transition-colors whitespace-nowrap"
             >
               How It Works
             </Link>
             <Link
               href="/contact"
-              className="px-2.5 xl:px-3 py-1.5 rounded-xl hover:text-brand-blue hover:bg-slate-100/70 transition-colors whitespace-nowrap"
+              className={`px-2.5 xl:px-3 py-1.5 rounded-xl transition-all whitespace-nowrap ${
+                isContactActive
+                  ? "text-brand-blue bg-blue-50/90 font-bold shadow-xs"
+                  : "text-slate-600 hover:text-brand-blue hover:bg-slate-100/70"
+              }`}
             >
               Contact
             </Link>
@@ -172,38 +200,54 @@ export default function Navbar() {
             <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 px-3 block mb-1">
               Marketplace Exploration
             </span>
-            <nav className="flex flex-col space-y-0.5 text-sm font-semibold text-slate-700">
+            <nav className="flex flex-col space-y-0.5 text-sm font-semibold">
               <Link
                 href="/listings"
                 onClick={() => setMobileMenuOpen(false)}
-                className="px-3 py-2 rounded-xl hover:bg-slate-50 hover:text-brand-blue flex items-center justify-between"
+                className={`px-3 py-2 rounded-xl flex items-center justify-between ${
+                  isEquipmentActive
+                    ? "bg-blue-50 text-brand-blue font-bold"
+                    : "text-slate-700 hover:bg-slate-50 hover:text-brand-blue"
+                }`}
               >
                 <span>Available Equipment</span>
-                <ChevronRight className="w-4 h-4 text-slate-300" />
+                <ChevronRight className={`w-4 h-4 ${isEquipmentActive ? "text-brand-blue" : "text-slate-300"}`} />
               </Link>
               <Link
                 href="/new-instruments"
                 onClick={() => setMobileMenuOpen(false)}
-                className="px-3 py-2 rounded-xl hover:bg-slate-50 hover:text-brand-blue flex items-center justify-between"
+                className={`px-3 py-2 rounded-xl flex items-center justify-between ${
+                  isNewInstrumentsActive
+                    ? "bg-blue-50 text-brand-blue font-bold"
+                    : "text-slate-700 hover:bg-slate-50 hover:text-brand-blue"
+                }`}
               >
                 <span>New Instruments</span>
-                <ChevronRight className="w-4 h-4 text-slate-300" />
+                <ChevronRight className={`w-4 h-4 ${isNewInstrumentsActive ? "text-brand-blue" : "text-slate-300"}`} />
               </Link>
               <Link
                 href="/spare-parts"
                 onClick={() => setMobileMenuOpen(false)}
-                className="px-3 py-2 rounded-xl hover:bg-slate-50 hover:text-brand-blue flex items-center justify-between"
+                className={`px-3 py-2 rounded-xl flex items-center justify-between ${
+                  isSparePartsActive
+                    ? "bg-blue-50 text-brand-blue font-bold"
+                    : "text-slate-700 hover:bg-slate-50 hover:text-brand-blue"
+                }`}
               >
                 <span>Spare Parts & Consumables</span>
-                <ChevronRight className="w-4 h-4 text-slate-300" />
+                <ChevronRight className={`w-4 h-4 ${isSparePartsActive ? "text-brand-blue" : "text-slate-300"}`} />
               </Link>
               <Link
                 href="/requests"
                 onClick={() => setMobileMenuOpen(false)}
-                className="px-3 py-2 rounded-xl hover:bg-slate-50 hover:text-brand-blue flex items-center justify-between"
+                className={`px-3 py-2 rounded-xl flex items-center justify-between ${
+                  isRequestsActive
+                    ? "bg-blue-50 text-brand-blue font-bold"
+                    : "text-slate-700 hover:bg-slate-50 hover:text-brand-blue"
+                }`}
               >
                 <span>Buyer Requests Board</span>
-                <ChevronRight className="w-4 h-4 text-slate-300" />
+                <ChevronRight className={`w-4 h-4 ${isRequestsActive ? "text-brand-blue" : "text-slate-300"}`} />
               </Link>
             </nav>
           </div>

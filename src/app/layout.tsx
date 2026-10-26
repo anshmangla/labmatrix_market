@@ -5,6 +5,8 @@ import AuthProvider from "@/components/providers/AuthProvider";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import AccountDeletedBanner from "@/components/AccountDeletedBanner";
+import NavigationProgress from "@/components/layout/NavigationProgress";
+import { Suspense } from "react";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -169,6 +171,9 @@ export default function RootLayout({
         />
       </head>
       <body className="min-h-full flex flex-col bg-slate-50 text-slate-900">
+        <Suspense fallback={null}>
+          <NavigationProgress />
+        </Suspense>
         <AuthProvider>
           <Navbar />
           <AccountDeletedBanner />
