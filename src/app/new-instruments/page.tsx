@@ -4,6 +4,9 @@ import { prisma } from "@/lib/prisma";
 import NewInstrumentsClient from "@/components/listings/NewInstrumentsClient";
 import { Listing } from "@/components/listings/ListingsClient";
 
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 export const metadata: Metadata = {
   title: "Brand New Instruments | Authorized OEM Analytical Lab Machinery",
   description:

@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import {
   Wrench,
   Search,
@@ -65,13 +66,30 @@ export default function SparePartsClient({
 }: {
   initialListings?: SpareListing[];
 }) {
-  const [activeTab, setActiveTab] = useState<"available" | "wanted">("available");
+  const searchParams = useSearchParams();
+  const urlTab = searchParams.get("tab");
+  const urlCategory = searchParams.get("category");
+  const urlQuery = searchParams.get("query");
+
+  const [activeTab, setActiveTab] = useState<"available" | "wanted">(
+    urlTab === "wanted" ? "wanted" : "available"
+  );
   const [listings, setListings] = useState<SpareListing[]>(initialListings);
   const [requirements, setRequirements] = useState<SpareRequirement[]>([]);
   const [loading, setLoading] = useState(initialListings.length === 0);
-  const [search, setSearch] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState("ALL");
-  const [hasUserInteracted, setHasUserInteracted] = useState(false);
+  const [search, setSearch] = useState(urlQuery || "");
+  const [selectedCategory, setSelectedCategory] = useState(
+    urlCategory && COMMON_PART_CATEGORIES.includes(urlCategory) ? urlCategory : "ALL"
+  );
+  const [hasUserInteracted, setHasUserInteracted] = useState(
+    Boolean(urlCategory || urlQuery || urlTab)
+  );
+
+  useEffect(() => {
+    if (!hasUserInteracted) {
+      setListings(initialListings);
+    }
+  }, [initialListings, hasUserInteracted]);
 
   useEffect(() => {
     if (!hasUserInteracted && initialListings.length > 0 && activeTab === "available") {

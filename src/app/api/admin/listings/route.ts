@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { revalidatePath } from "next/cache";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { sendUserListingApprovedEmail } from "@/lib/resend";
@@ -151,6 +152,16 @@ export async function PATCH(request: Request) {
       }
     }
 
+    try {
+      revalidatePath("/listings");
+      revalidatePath("/spare-parts");
+      revalidatePath("/new-instruments");
+      revalidatePath("/");
+      revalidatePath(`/listings/${id}`);
+    } catch (e) {
+      console.warn("Revalidation error:", e);
+    }
+
     return NextResponse.json({ listing: updated });
   } catch (error: any) {
     console.error("Admin update listing error:", error);
@@ -187,6 +198,16 @@ export async function DELETE(request: Request) {
     await prisma.listing.delete({
       where: { id },
     });
+
+    try {
+      revalidatePath("/listings");
+      revalidatePath("/spare-parts");
+      revalidatePath("/new-instruments");
+      revalidatePath("/");
+      revalidatePath(`/listings/${id}`);
+    } catch (e) {
+      console.warn("Revalidation error:", e);
+    }
 
     return NextResponse.json({ message: "Listing deleted successfully" });
   } catch (error: any) {

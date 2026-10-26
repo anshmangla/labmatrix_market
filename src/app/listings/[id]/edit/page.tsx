@@ -292,6 +292,7 @@ export default function EditListingPage() {
         requiresReapproval: !!data.requiresReapproval,
         message: data.message,
       });
+      router.refresh();
       setSaving(false);
     } catch (err: any) {
       setError("Network error. Please try again.");

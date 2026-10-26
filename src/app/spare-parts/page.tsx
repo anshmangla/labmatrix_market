@@ -3,6 +3,9 @@ import type { Metadata } from "next";
 import { prisma } from "@/lib/prisma";
 import SparePartsClient, { SpareListing } from "@/components/listings/SparePartsClient";
 
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 export const metadata: Metadata = {
   title: "Laboratory Spare Parts & Consumables Hub | Refurbished & Replacement Boards & Modules",
   description:
@@ -12,15 +15,38 @@ export const metadata: Metadata = {
   },
 };
 
-export default async function SparePartsHubPage() {
+export default async function SparePartsHubPage({
+  searchParams,
+}: {
+  searchParams?: Promise<{ [key: string]: string | string[] | undefined }>;
+}) {
+  const params = searchParams ? await searchParams : {};
+  const category = typeof params?.category === "string" ? params.category : undefined;
+  const query = typeof params?.query === "string" ? params.query : undefined;
+
   let initialListings: SpareListing[] = [];
   try {
+    const where: any = {
+      isApproved: true,
+      status: { in: ["AVAILABLE", "SOLD"] },
+      itemType: "SPARE_PART",
+    };
+
+    if (category && category !== "ALL") {
+      where.category = category;
+    }
+
+    if (query) {
+      where.OR = [
+        { title: { contains: query, mode: "insensitive" } },
+        { description: { contains: query, mode: "insensitive" } },
+        { partNumber: { contains: query, mode: "insensitive" } },
+        { compatibleWith: { contains: query, mode: "insensitive" } },
+      ];
+    }
+
     const rows = await prisma.listing.findMany({
-      where: {
-        isApproved: true,
-        status: { in: ["AVAILABLE", "SOLD"] },
-        itemType: "SPARE_PART",
-      },
+      where,
       orderBy: { createdAt: "desc" },
       take: 30,
       select: {

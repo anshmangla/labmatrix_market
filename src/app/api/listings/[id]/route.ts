@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { revalidatePath } from "next/cache";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 
@@ -332,6 +333,17 @@ export async function PATCH(
       }
     }
 
+    // Invalidate cached pages
+    try {
+      revalidatePath("/listings");
+      revalidatePath("/spare-parts");
+      revalidatePath("/new-instruments");
+      revalidatePath("/");
+      revalidatePath(`/listings/${id}`);
+    } catch (e) {
+      console.warn("Revalidation error:", e);
+    }
+
     return NextResponse.json({
       message: contentChanged && !isAdmin
         ? "Listing updated successfully! Your changes are pending admin re-approval before appearing live."
@@ -377,6 +389,16 @@ export async function DELETE(
     await prisma.listing.delete({
       where: { id },
     });
+
+    try {
+      revalidatePath("/listings");
+      revalidatePath("/spare-parts");
+      revalidatePath("/new-instruments");
+      revalidatePath("/");
+      revalidatePath(`/listings/${id}`);
+    } catch (e) {
+      console.warn("Revalidation error:", e);
+    }
 
     return NextResponse.json({
       message: "Listing successfully deleted by administrator.",

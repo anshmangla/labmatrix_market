@@ -3,6 +3,9 @@ import type { Metadata } from "next";
 import { prisma } from "@/lib/prisma";
 import ListingsClient, { Listing } from "@/components/listings/ListingsClient";
 
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 export const metadata: Metadata = {
   title: "Available Equipment | Refurbished & Pre-Owned Analytical Laboratory Instruments",
   description:
