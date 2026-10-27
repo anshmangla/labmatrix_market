@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { revalidatePath } from "next/cache";
 import { getAuthSession } from "@/lib/auth-session";
 import { prisma } from "@/lib/prisma";
-import { handleCorsOptions } from "@/lib/cors";
+import { handleCorsOptions, corsHeaders } from "@/lib/cors";
 
 export async function OPTIONS() {
   return handleCorsOptions();
@@ -68,11 +68,14 @@ export async function GET(
     // Strip sellerId before returning to public
     const { sellerId, ...publicListing } = listing;
 
-    return NextResponse.json({
-      listing: publicListing,
-      isOwner,
-      isAdmin,
-    });
+    return NextResponse.json(
+      {
+        listing: publicListing,
+        isOwner,
+        isAdmin,
+      },
+      { headers: corsHeaders() }
+    );
   } catch (error: any) {
     console.error("Fetch listing by id error:", error);
     return NextResponse.json(

@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { getAuthSession } from "@/lib/auth-session";
 import { prisma } from "@/lib/prisma";
-import { handleCorsOptions } from "@/lib/cors";
+import { handleCorsOptions, corsHeaders } from "@/lib/cors";
 
 export async function OPTIONS() {
   return handleCorsOptions();
@@ -60,11 +60,14 @@ export async function GET(
 
     const { buyerId, ...publicRequirement } = requirement;
 
-    return NextResponse.json({
-      requirement: publicRequirement,
-      isOwner,
-      isAdmin,
-    });
+    return NextResponse.json(
+      {
+        requirement: publicRequirement,
+        isOwner,
+        isAdmin,
+      },
+      { headers: corsHeaders() }
+    );
   } catch (error: any) {
     console.error("Fetch requirement by id error:", error);
     return NextResponse.json(

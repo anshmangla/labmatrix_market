@@ -100,6 +100,7 @@ export async function GET(request: Request) {
       {
         headers: {
           "Cache-Control": "public, s-maxage=10, stale-while-revalidate=59",
+          ...corsHeaders(),
         },
       }
     );
