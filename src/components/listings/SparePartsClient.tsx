@@ -323,12 +323,15 @@ export default function SparePartsClient({
                             loading={idx < 3 ? "eager" : "lazy"}
                             fetchPriority={idx === 0 ? "high" : "auto"}
                             decoding="async"
-                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                            className={`w-full h-full object-cover group-hover:scale-105 transition-all duration-300 ${
+                              item.status === "SOLD" ? "grayscale-[40%] contrast-[0.95] opacity-90" : ""
+                            }`}
                           />
                           {item.status === "SOLD" && (
-                            <div className="absolute inset-0 bg-slate-950/35 backdrop-blur-[1px] flex items-center justify-center">
-                              <span className="bg-rose-600 text-white text-xs font-black uppercase tracking-widest px-3 py-1 rounded-md shadow-md border border-white/40 transform -rotate-3">
-                                SOLD
+                            <div className="absolute top-2.5 right-2.5 z-10">
+                              <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-slate-900/80 backdrop-blur-md text-white text-[9px] font-bold uppercase tracking-wider shadow-sm border border-white/20">
+                                <span className="w-1.5 h-1.5 rounded-full bg-rose-500 animate-pulse" />
+                                Sold Out
                               </span>
                             </div>
                           )}
@@ -337,9 +340,10 @@ export default function SparePartsClient({
                         <div className="w-full h-28 rounded-xl bg-brand-blue-50/50 border border-brand-blue-100 flex items-center justify-center text-brand-blue relative">
                           <Wrench className="w-8 h-8 opacity-60" />
                           {item.status === "SOLD" && (
-                            <div className="absolute inset-0 bg-slate-950/35 rounded-xl flex items-center justify-center">
-                              <span className="bg-rose-600 text-white text-xs font-black uppercase tracking-widest px-3 py-1 rounded-md shadow-md">
-                                SOLD
+                            <div className="absolute top-2.5 right-2.5 z-10">
+                              <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-slate-900/80 backdrop-blur-md text-white text-[9px] font-bold uppercase tracking-wider shadow-sm border border-white/20">
+                                <span className="w-1.5 h-1.5 rounded-full bg-rose-500 animate-pulse" />
+                                Sold Out
                               </span>
                             </div>
                           )}
@@ -380,18 +384,24 @@ export default function SparePartsClient({
                     </div>
 
                     <div className="pt-3 border-t border-slate-100 flex items-center justify-between text-xs">
-                      <span className="font-bold text-slate-900 text-sm">
-                        ₹{item.minPrice.toLocaleString("en-IN")}
-                        {item.maxPrice > item.minPrice && (
-                          <span className="text-slate-500 font-normal text-xs ml-1">
-                            - ₹{item.maxPrice.toLocaleString("en-IN")}
-                          </span>
-                        )}
-                      </span>
+                      <div>
+                        <span className="text-[9px] uppercase font-bold text-slate-400 tracking-wider block">
+                          {item.status === "SOLD" ? "Price (Sold)" : "Price Guide"}
+                        </span>
+                        <span className={`font-bold text-sm ${item.status === "SOLD" ? "text-slate-600" : "text-slate-900"}`}>
+                          ₹{item.minPrice.toLocaleString("en-IN")}
+                          {item.maxPrice > item.minPrice && (
+                            <span className="text-slate-400 font-normal text-xs ml-1">
+                              - ₹{item.maxPrice.toLocaleString("en-IN")}
+                            </span>
+                          )}
+                        </span>
+                      </div>
 
                       {item.status === "SOLD" ? (
-                        <span className="text-[11px] font-bold text-rose-700 bg-rose-50 border border-rose-200 px-2.5 py-1 rounded-lg">
-                          Sold Out
+                        <span className="text-[11px] font-bold text-amber-800 bg-amber-50 group-hover:bg-amber-100/90 border border-amber-200/90 px-2.5 py-1 rounded-lg transition-all flex items-center space-x-1 shadow-2xs">
+                          <span>Request Similar</span>
+                          <ArrowRight className="w-3 h-3 text-amber-700" />
                         </span>
                       ) : (
                         <span className="font-semibold text-brand-blue group-hover:underline flex items-center space-x-1">

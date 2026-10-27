@@ -14,6 +14,7 @@ import {
   FileText,
   BadgeAlert,
   Layers,
+  ArrowRight,
   PhoneOff,
   Pencil,
   Copy,
@@ -316,21 +317,33 @@ export default async function ListingDetailPage({
           </div>
         )}
 
-        {/* SOLD Banner */}
+        {/* SOLD Banner with Direct Request Action */}
         {listing.status === "SOLD" && (
-          <div className="mb-6 p-4 rounded-2xl bg-rose-50 border border-rose-200 text-rose-900 flex items-start space-x-3 shadow-xs">
-            <BadgeAlert className="w-5 h-5 text-rose-600 flex-shrink-0 mt-0.5" />
-            <div>
-              <div className="flex items-center space-x-2">
-                <span className="text-xs font-black uppercase tracking-wider bg-rose-600 text-white px-2.5 py-0.5 rounded">
-                  SOLD OUT
-                </span>
-                <span className="text-xs font-bold text-rose-800">• This item is marked as SOLD</span>
+          <div className="mb-6 p-4 sm:p-5 rounded-2xl bg-amber-50/90 border border-amber-200/80 text-amber-950 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-xs">
+            <div className="flex items-start space-x-3">
+              <div className="w-9 h-9 rounded-xl bg-amber-100 text-amber-800 flex items-center justify-center flex-shrink-0 mt-0.5">
+                <BadgeAlert className="w-5 h-5" />
               </div>
-              <p className="text-xs text-rose-700 mt-1">
-                This equipment is no longer available. You can still submit an inquiry below to ask for equivalent instruments or join the priority waiting list for incoming inventory.
-              </p>
+              <div>
+                <div className="flex items-center space-x-2">
+                  <span className="text-xs font-black uppercase tracking-wider bg-slate-900 text-white px-2 py-0.5 rounded-md">
+                    Item Sold Out
+                  </span>
+                  <span className="text-xs font-bold text-amber-900">• Looking for this model?</span>
+                </div>
+                <p className="text-xs text-amber-800 mt-1 max-w-2xl leading-relaxed">
+                  This specific unit has been sold. However, LabMatrix actively sources certified refurbished &amp; pre-owned{" "}
+                  <strong>{listing.title}</strong> across India. Submit an inquiry below or post a request to get notified when equivalent stock arrives.
+                </p>
+              </div>
             </div>
+            <Link
+              href={`/requests/create?title=${encodeURIComponent(listing.title)}&category=${encodeURIComponent(listing.category)}`}
+              className="inline-flex items-center justify-center space-x-1.5 px-4 py-2.5 rounded-xl bg-brand-blue text-white hover:bg-brand-blue-700 text-xs font-bold shadow-xs transition-all whitespace-nowrap self-start sm:self-auto"
+            >
+              <span>Post Sourcing Request</span>
+              <ArrowRight className="w-3.5 h-3.5" />
+            </Link>
           </div>
         )}
 
@@ -476,7 +489,11 @@ export default async function ListingDetailPage({
             </div>
 
             {/* Inquiry Form */}
-            <InquiryBox listingId={listing.id} itemTitle={listing.title} />
+            <InquiryBox
+              listingId={listing.id}
+              itemTitle={listing.title}
+              isSold={listing.status === "SOLD"}
+            />
           </div>
         </div>
       </div>

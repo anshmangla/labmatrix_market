@@ -12,6 +12,7 @@ import {
   MapPin,
   Clock,
   ExternalLink,
+  ArrowRight,
   SlidersHorizontal,
   IndianRupee,
 } from "lucide-react";
@@ -299,7 +300,9 @@ export default function ListingsClient({
                       loading={idx < 3 ? "eager" : "lazy"}
                       fetchPriority={idx === 0 ? "high" : "auto"}
                       decoding="async"
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                      className={`w-full h-full object-cover group-hover:scale-105 transition-all duration-300 ${
+                        item.status === "SOLD" ? "grayscale-[40%] contrast-[0.95] opacity-90" : ""
+                      }`}
                     />
                   ) : (
                     <div className="w-full h-full flex flex-col items-center justify-center text-slate-400 bg-slate-100">
@@ -308,7 +311,7 @@ export default function ListingsClient({
                     </div>
                   )}
 
-                  {/* Badges */}
+                  {/* Badges (Top Left) */}
                   <div className="absolute top-3 left-3 flex flex-wrap gap-1.5 items-center">
                     <span className="bg-brand-blue-900/85 backdrop-blur-md text-white text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md">
                       {item.category}
@@ -318,18 +321,14 @@ export default function ListingsClient({
                         Qty: {item.quantity}
                       </span>
                     ) : null}
-                    {item.status === "SOLD" && (
-                      <span className="bg-rose-600 text-white text-[10px] font-black uppercase tracking-wider px-2.5 py-0.5 rounded-md shadow-sm border border-rose-400">
-                        SOLD
-                      </span>
-                    )}
                   </div>
 
-                  {/* SOLD OUT Overlay */}
+                  {/* Status Pill Badge (Top Right) */}
                   {item.status === "SOLD" && (
-                    <div className="absolute inset-0 bg-slate-950/35 backdrop-blur-[1px] flex items-center justify-center">
-                      <span className="bg-rose-600 text-white text-xs sm:text-sm font-black uppercase tracking-widest px-4 py-1 rounded-lg shadow-lg border border-white/40 transform -rotate-6">
-                        SOLD
+                    <div className="absolute top-3 right-3 z-10">
+                      <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-slate-900/80 backdrop-blur-md text-white text-[10px] font-bold uppercase tracking-wider shadow-md border border-white/20">
+                        <span className="w-1.5 h-1.5 rounded-full bg-rose-500 animate-pulse" />
+                        Sold Out
                       </span>
                     </div>
                   )}
@@ -351,12 +350,12 @@ export default function ListingsClient({
                     <div className="flex items-center justify-between">
                       <div>
                         <span className="text-[10px] uppercase font-bold text-slate-400 tracking-wider block">
-                          Expected Price
+                          {item.status === "SOLD" ? "Price Realized (Sold)" : "Expected Price"}
                         </span>
-                        <span className="text-base font-extrabold text-brand-blue">
+                        <span className={`text-base font-extrabold ${item.status === "SOLD" ? "text-slate-600" : "text-brand-blue"}`}>
                           ₹{item.minPrice.toLocaleString("en-IN")}
                           {item.maxPrice > item.minPrice && (
-                            <span className="text-xs text-slate-500 font-medium ml-1">
+                            <span className="text-xs text-slate-400 font-medium ml-1">
                               - ₹{item.maxPrice.toLocaleString("en-IN")}
                             </span>
                           )}
@@ -365,8 +364,9 @@ export default function ListingsClient({
 
                       <div className="flex items-center space-x-1.5">
                         {item.status === "SOLD" ? (
-                          <span className="text-xs font-bold text-rose-700 bg-rose-50 border border-rose-200 px-3 py-1.5 rounded-xl">
-                            Sold Out
+                          <span className="text-xs font-bold text-amber-800 bg-amber-50 group-hover:bg-amber-100/90 border border-amber-200/90 px-3 py-1.5 rounded-xl transition-all flex items-center space-x-1.5 shadow-2xs">
+                            <span>Request Similar</span>
+                            <ArrowRight className="w-3 h-3 text-amber-700 group-hover:translate-x-0.5 transition-transform" />
                           </span>
                         ) : (
                           <span className="text-xs font-bold text-brand-blue group-hover:text-brand-blue-500 bg-brand-blue-50 group-hover:bg-brand-blue-100/70 px-3 py-1.5 rounded-xl transition-colors flex items-center space-x-1">

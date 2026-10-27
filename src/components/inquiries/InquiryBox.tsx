@@ -17,16 +17,20 @@ export default function InquiryBox({
   requirementId,
   itemTitle,
   isOfferToRequirement = false,
+  isSold = false,
 }: {
   listingId?: string;
   requirementId?: string;
   itemTitle: string;
   isOfferToRequirement?: boolean;
+  isSold?: boolean;
 }) {
   const { data: session, status } = useSession();
   const [message, setMessage] = useState(
     isOfferToRequirement
       ? `Hello, I have an available ${itemTitle} matching this requirement. Please get in touch with me to discuss specs and inspection.`
+      : isSold
+      ? `Hello, I saw that this ${itemTitle} was recently sold. I am looking for a similar or equivalent unit. Please let me know what options or incoming inventory are available.`
       : `Hello, I am interested in acquiring this ${itemTitle}. Please let me know the availability and inspection schedule.`
   );
   const [phone, setPhone] = useState("");
@@ -92,6 +96,8 @@ export default function InquiryBox({
         <span>
           {isOfferToRequirement
             ? "Submit Equipment Proposal"
+            : isSold
+            ? "Request Equivalent Unit"
             : "Direct Equipment Inquiry"}
         </span>
       </div>
@@ -99,11 +105,15 @@ export default function InquiryBox({
       <h3 className="text-lg font-black text-slate-900">
         {isOfferToRequirement
           ? "Have matching equipment?"
+          : isSold
+          ? "Looking for a similar machine?"
           : "Interested in this equipment?"}
       </h3>
       <p className="text-xs text-slate-500 mt-1">
         {isOfferToRequirement
           ? "Submit your instrument specifications and price ask to coordinate with the buyer."
+          : isSold
+          ? "This specific unit is sold. Submit your specifications below and our engineering desk will locate equivalent units or incoming stock for you."
           : "Submit your questions, required specifications, or price proposal below."}
       </p>
 
@@ -169,6 +179,8 @@ export default function InquiryBox({
                 ? "Sending..."
                 : isOfferToRequirement
                 ? "Submit Equipment Offer"
+                : isSold
+                ? "Request Similar Unit"
                 : "Send Inquiry"}
             </span>
           </button>
