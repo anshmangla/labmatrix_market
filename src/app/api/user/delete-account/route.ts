@@ -1,13 +1,18 @@
 import { NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
-import { auth } from "@/auth";
+import { getAuthSession } from "@/lib/auth-session";
 import { prisma } from "@/lib/prisma";
 import { sendAccountDeletionEmail } from "@/lib/resend";
 import { checkRateLimit, getClientIp } from "@/lib/rate-limit";
+import { handleCorsOptions, corsHeaders } from "@/lib/cors";
+
+export async function OPTIONS() {
+  return handleCorsOptions();
+}
 
 export async function POST(request: Request) {
   try {
-    const session = await auth();
+    const session = await getAuthSession(request);
     if (!session?.user?.id) {
       return NextResponse.json({ error: "Unauthorized. Please sign in." }, { status: 401 });
     }

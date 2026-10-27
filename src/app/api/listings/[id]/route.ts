@@ -1,7 +1,12 @@
 import { NextResponse } from "next/server";
 import { revalidatePath } from "next/cache";
-import { auth } from "@/auth";
+import { getAuthSession } from "@/lib/auth-session";
 import { prisma } from "@/lib/prisma";
+import { handleCorsOptions } from "@/lib/cors";
+
+export async function OPTIONS() {
+  return handleCorsOptions();
+}
 
 export async function GET(
   request: Request,
@@ -9,7 +14,7 @@ export async function GET(
 ) {
   try {
     const { id } = await params;
-    const session = await auth();
+    const session = await getAuthSession(request);
 
     const listing = await prisma.listing.findUnique({
       where: { id },
@@ -83,7 +88,7 @@ export async function PATCH(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const session = await auth();
+    const session = await getAuthSession(request);
     if (!session?.user?.id) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
@@ -366,7 +371,7 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const session = await auth();
+    const session = await getAuthSession(request);
     if (!session?.user?.id) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }

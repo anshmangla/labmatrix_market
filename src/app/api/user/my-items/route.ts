@@ -1,12 +1,17 @@
 import { NextResponse } from "next/server";
-import { auth } from "@/auth";
+import { getAuthSession } from "@/lib/auth-session";
 import { prisma } from "@/lib/prisma";
+import { handleCorsOptions, corsHeaders } from "@/lib/cors";
 
-export async function GET() {
+export async function OPTIONS() {
+  return handleCorsOptions();
+}
+
+export async function GET(request: Request) {
   try {
-    const session = await auth();
+    const session = await getAuthSession(request);
     if (!session?.user?.id) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401, headers: corsHeaders() });
     }
 
     const [listings, requirements] = await Promise.all([
@@ -22,12 +27,15 @@ export async function GET() {
       }),
     ]);
 
-    return NextResponse.json({ listings, requirements });
+    return NextResponse.json(
+      { listings, requirements },
+      { status: 200, headers: corsHeaders() }
+    );
   } catch (error: any) {
     console.error("Fetch my items error:", error);
     return NextResponse.json(
       { error: "Failed to fetch user items" },
-      { status: 500 }
+      { status: 500, headers: corsHeaders() }
     );
   }
 }

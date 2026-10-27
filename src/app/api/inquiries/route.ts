@@ -1,11 +1,16 @@
 import { NextResponse } from "next/server";
-import { auth } from "@/auth";
+import { getAuthSession } from "@/lib/auth-session";
 import { prisma } from "@/lib/prisma";
 import { checkRateLimit } from "@/lib/rate-limit";
+import { handleCorsOptions, corsHeaders } from "@/lib/cors";
 
-export async function GET() {
+export async function OPTIONS() {
+  return handleCorsOptions();
+}
+
+export async function GET(request: Request) {
   try {
-    const session = await auth();
+    const session = await getAuthSession(request);
     if (!session?.user?.id) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
@@ -51,7 +56,7 @@ export async function GET() {
 
 export async function POST(request: Request) {
   try {
-    const session = await auth();
+    const session = await getAuthSession(request);
     if (!session?.user?.id) {
       return NextResponse.json(
         { error: "Unauthorized. Please sign in to send an inquiry." },

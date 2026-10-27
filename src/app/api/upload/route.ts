@@ -1,11 +1,16 @@
 import { NextResponse } from "next/server";
-import { auth } from "@/auth";
+import { getAuthSession } from "@/lib/auth-session";
 import cloudinary from "@/lib/cloudinary";
 import { checkRateLimit } from "@/lib/rate-limit";
+import { handleCorsOptions, corsHeaders } from "@/lib/cors";
+
+export async function OPTIONS() {
+  return handleCorsOptions();
+}
 
 export async function POST(request: Request) {
   try {
-    const session = await auth();
+    const session = await getAuthSession(request);
     if (!session?.user?.id) {
       return NextResponse.json(
         { error: "Unauthorized. Please sign in to upload images." },

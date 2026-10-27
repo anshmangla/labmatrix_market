@@ -1,8 +1,13 @@
 import { NextResponse } from "next/server";
-import { auth } from "@/auth";
+import { getAuthSession } from "@/lib/auth-session";
 import { prisma } from "@/lib/prisma";
 import { checkRateLimit } from "@/lib/rate-limit";
 import { sendAdminNewRequirementEmail } from "@/lib/resend";
+import { handleCorsOptions, corsHeaders } from "@/lib/cors";
+
+export async function OPTIONS() {
+  return handleCorsOptions();
+}
 
 // GET /api/requirements - List all open machine requirements with pagination
 export async function GET(request: Request) {
@@ -89,7 +94,7 @@ export async function GET(request: Request) {
 // POST /api/requirements - Submit a new equipment request
 export async function POST(request: Request) {
   try {
-    const session = await auth();
+    const session = await getAuthSession(request);
     if (!session?.user?.id) {
       return NextResponse.json(
         { error: "Unauthorized. Please sign in to post a requirement." },

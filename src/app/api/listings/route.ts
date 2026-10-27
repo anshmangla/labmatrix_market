@@ -1,8 +1,13 @@
 import { NextResponse } from "next/server";
-import { auth } from "@/auth";
+import { getAuthSession } from "@/lib/auth-session";
 import { prisma } from "@/lib/prisma";
 import { checkRateLimit } from "@/lib/rate-limit";
 import { sendAdminNewListingEmail } from "@/lib/resend";
+import { handleCorsOptions, corsHeaders } from "@/lib/cors";
+
+export async function OPTIONS() {
+  return handleCorsOptions();
+}
 
 // GET /api/listings - Get all listings with optional filtering and pagination
 export async function GET(request: Request) {
@@ -110,7 +115,7 @@ export async function GET(request: Request) {
 // POST /api/listings - Add a new machine listing
 export async function POST(request: Request) {
   try {
-    const session = await auth();
+    const session = await getAuthSession(request);
     if (!session?.user?.id) {
       return NextResponse.json(
         { error: "Unauthorized. Please sign in to list a machine." },
