@@ -13,6 +13,7 @@ import {
   ArrowRight,
   Send,
   Building,
+  Wrench,
 } from "lucide-react";
 
 interface Requirement {
@@ -20,6 +21,9 @@ interface Requirement {
   title: string;
   description: string;
   category: string;
+  itemType?: string;
+  partNumber?: string | null;
+  compatibleWith?: string | null;
   status: string;
   createdAt: string;
 }
@@ -37,6 +41,7 @@ const CATEGORIES = [
   "Particle Analyzers",
   "Centrifuges & Shakers",
   "Karl Fischer & Titrators",
+  "Spare Parts & Consumables",
   "Other Lab Equipment",
 ];
 
@@ -44,12 +49,16 @@ function RequestsContent() {
   const searchParams = useSearchParams();
   const urlCategory = searchParams.get("category");
   const urlQuery = searchParams.get("query");
+  const urlType = searchParams.get("type");
 
   const [requirements, setRequirements] = useState<Requirement[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState(urlQuery || "");
   const [selectedCategory, setSelectedCategory] = useState(
     urlCategory && CATEGORIES.includes(urlCategory) ? urlCategory : "ALL"
+  );
+  const [selectedItemType, setSelectedItemType] = useState<"ALL" | "MACHINE" | "SPARE_PART">(
+    urlType === "SPARE_PART" || urlType === "MACHINE" ? urlType : "ALL"
   );
 
   // Sync state if searchParams change in the URL
@@ -61,6 +70,13 @@ function RequestsContent() {
       setSelectedCategory("ALL");
     }
 
+    const t = searchParams.get("type");
+    if (t === "SPARE_PART" || t === "MACHINE") {
+      setSelectedItemType(t);
+    } else if (!t) {
+      setSelectedItemType("ALL");
+    }
+
     const q = searchParams.get("query");
     if (q !== null) {
       setSearch(q);
@@ -69,12 +85,15 @@ function RequestsContent() {
 
   useEffect(() => {
     fetchRequirements();
-  }, [selectedCategory]);
+  }, [selectedCategory, selectedItemType]);
 
   const fetchRequirements = async () => {
     setLoading(true);
     try {
-      let url = `/api/requirements?itemType=MACHINE&`;
+      let url = `/api/requirements?`;
+      if (selectedItemType !== "ALL") {
+        url += `itemType=${encodeURIComponent(selectedItemType)}&`;
+      }
       if (selectedCategory !== "ALL") {
         url += `category=${encodeURIComponent(selectedCategory)}&`;
       }
@@ -113,7 +132,7 @@ function RequestsContent() {
               Buyer Equipment Requirements
             </h1>
             <p className="text-sm text-slate-600 mt-1">
-              Laboratories actively looking for analytical instruments. Have a
+              Laboratories actively looking for analytical instruments and replacement spare parts. Have a
               matching unit? Submit your quotation proposal directly.
             </p>
           </div>
@@ -128,13 +147,13 @@ function RequestsContent() {
         </div>
 
         {/* Search & Filter */}
-        <div className="bg-white p-4 rounded-2xl shadow-xs border border-slate-200 mb-8 space-y-4">
+        <div className="bg-white p-4 sm:p-5 rounded-2xl shadow-xs border border-slate-200 mb-8 space-y-4">
           <form onSubmit={handleSearchSubmit} className="flex gap-2">
             <div className="relative flex-1">
               <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-3.5" />
               <input
                 type="text"
-                placeholder="Search desired instruments (HPLC, GC-MS, FTIR, Dissolution)..."
+                placeholder="Search desired instruments or parts (HPLC, GC-MS, Amplifier Board, FTIR)..."
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 className="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-brand-blue focus:bg-white"
@@ -147,6 +166,47 @@ function RequestsContent() {
               Search
             </button>
           </form>
+
+          {/* Sourcing Type Segmented Filter */}
+          <div className="flex flex-wrap items-center gap-2 border-b border-slate-100 pb-3">
+            <span className="text-xs font-bold text-slate-400 uppercase tracking-wider pr-1">
+              Filter by:
+            </span>
+            <button
+              type="button"
+              onClick={() => setSelectedItemType("ALL")}
+              className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all ${
+                selectedItemType === "ALL"
+                  ? "bg-brand-blue text-white shadow-xs"
+                  : "bg-slate-100 hover:bg-slate-200 text-slate-700"
+              }`}
+            >
+              All Requests
+            </button>
+            <button
+              type="button"
+              onClick={() => setSelectedItemType("MACHINE")}
+              className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all ${
+                selectedItemType === "MACHINE"
+                  ? "bg-brand-blue text-white shadow-xs"
+                  : "bg-slate-100 hover:bg-slate-200 text-slate-700"
+              }`}
+            >
+              Instruments & Systems
+            </button>
+            <button
+              type="button"
+              onClick={() => setSelectedItemType("SPARE_PART")}
+              className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center space-x-1.5 ${
+                selectedItemType === "SPARE_PART"
+                  ? "bg-brand-blue text-white shadow-xs"
+                  : "bg-slate-100 hover:bg-slate-200 text-slate-700"
+              }`}
+            >
+              <Wrench className="w-3.5 h-3.5" />
+              <span>Spare Parts & Consumables</span>
+            </button>
+          </div>
 
           {/* Category Chips */}
           <div className="flex items-center space-x-2 overflow-x-auto pb-1 scrollbar-none">
@@ -193,7 +253,7 @@ function RequestsContent() {
               No equipment requirements found
             </h3>
             <p className="text-sm text-slate-500 mt-1">
-              Be the first to post a machine requirement on the marketplace.
+              Be the first to post a machine or spare part requirement on the marketplace.
             </p>
             <Link
               href="/requests/create"
@@ -210,11 +270,21 @@ function RequestsContent() {
                 key={req.id}
                 className="bg-white rounded-2xl border border-slate-200 hover:border-brand-blue-300 p-6 shadow-xs hover:shadow-md transition-all flex flex-col md:flex-row md:items-center justify-between gap-6"
               >
-                <div className="space-y-2 flex-1">
+                <div className="space-y-2.5 flex-1">
                   <div className="flex flex-wrap items-center gap-2">
                     <span className="bg-brand-blue-50 text-brand-blue-700 border border-brand-blue-100/60 text-xs font-bold px-2.5 py-0.5 rounded-md">
                       {req.category}
                     </span>
+                    {req.itemType === "SPARE_PART" ? (
+                      <span className="bg-amber-50 text-amber-800 border border-amber-200 text-xs font-bold px-2 py-0.5 rounded-md flex items-center space-x-1">
+                        <Wrench className="w-3 h-3 text-amber-700" />
+                        <span>Spare Part</span>
+                      </span>
+                    ) : (
+                      <span className="bg-slate-100 text-slate-700 border border-slate-200 text-xs font-semibold px-2 py-0.5 rounded-md">
+                        Instrument
+                      </span>
+                    )}
                     <span className="text-slate-400 text-xs">•</span>
                     <span className="text-slate-500 text-xs flex items-center">
                       <Clock className="w-3.5 h-3.5 mr-1" />
@@ -230,6 +300,21 @@ function RequestsContent() {
                   <h3 className="text-lg font-bold text-slate-900">
                     {req.title}
                   </h3>
+
+                  {(req.partNumber || req.compatibleWith) && (
+                    <div className="flex flex-wrap items-center gap-2 text-xs">
+                      {req.partNumber && (
+                        <span className="font-mono bg-slate-100 text-slate-700 px-2 py-0.5 rounded border border-slate-200 text-[11px]">
+                          Part #: {req.partNumber}
+                        </span>
+                      )}
+                      {req.compatibleWith && (
+                        <span className="text-slate-600">
+                          Fits: <strong className="text-slate-800">{req.compatibleWith}</strong>
+                        </span>
+                      )}
+                    </div>
+                  )}
 
                   <p className="text-xs text-slate-600 leading-relaxed line-clamp-2">
                     {req.description}
