@@ -23,14 +23,20 @@ export default async function SparePartsHubPage({
   const params = searchParams ? await searchParams : {};
   const category = typeof params?.category === "string" ? params.category : undefined;
   const query = typeof params?.query === "string" ? params.query : undefined;
+  const statusParam = typeof params?.status === "string" ? params.status : undefined;
 
   let initialListings: SpareListing[] = [];
   try {
     const where: any = {
       isApproved: true,
-      status: { in: ["AVAILABLE", "SOLD"] },
       itemType: "SPARE_PART",
     };
+
+    if (statusParam && statusParam !== "ALL") {
+      where.status = statusParam;
+    } else {
+      where.status = { in: ["AVAILABLE", "SOLD"] };
+    }
 
     if (category && category !== "ALL") {
       where.category = category;

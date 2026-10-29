@@ -32,14 +32,20 @@ export default async function NewInstrumentsPage({
   const params = await searchParams;
   const category = typeof params.category === "string" ? params.category : undefined;
   const query = typeof params.query === "string" ? params.query : undefined;
+  const statusParam = typeof params.status === "string" ? params.status : undefined;
 
   let initialListings: Listing[] = [];
   try {
     const where: any = {
       isApproved: true,
-      status: { in: ["AVAILABLE", "SOLD"] },
       itemType: "NEW_INSTRUMENT",
     };
+
+    if (statusParam && statusParam !== "ALL") {
+      where.status = statusParam;
+    } else {
+      where.status = { in: ["AVAILABLE", "SOLD"] };
+    }
 
     if (category && category !== "ALL") {
       where.category = category;

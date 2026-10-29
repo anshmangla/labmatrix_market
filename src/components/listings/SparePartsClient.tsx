@@ -16,6 +16,7 @@ import {
   CheckCircle2,
   Package,
   Cpu,
+  SlidersHorizontal,
 } from "lucide-react";
 import { getOptimizedImageUrl, IMAGE_PRESETS } from "@/lib/images";
 
@@ -61,6 +62,12 @@ const COMMON_PART_CATEGORIES = [
   "Other Lab Equipment",
 ];
 
+const STATUS_OPTIONS: { label: string; value: "ALL" | "AVAILABLE" | "SOLD" }[] = [
+  { label: "All Items", value: "ALL" },
+  { label: "Available / In Stock", value: "AVAILABLE" },
+  { label: "Sold Out", value: "SOLD" },
+];
+
 export default function SparePartsClient({
   initialListings = [],
 }: {
@@ -70,6 +77,7 @@ export default function SparePartsClient({
   const urlTab = searchParams.get("tab");
   const urlCategory = searchParams.get("category");
   const urlQuery = searchParams.get("query");
+  const urlStatus = searchParams.get("status");
 
   const [activeTab, setActiveTab] = useState<"available" | "wanted">(
     urlTab === "wanted" ? "wanted" : "available"
@@ -81,9 +89,48 @@ export default function SparePartsClient({
   const [selectedCategory, setSelectedCategory] = useState(
     urlCategory && COMMON_PART_CATEGORIES.includes(urlCategory) ? urlCategory : "ALL"
   );
-  const [hasUserInteracted, setHasUserInteracted] = useState(
-    Boolean(urlCategory || urlQuery || urlTab)
+  const [selectedStatus, setSelectedStatus] = useState<"ALL" | "AVAILABLE" | "SOLD">(
+    urlStatus === "AVAILABLE" || urlStatus === "SOLD" ? urlStatus : "ALL"
   );
+  const [hasUserInteracted, setHasUserInteracted] = useState(
+    Boolean(urlCategory || urlQuery || urlTab || urlStatus)
+  );
+
+  // Sync state if searchParams change in the URL
+  useEffect(() => {
+    const cat = searchParams.get("category");
+    if (cat && COMMON_PART_CATEGORIES.includes(cat)) {
+      setSelectedCategory(cat);
+      setHasUserInteracted(true);
+    } else if (!cat && selectedCategory !== "ALL") {
+      setSelectedCategory("ALL");
+      setHasUserInteracted(true);
+    }
+
+    const stat = searchParams.get("status");
+    if (stat === "AVAILABLE" || stat === "SOLD") {
+      setSelectedStatus(stat);
+      setHasUserInteracted(true);
+    } else if (!stat && selectedStatus !== "ALL") {
+      setSelectedStatus("ALL");
+      setHasUserInteracted(true);
+    }
+
+    const q = searchParams.get("query");
+    if (q !== null && q !== search) {
+      setSearch(q);
+      setHasUserInteracted(true);
+    }
+
+    const tab = searchParams.get("tab");
+    if (tab === "wanted" && activeTab !== "wanted") {
+      setActiveTab("wanted");
+      setHasUserInteracted(true);
+    } else if (tab === "available" && activeTab !== "available") {
+      setActiveTab("available");
+      setHasUserInteracted(true);
+    }
+  }, [searchParams]);
 
   useEffect(() => {
     if (!hasUserInteracted) {
@@ -92,11 +139,16 @@ export default function SparePartsClient({
   }, [initialListings, hasUserInteracted]);
 
   useEffect(() => {
-    if (!hasUserInteracted && initialListings.length > 0 && activeTab === "available") {
+    if (
+      !hasUserInteracted &&
+      initialListings.length > 0 &&
+      activeTab === "available" &&
+      selectedStatus === "ALL"
+    ) {
       return;
     }
     loadData();
-  }, [activeTab, selectedCategory]);
+  }, [activeTab, selectedCategory, selectedStatus]);
 
   const loadData = async () => {
     setLoading(true);
@@ -105,6 +157,9 @@ export default function SparePartsClient({
         let url = `/api/listings?itemType=SPARE_PART&`;
         if (selectedCategory !== "ALL") {
           url += `category=${encodeURIComponent(selectedCategory)}&`;
+        }
+        if (selectedStatus !== "ALL") {
+          url += `status=${encodeURIComponent(selectedStatus)}&`;
         }
         if (search.trim()) {
           url += `query=${encodeURIComponent(search.trim())}&`;
@@ -273,6 +328,53 @@ export default function SparePartsClient({
               </button>
             ))}
           </div>
+
+          {/* Status Filter Chips (Available tab only) */}
+          {activeTab === "available" && (
+            <div className="flex items-center space-x-2 overflow-x-auto pb-1 pt-1 border-t border-slate-100 scrollbar-none text-xs">
+              <span className="font-bold text-slate-400 uppercase tracking-wider flex items-center pr-1 flex-shrink-0">
+                <SlidersHorizontal className="w-3.5 h-3.5 mr-1 text-brand-blue" /> Status:
+              </span>
+              {STATUS_OPTIONS.map((opt) => {
+                const isSelected = selectedStatus === opt.value;
+                return (
+                  <button
+                    key={opt.value}
+                    type="button"
+                    onClick={() => {
+                      setSelectedStatus(opt.value);
+                      setHasUserInteracted(true);
+                    }}
+                    className={`px-3 py-1 rounded-lg font-semibold whitespace-nowrap transition-all flex items-center gap-1.5 cursor-pointer ${
+                      isSelected
+                        ? opt.value === "AVAILABLE"
+                          ? "bg-emerald-600 text-white shadow-xs"
+                          : opt.value === "SOLD"
+                          ? "bg-rose-600 text-white shadow-xs"
+                          : "bg-brand-blue text-white shadow-xs"
+                        : "bg-slate-100 hover:bg-slate-200 text-slate-600"
+                    }`}
+                  >
+                    {opt.value === "AVAILABLE" && (
+                      <span
+                        className={`w-2 h-2 rounded-full ${
+                          isSelected ? "bg-white" : "bg-emerald-500"
+                        }`}
+                      />
+                    )}
+                    {opt.value === "SOLD" && (
+                      <span
+                        className={`w-2 h-2 rounded-full ${
+                          isSelected ? "bg-white" : "bg-rose-500"
+                        }`}
+                      />
+                    )}
+                    <span>{opt.label}</span>
+                  </button>
+                );
+              })}
+            </div>
+          )}
         </div>
 
         {/* Content Section */}

@@ -61,6 +61,7 @@ function DashboardContent() {
   const [activeTab, setActiveTab] = useState<
     "listings" | "requests" | "inquiries" | "settings"
   >(initialTab);
+  const [listingStatusFilter, setListingStatusFilter] = useState<"ALL" | "AVAILABLE" | "SOLD">("ALL");
   const [updatingId, setUpdatingId] = useState<string | null>(null);
 
   // Self-deletion modal state
@@ -94,6 +95,11 @@ function DashboardContent() {
       loadUserData();
     }
   }, [session]);
+
+  const filteredListings = listings.filter((item) => {
+    if (listingStatusFilter === "ALL") return true;
+    return item.status === listingStatusFilter;
+  });
 
   const loadUserData = async () => {
     setLoading(true);
@@ -411,128 +417,174 @@ function DashboardContent() {
                 </Link>
               </div>
             ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {listings.map((item) => (
-                  <div
-                    key={item.id}
-                    className="bg-white rounded-2xl border border-slate-200 p-5 shadow-xs flex flex-col justify-between space-y-4 hover:border-slate-300 transition-colors"
-                  >
-                    <div className="space-y-3">
-                      {/* Top Badges */}
-                      <div className="flex flex-wrap items-center justify-between gap-2">
-                        <div className="flex flex-wrap items-center gap-1.5">
-                          <span className="font-bold text-brand-blue-700 bg-brand-blue-50 border border-brand-blue-100/60 px-2.5 py-1 rounded-md text-xs">
-                            {item.category}
-                          </span>
-                          {item.itemType === "NEW_INSTRUMENT" && (
-                            <span className="bg-emerald-50 text-emerald-800 border border-emerald-200 px-2 py-0.5 rounded text-[10px] font-bold">
-                              ✨ New Instrument
-                            </span>
-                          )}
-                          {item.itemType === "SPARE_PART" && (
-                            <span className="bg-amber-50 text-amber-800 border border-amber-200 px-2 py-0.5 rounded text-[10px] font-bold">
-                              ⚙️ Spare Part
-                            </span>
-                          )}
-                          {(item as any).quantity && (item as any).quantity > 1 ? (
-                            <span className="bg-amber-100 text-amber-800 border border-amber-200 px-2 py-0.5 rounded text-[10px] font-bold">
-                              Qty: {(item as any).quantity}
-                            </span>
-                          ) : null}
-                        </div>
-                        {item.isApproved ? (
-                          <span className="inline-flex items-center space-x-1 text-[11px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200 px-2 py-0.5 rounded-md">
-                            <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
-                            <span>Approved & Live</span>
-                          </span>
-                        ) : (
-                          <span className="inline-flex items-center space-x-1 text-[11px] font-bold bg-amber-50 text-amber-800 border border-amber-200 px-2 py-0.5 rounded-md">
-                            <Clock className="w-3.5 h-3.5 text-amber-600" />
-                            <span>Pending Admin Approval</span>
-                          </span>
-                        )}
-                      </div>
+              <div className="space-y-4">
+                {/* Status Filter Chips */}
+                <div className="flex items-center space-x-2 overflow-x-auto pb-1 scrollbar-none text-xs">
+                  <span className="font-bold text-slate-400 uppercase tracking-wider flex items-center pr-1 flex-shrink-0">
+                    Status:
+                  </span>
+                  {[
+                    { label: `All (${listings.length})`, value: "ALL" },
+                    {
+                      label: `Available (${listings.filter((l) => l.status === "AVAILABLE").length})`,
+                      value: "AVAILABLE",
+                    },
+                    {
+                      label: `Sold Out (${listings.filter((l) => l.status === "SOLD").length})`,
+                      value: "SOLD",
+                    },
+                  ].map((pill) => {
+                    const isSelected = listingStatusFilter === pill.value;
+                    return (
+                      <button
+                        key={pill.value}
+                        type="button"
+                        onClick={() => setListingStatusFilter(pill.value as any)}
+                        className={`px-3 py-1.5 rounded-lg font-semibold whitespace-nowrap transition-all cursor-pointer ${
+                          isSelected
+                            ? pill.value === "AVAILABLE"
+                              ? "bg-emerald-600 text-white shadow-xs"
+                              : pill.value === "SOLD"
+                              ? "bg-rose-600 text-white shadow-xs"
+                              : "bg-brand-blue text-white shadow-xs"
+                            : "bg-slate-100 hover:bg-slate-200 text-slate-600"
+                        }`}
+                      >
+                        {pill.label}
+                      </button>
+                    );
+                  })}
+                </div>
 
-                      <div>
-                        <h3 className="font-bold text-slate-900 text-base leading-snug">
-                          {item.title}
-                        </h3>
-                        <p className="text-xs text-slate-500 mt-1 line-clamp-2">
-                          {item.description}
-                        </p>
-                      </div>
-
-                      {!item.isApproved && (
-                        <div className="p-2.5 bg-amber-50/70 border border-amber-200/80 rounded-xl text-[11px] text-amber-800 flex items-start space-x-1.5">
-                          <Clock className="w-3.5 h-3.5 text-amber-600 flex-shrink-0 mt-0.5" />
-                          <span>Under admin review. Once approved, it will appear publicly on the marketplace.</span>
-                        </div>
-                      )}
-                    </div>
-
-                    <div className="pt-3 border-t border-slate-100 space-y-3">
-                      <div className="flex items-center justify-between">
-                        <div>
-                          <span className="text-[10px] text-slate-400 block font-semibold">
-                            Price Expectation:
-                          </span>
-                          <span className="text-sm font-black text-slate-900">
-                            ₹{item.minPrice.toLocaleString("en-IN")} - ₹{item.maxPrice.toLocaleString("en-IN")}
-                          </span>
-                        </div>
-                        <div className="flex items-center space-x-2">
-                          <Link
-                            href={`/listings/create?duplicate=${item.id}`}
-                            className="inline-flex items-center space-x-1 text-xs font-bold text-slate-700 hover:text-brand-blue bg-slate-100 hover:bg-slate-200 px-2.5 py-1 rounded-lg transition-colors border border-slate-200"
-                            title="Duplicate this listing as a new entry"
-                          >
-                            <Copy className="w-3.5 h-3.5" />
-                            <span>Duplicate</span>
-                          </Link>
-                          <Link
-                            href={`/listings/${item.id}/edit`}
-                            className="inline-flex items-center space-x-1 text-xs font-bold text-slate-700 hover:text-brand-blue bg-slate-100 hover:bg-slate-200 px-2.5 py-1 rounded-lg transition-colors border border-slate-200"
-                          >
-                            <Pencil className="w-3.5 h-3.5" />
-                            <span>Edit</span>
-                          </Link>
-                          <Link
-                            href={`/listings/${item.id}`}
-                            className="inline-flex items-center space-x-1 text-xs font-semibold text-brand-blue hover:text-brand-blue-500 hover:underline"
-                          >
-                            <span>View</span>
-                            <ExternalLink className="w-3.5 h-3.5" />
-                          </Link>
-                        </div>
-                      </div>
-
-                      {/* Status toggle for listing owner */}
-                      <div className="flex items-center justify-between pt-2 border-t border-slate-100/80 text-xs">
-                        <label className="text-xs font-semibold text-slate-600">
-                          Machine Status:
-                        </label>
-                        <div className="flex items-center space-x-2">
-                          <select
-                            value={item.status}
-                            onChange={(e) => handleUpdateListingStatus(item.id, e.target.value)}
-                            disabled={updatingId === item.id}
-                            className={`text-xs font-bold rounded-lg px-2.5 py-1 border transition-colors cursor-pointer ${
-                              item.status === "AVAILABLE"
-                                ? "bg-emerald-50 text-emerald-800 border-emerald-300"
-                                : "bg-slate-100 text-slate-700 border-slate-300"
-                            }`}
-                          >
-                            <option value="AVAILABLE" className="text-slate-900 bg-white">AVAILABLE</option>
-                            <option value="SOLD" className="text-slate-900 bg-white">SOLD</option>
-                          </select>
-                          {updatingId === item.id && (
-                            <Loader2 className="w-3.5 h-3.5 text-brand-blue animate-spin" />
-                          )}
-                        </div>
-                      </div>
-                    </div>
+                {filteredListings.length === 0 ? (
+                  <div className="bg-white rounded-2xl border border-slate-200 p-8 text-center text-slate-500 text-xs sm:text-sm">
+                    No listings currently marked as {listingStatusFilter === "AVAILABLE" ? "Available" : "Sold"}.
                   </div>
-                ))}
+                ) : (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {filteredListings.map((item) => (
+                      <div
+                        key={item.id}
+                        className="bg-white rounded-2xl border border-slate-200 p-5 shadow-xs flex flex-col justify-between space-y-4 hover:border-slate-300 transition-colors"
+                      >
+                        <div className="space-y-3">
+                          {/* Top Badges */}
+                          <div className="flex flex-wrap items-center justify-between gap-2">
+                            <div className="flex flex-wrap items-center gap-1.5">
+                              <span className="font-bold text-brand-blue-700 bg-brand-blue-50 border border-brand-blue-100/60 px-2.5 py-1 rounded-md text-xs">
+                                {item.category}
+                              </span>
+                              {item.itemType === "NEW_INSTRUMENT" && (
+                                <span className="bg-emerald-50 text-emerald-800 border border-emerald-200 px-2 py-0.5 rounded text-[10px] font-bold">
+                                  ✨ New Instrument
+                                </span>
+                              )}
+                              {item.itemType === "SPARE_PART" && (
+                                <span className="bg-amber-50 text-amber-800 border border-amber-200 px-2 py-0.5 rounded text-[10px] font-bold">
+                                  ⚙️ Spare Part
+                                </span>
+                              )}
+                              {(item as any).quantity && (item as any).quantity > 1 ? (
+                                <span className="bg-amber-100 text-amber-800 border border-amber-200 px-2 py-0.5 rounded text-[10px] font-bold">
+                                  Qty: {(item as any).quantity}
+                                </span>
+                              ) : null}
+                            </div>
+                            {item.isApproved ? (
+                              <span className="inline-flex items-center space-x-1 text-[11px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200 px-2 py-0.5 rounded-md">
+                                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
+                                <span>Approved & Live</span>
+                              </span>
+                            ) : (
+                              <span className="inline-flex items-center space-x-1 text-[11px] font-bold bg-amber-50 text-amber-800 border border-amber-200 px-2 py-0.5 rounded-md">
+                                <Clock className="w-3.5 h-3.5 text-amber-600" />
+                                <span>Pending Admin Approval</span>
+                              </span>
+                            )}
+                          </div>
+
+                          <div>
+                            <h3 className="font-bold text-slate-900 text-base leading-snug">
+                              {item.title}
+                            </h3>
+                            <p className="text-xs text-slate-500 mt-1 line-clamp-2">
+                              {item.description}
+                            </p>
+                          </div>
+
+                          {!item.isApproved && (
+                            <div className="p-2.5 bg-amber-50/70 border border-amber-200/80 rounded-xl text-[11px] text-amber-800 flex items-start space-x-1.5">
+                              <Clock className="w-3.5 h-3.5 text-amber-600 flex-shrink-0 mt-0.5" />
+                              <span>Under admin review. Once approved, it will appear publicly on the marketplace.</span>
+                            </div>
+                          )}
+                        </div>
+
+                        <div className="pt-3 border-t border-slate-100 space-y-3">
+                          <div className="flex items-center justify-between">
+                            <div>
+                              <span className="text-[10px] text-slate-400 block font-semibold">
+                                Price Expectation:
+                              </span>
+                              <span className="text-sm font-black text-slate-900">
+                                ₹{item.minPrice.toLocaleString("en-IN")} - ₹{item.maxPrice.toLocaleString("en-IN")}
+                              </span>
+                            </div>
+                            <div className="flex items-center space-x-2">
+                              <Link
+                                href={`/listings/create?duplicate=${item.id}`}
+                                className="inline-flex items-center space-x-1 text-xs font-bold text-slate-700 hover:text-brand-blue bg-slate-100 hover:bg-slate-200 px-2.5 py-1 rounded-lg transition-colors border border-slate-200"
+                                title="Duplicate this listing as a new entry"
+                              >
+                                <Copy className="w-3.5 h-3.5" />
+                                <span>Duplicate</span>
+                              </Link>
+                              <Link
+                                href={`/listings/${item.id}/edit`}
+                                className="inline-flex items-center space-x-1 text-xs font-bold text-slate-700 hover:text-brand-blue bg-slate-100 hover:bg-slate-200 px-2.5 py-1 rounded-lg transition-colors border border-slate-200"
+                              >
+                                <Pencil className="w-3.5 h-3.5" />
+                                <span>Edit</span>
+                              </Link>
+                              <Link
+                                href={`/listings/${item.id}`}
+                                className="inline-flex items-center space-x-1 text-xs font-semibold text-brand-blue hover:text-brand-blue-500 hover:underline"
+                              >
+                                <span>View</span>
+                                <ExternalLink className="w-3.5 h-3.5" />
+                              </Link>
+                            </div>
+                          </div>
+
+                          {/* Status toggle for listing owner */}
+                          <div className="flex items-center justify-between pt-2 border-t border-slate-100/80 text-xs">
+                            <label className="text-xs font-semibold text-slate-600">
+                              Machine Status:
+                            </label>
+                            <div className="flex items-center space-x-2">
+                              <select
+                                value={item.status}
+                                onChange={(e) => handleUpdateListingStatus(item.id, e.target.value)}
+                                disabled={updatingId === item.id}
+                                className={`text-xs font-bold rounded-lg px-2.5 py-1 border transition-colors cursor-pointer ${
+                                  item.status === "AVAILABLE"
+                                    ? "bg-emerald-50 text-emerald-800 border-emerald-300"
+                                    : "bg-slate-100 text-slate-700 border-slate-300"
+                                }`}
+                              >
+                                <option value="AVAILABLE" className="text-slate-900 bg-white">AVAILABLE</option>
+                                <option value="SOLD" className="text-slate-900 bg-white">SOLD</option>
+                              </select>
+                              {updatingId === item.id && (
+                                <Loader2 className="w-3.5 h-3.5 text-brand-blue animate-spin" />
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
             )}
           </div>

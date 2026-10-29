@@ -57,6 +57,12 @@ const PRICE_TIERS = [
   { label: "₹20 Lakh+", min: "2000000", max: "" },
 ];
 
+const STATUS_OPTIONS: { label: string; value: "ALL" | "AVAILABLE" | "SOLD" }[] = [
+  { label: "All Items", value: "ALL" },
+  { label: "Available / In Stock", value: "AVAILABLE" },
+  { label: "Sold Out", value: "SOLD" },
+];
+
 export default function ListingsClient({
   initialListings = [],
 }: {
@@ -65,6 +71,7 @@ export default function ListingsClient({
   const searchParams = useSearchParams();
   const urlCategory = searchParams.get("category");
   const urlQuery = searchParams.get("query");
+  const urlStatus = searchParams.get("status");
 
   const [listings, setListings] = useState<Listing[]>(initialListings);
   const [loading, setLoading] = useState(initialListings.length === 0);
@@ -72,8 +79,11 @@ export default function ListingsClient({
   const [selectedCategory, setSelectedCategory] = useState(
     urlCategory && CATEGORIES.includes(urlCategory) ? urlCategory : "ALL"
   );
+  const [selectedStatus, setSelectedStatus] = useState<"ALL" | "AVAILABLE" | "SOLD">(
+    urlStatus === "AVAILABLE" || urlStatus === "SOLD" ? urlStatus : "ALL"
+  );
   const [selectedPriceTier, setSelectedPriceTier] = useState(0);
-  const [hasUserInteracted, setHasUserInteracted] = useState(false);
+  const [hasUserInteracted, setHasUserInteracted] = useState(Boolean(urlStatus));
 
   // Sync state if searchParams change in the URL
   useEffect(() => {
@@ -83,6 +93,15 @@ export default function ListingsClient({
       setHasUserInteracted(true);
     } else if (!cat && selectedCategory !== "ALL") {
       setSelectedCategory("ALL");
+      setHasUserInteracted(true);
+    }
+
+    const stat = searchParams.get("status");
+    if (stat === "AVAILABLE" || stat === "SOLD") {
+      setSelectedStatus(stat);
+      setHasUserInteracted(true);
+    } else if (!stat && selectedStatus !== "ALL") {
+      setSelectedStatus("ALL");
       setHasUserInteracted(true);
     }
 
@@ -99,7 +118,7 @@ export default function ListingsClient({
       return;
     }
     fetchListings();
-  }, [selectedCategory, selectedPriceTier]);
+  }, [selectedCategory, selectedPriceTier, selectedStatus]);
 
   const fetchListings = async () => {
     setLoading(true);
@@ -107,6 +126,9 @@ export default function ListingsClient({
       let url = `/api/listings?itemType=MACHINE&`;
       if (selectedCategory !== "ALL") {
         url += `category=${encodeURIComponent(selectedCategory)}&`;
+      }
+      if (selectedStatus !== "ALL") {
+        url += `status=${encodeURIComponent(selectedStatus)}&`;
       }
       if (search.trim()) {
         url += `query=${encodeURIComponent(search.trim())}&`;
@@ -205,6 +227,51 @@ export default function ListingsClient({
                 {cat}
               </button>
             ))}
+          </div>
+
+          {/* Availability / Status Chips */}
+          <div className="flex items-center space-x-2 overflow-x-auto pb-1 pt-1 border-t border-slate-100 scrollbar-none">
+            <span className="text-xs font-bold text-slate-400 uppercase tracking-wider flex items-center pr-2 flex-shrink-0">
+              <SlidersHorizontal className="w-3.5 h-3.5 mr-1 text-brand-blue" /> Status:
+            </span>
+            {STATUS_OPTIONS.map((opt) => {
+              const isSelected = selectedStatus === opt.value;
+              return (
+                <button
+                  key={opt.value}
+                  type="button"
+                  onClick={() => {
+                    setSelectedStatus(opt.value);
+                    setHasUserInteracted(true);
+                  }}
+                  className={`px-3 py-1 rounded-lg text-xs font-semibold whitespace-nowrap transition-all flex items-center gap-1.5 cursor-pointer ${
+                    isSelected
+                      ? opt.value === "AVAILABLE"
+                        ? "bg-emerald-600 text-white shadow-xs"
+                        : opt.value === "SOLD"
+                        ? "bg-rose-600 text-white shadow-xs"
+                        : "bg-brand-blue text-white shadow-xs"
+                      : "bg-slate-100 hover:bg-slate-200 text-slate-600"
+                  }`}
+                >
+                  {opt.value === "AVAILABLE" && (
+                    <span
+                      className={`w-2 h-2 rounded-full ${
+                        isSelected ? "bg-white" : "bg-emerald-500"
+                      }`}
+                    />
+                  )}
+                  {opt.value === "SOLD" && (
+                    <span
+                      className={`w-2 h-2 rounded-full ${
+                        isSelected ? "bg-white" : "bg-rose-500"
+                      }`}
+                    />
+                  )}
+                  <span>{opt.label}</span>
+                </button>
+              );
+            })}
           </div>
 
           {/* Price Range Chips */}
