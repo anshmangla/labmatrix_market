@@ -95,7 +95,7 @@ export default function Home() {
   return (
     <div className="flex flex-col min-h-screen">
       {/* Hero Section */}
-      <section className="relative bg-gradient-to-b from-brand-blue-950 via-brand-blue-900 to-slate-900 text-white py-20 px-4 sm:px-6 lg:px-8">
+      <section className="relative bg-gradient-to-b from-brand-blue-950 via-brand-blue-900 to-slate-900 text-white pt-20 pb-32 sm:pb-36 lg:pb-40 px-4 sm:px-6 lg:px-8">
         <div className="max-w-5xl mx-auto text-center space-y-8">
           <div className="inline-flex items-center space-x-2 bg-brand-gold/15 border border-brand-gold/40 px-4 py-1.5 rounded-full text-xs font-bold text-brand-gold shadow-xs">
             <ShieldCheck className="w-4 h-4 text-brand-gold" />
@@ -167,52 +167,46 @@ export default function Home() {
       </section>
 
       {/* Marketplace Trust Pillars */}
-      <section className="py-12 bg-white border-b border-slate-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div className="flex items-start space-x-4 p-4 rounded-xl bg-slate-50 border border-slate-100">
-              <div className="w-12 h-12 rounded-xl bg-brand-blue-50 flex items-center justify-center flex-shrink-0 text-brand-blue">
+      <section className="relative z-10 bg-white border-b border-slate-200">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-20 sm:-mt-24 lg:-mt-28">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8 pb-12 sm:pb-16">
+            <div className="bg-white rounded-2xl sm:rounded-3xl p-6 sm:p-8 shadow-xl shadow-slate-900/10 border border-slate-100 flex flex-col items-start transition-all hover:shadow-2xl">
+              <div className="w-12 h-12 rounded-2xl bg-brand-blue-50 flex items-center justify-center flex-shrink-0 text-brand-blue mb-5">
                 <UserCheck className="w-6 h-6" />
               </div>
-              <div>
-                <h3 className="font-bold text-slate-900 text-base">
-                  Verified Industry Network
-                </h3>
-                <p className="text-xs text-slate-600 mt-1 leading-relaxed">
-                  Connect with verified pharmaceutical manufacturers, research institutes,
-                  and analytical testing facilities across India.
-                </p>
-              </div>
+              <h3 className="font-bold text-slate-900 text-base sm:text-lg mb-2">
+                Verified Industry Network
+              </h3>
+              <p className="text-xs sm:text-sm text-slate-600 leading-relaxed font-normal">
+                Connect with verified pharmaceutical manufacturers, research institutes,
+                and analytical testing facilities across India.
+              </p>
             </div>
 
-            <div className="flex items-start space-x-4 p-4 rounded-xl bg-slate-50 border border-slate-100">
-              <div className="w-12 h-12 rounded-xl bg-brand-gold-50 flex items-center justify-center flex-shrink-0 text-brand-gold-700">
+            <div className="bg-white rounded-2xl sm:rounded-3xl p-6 sm:p-8 shadow-xl shadow-slate-900/10 border border-slate-100 flex flex-col items-start transition-all hover:shadow-2xl">
+              <div className="w-12 h-12 rounded-2xl bg-brand-gold-50 flex items-center justify-center flex-shrink-0 text-brand-gold-700 mb-5">
                 <ShieldCheck className="w-6 h-6" />
               </div>
-              <div>
-                <h3 className="font-bold text-slate-900 text-base">
-                  Direct Inquiries & Quotes
-                </h3>
-                <p className="text-xs text-slate-600 mt-1 leading-relaxed">
-                  Submit inquiries and price proposals directly on any machine or spare part.
-                  Coordinated with verified equipment specs and pricing.
-                </p>
-              </div>
+              <h3 className="font-bold text-slate-900 text-base sm:text-lg mb-2">
+                Direct Inquiries &amp; Quotes
+              </h3>
+              <p className="text-xs sm:text-sm text-slate-600 leading-relaxed font-normal">
+                Submit inquiries and price proposals directly on any machine or spare part.
+                Coordinated with verified equipment specs and pricing.
+              </p>
             </div>
 
-            <div className="flex items-start space-x-4 p-4 rounded-xl bg-slate-50 border border-slate-100">
-              <div className="w-12 h-12 rounded-xl bg-slate-100 flex items-center justify-center flex-shrink-0 text-slate-700">
+            <div className="bg-white rounded-2xl sm:rounded-3xl p-6 sm:p-8 shadow-xl shadow-slate-900/10 border border-slate-100 flex flex-col items-start transition-all hover:shadow-2xl">
+              <div className="w-12 h-12 rounded-2xl bg-brand-blue-50 flex items-center justify-center flex-shrink-0 text-brand-blue mb-5">
                 <Cpu className="w-6 h-6" />
               </div>
-              <div>
-                <h3 className="font-bold text-slate-900 text-base">
-                  Refurbished &amp; Quality Tested
-                </h3>
-                <p className="text-xs text-slate-600 mt-1 leading-relaxed">
-                  Access certified refurbished and pre-owned chromatography, spectroscopy, elemental &amp; thermal analysis systems, and
-                  genuine replacement components.
-                </p>
-              </div>
+              <h3 className="font-bold text-slate-900 text-base sm:text-lg mb-2">
+                Refurbished &amp; Quality Tested
+              </h3>
+              <p className="text-xs sm:text-sm text-slate-600 leading-relaxed font-normal">
+                Access certified refurbished and pre-owned chromatography, spectroscopy, elemental &amp; thermal analysis systems, and
+                genuine replacement components.
+              </p>
             </div>
           </div>
         </div>
