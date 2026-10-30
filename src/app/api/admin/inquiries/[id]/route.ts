@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { auth } from "@/auth";
+import { getAuthSession } from "@/lib/auth-session";
 import { prisma } from "@/lib/prisma";
 
 export async function PATCH(
@@ -7,7 +7,8 @@ export async function PATCH(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const session = await auth();
+    // Accepts both the website session cookie and the mobile app's Bearer token
+    const session = await getAuthSession(request);
     if (!session?.user?.id) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
