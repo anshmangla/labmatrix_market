@@ -7,6 +7,7 @@ import Footer from "@/components/layout/Footer";
 import AccountDeletedBanner from "@/components/AccountDeletedBanner";
 import NavigationProgress from "@/components/layout/NavigationProgress";
 import { Suspense } from "react";
+import { toJsonLd } from "@/lib/json-ld";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -167,7 +168,7 @@ export default function RootLayout({
         <link rel="dns-prefetch" href="https://res.cloudinary.com" />
         <script
           type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+          dangerouslySetInnerHTML={{ __html: toJsonLd(jsonLd) }}
         />
       </head>
       <body className="min-h-full flex flex-col bg-slate-50 text-slate-900">

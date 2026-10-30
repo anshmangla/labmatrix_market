@@ -20,6 +20,7 @@ import {
   Copy,
 } from "lucide-react";
 import { getOptimizedImageUrl } from "@/lib/images";
+import { toJsonLd } from "@/lib/json-ld";
 
 export const dynamic = "force-dynamic";
 
@@ -242,7 +243,7 @@ export default async function ListingDetailPage({
     <div className="min-h-screen bg-slate-50 py-10 px-4 sm:px-6 lg:px-8">
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(productJsonLd) }}
+        dangerouslySetInnerHTML={{ __html: toJsonLd(productJsonLd) }}
       />
       <div className="max-w-7xl mx-auto">
         {/* Breadcrumb Navigation */}
