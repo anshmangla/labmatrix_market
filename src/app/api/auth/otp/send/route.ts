@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import crypto from "crypto";
 import { prisma } from "@/lib/prisma";
 import { sendOtpEmail } from "@/lib/resend";
+import { recordOtpSend } from "@/lib/otp";
 import { checkRateLimit, getClientIp } from "@/lib/rate-limit";
 
 export async function POST(request: Request) {
@@ -32,7 +33,8 @@ export async function POST(request: Request) {
 
     const cleanEmail = email.toLowerCase().trim();
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(cleanEmail) || cleanEmail.length > 254) {
+    // ":" is rejected so an address can't collide with namespaced identifiers like "reset:<email>"
+    if (!emailRegex.test(cleanEmail) || cleanEmail.length > 254 || cleanEmail.includes(":")) {
       return NextResponse.json(
         { error: "Please provide a valid email address format." },
         { status: 400 }
@@ -61,6 +63,14 @@ export async function POST(request: Request) {
       return NextResponse.json(
         { error: "An account with this email already exists. Please sign in instead." },
         { status: 400 }
+      );
+    }
+
+    // Daily cap per email: each new code carries a fresh guess budget
+    if (!(await recordOtpSend(`register:${cleanEmail}`))) {
+      return NextResponse.json(
+        { error: "Too many verification codes requested for this email today. Please try again tomorrow." },
+        { status: 429 }
       );
     }
 

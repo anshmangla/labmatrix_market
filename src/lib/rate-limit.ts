@@ -5,6 +5,7 @@
 
 interface RateLimitRecord {
   timestamps: number[];
+  windowMs: number;
 }
 
 const rateLimitMap = new Map<string, RateLimitRecord>();
@@ -14,13 +15,14 @@ let lastCleanup = Date.now();
 /**
  * Periodically purges stale IP/user records to prevent unbounded memory growth.
  */
-function cleanupExpired(windowMs: number) {
+function cleanupExpired() {
   const now = Date.now();
   if (now - lastCleanup < 60000) return; // Run at most once per minute
   lastCleanup = now;
 
   for (const [key, record] of rateLimitMap.entries()) {
-    record.timestamps = record.timestamps.filter((ts) => now - ts < windowMs);
+    // Prune each record with its own window so short-window calls don't reset long limits
+    record.timestamps = record.timestamps.filter((ts) => now - ts < record.windowMs);
     if (record.timestamps.length === 0) {
       rateLimitMap.delete(key);
     }
@@ -47,11 +49,11 @@ export function checkRateLimit(
   windowMs: number
 ): RateLimitResult {
   const now = Date.now();
-  cleanupExpired(windowMs);
+  cleanupExpired();
 
   let record = rateLimitMap.get(key);
   if (!record) {
-    record = { timestamps: [] };
+    record = { timestamps: [], windowMs };
     rateLimitMap.set(key, record);
   }
 

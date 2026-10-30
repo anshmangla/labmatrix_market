@@ -5,6 +5,40 @@ import { prisma } from "@/lib/prisma";
 // code allows ~5 guesses in total, enforced in the database across all server instances.
 const ATTEMPT_COST_MS = 2 * 60 * 1000;
 
+// Resending a code starts a fresh guess budget, so the number of codes per email is
+// capped per 24 hours. Sends are logged as VerificationToken rows under this prefix.
+const DAILY_SEND_LIMIT = 10;
+const SEND_LOG_PREFIX = "otp-send-log:";
+const SEND_LOG_TTL_MS = 24 * 60 * 60 * 1000;
+
+/**
+ * Records a code dispatch for the key (e.g. `reset:user@example.com`) and returns false
+ * once the 24-hour cap is reached. Enforced in the database across all server instances.
+ */
+export async function recordOtpSend(key: string): Promise<boolean> {
+  const now = new Date();
+  await prisma.verificationToken.deleteMany({
+    where: { identifier: { startsWith: SEND_LOG_PREFIX }, expires: { lt: now } },
+  });
+
+  const identifier = `${SEND_LOG_PREFIX}${key}`;
+  const sentToday = await prisma.verificationToken.count({
+    where: { identifier, expires: { gt: now } },
+  });
+  if (sentToday >= DAILY_SEND_LIMIT) {
+    return false;
+  }
+
+  await prisma.verificationToken.create({
+    data: {
+      identifier,
+      token: crypto.randomUUID(),
+      expires: new Date(now.getTime() + SEND_LOG_TTL_MS),
+    },
+  });
+  return true;
+}
+
 export type OtpCheckResult = "valid" | "invalid" | "expired" | "missing" | "retry";
 
 /**

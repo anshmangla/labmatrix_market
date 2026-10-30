@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import crypto from "crypto";
 import { prisma } from "@/lib/prisma";
 import { sendPasswordResetOtpEmail } from "@/lib/resend";
+import { recordOtpSend } from "@/lib/otp";
 import { checkRateLimit, getClientIp } from "@/lib/rate-limit";
 
 export async function POST(request: Request) {
@@ -32,7 +33,7 @@ export async function POST(request: Request) {
 
     const cleanEmail = email.toLowerCase().trim();
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(cleanEmail) || cleanEmail.length > 254) {
+    if (!emailRegex.test(cleanEmail) || cleanEmail.length > 254 || cleanEmail.includes(":")) {
       return NextResponse.json(
         { error: "Please provide a valid email address format." },
         { status: 400 }
@@ -62,6 +63,16 @@ export async function POST(request: Request) {
       "If an account is associated with this email, a 6-digit verification code has been dispatched.";
 
     if (!user) {
+      return NextResponse.json({
+        success: true,
+        message: genericSuccessMessage,
+        expiresInMinutes: 10,
+      });
+    }
+
+    // Daily cap per account: each new code carries a fresh guess budget. Respond with the
+    // same generic message so the cap doesn't reveal whether the account exists.
+    if (!(await recordOtpSend(`reset:${cleanEmail}`))) {
       return NextResponse.json({
         success: true,
         message: genericSuccessMessage,
