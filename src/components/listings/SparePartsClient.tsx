@@ -19,6 +19,7 @@ import {
   SlidersHorizontal,
 } from "lucide-react";
 import { getOptimizedImageUrl, IMAGE_PRESETS } from "@/lib/images";
+import LoadMoreButton from "@/components/listings/LoadMoreButton";
 
 export interface SpareListing {
   id: string;
@@ -68,6 +69,14 @@ const STATUS_OPTIONS: { label: string; value: "ALL" | "AVAILABLE" | "SOLD" }[] =
   { label: "Sold Out", value: "SOLD" },
 ];
 
+const PAGE_SIZE = 30;
+
+/** Appends items that aren't already in the list (pages can shift while new items are posted). */
+function appendUnique<T extends { id: string }>(prev: T[], next: T[]): T[] {
+  const seen = new Set(prev.map((item) => item.id));
+  return [...prev, ...next.filter((item) => !seen.has(item.id))];
+}
+
 export default function SparePartsClient({
   initialListings = [],
 }: {
@@ -84,6 +93,11 @@ export default function SparePartsClient({
   );
   const [listings, setListings] = useState<SpareListing[]>(initialListings);
   const [requirements, setRequirements] = useState<SpareRequirement[]>([]);
+  const [listingsPage, setListingsPage] = useState(1);
+  const [listingsHasMore, setListingsHasMore] = useState(initialListings.length >= PAGE_SIZE);
+  const [requirementsPage, setRequirementsPage] = useState(1);
+  const [requirementsHasMore, setRequirementsHasMore] = useState(false);
+  const [loadingMore, setLoadingMore] = useState(false);
   const [loading, setLoading] = useState(initialListings.length === 0);
   const [search, setSearch] = useState(urlQuery || "");
   const [selectedCategory, setSelectedCategory] = useState(
@@ -150,39 +164,84 @@ export default function SparePartsClient({
     loadData();
   }, [activeTab, selectedCategory, selectedStatus]);
 
+  const buildListingsUrl = () => {
+    let url = `/api/listings?itemType=SPARE_PART&limit=${PAGE_SIZE}&`;
+    if (selectedCategory !== "ALL") {
+      url += `category=${encodeURIComponent(selectedCategory)}&`;
+    }
+    if (selectedStatus !== "ALL") {
+      url += `status=${encodeURIComponent(selectedStatus)}&`;
+    }
+    if (search.trim()) {
+      url += `query=${encodeURIComponent(search.trim())}&`;
+    }
+    return url;
+  };
+
+  const buildRequirementsUrl = () => {
+    let url = `/api/requirements?itemType=SPARE_PART&limit=${PAGE_SIZE}&`;
+    if (selectedCategory !== "ALL") {
+      url += `category=${encodeURIComponent(selectedCategory)}&`;
+    }
+    if (search.trim()) {
+      url += `query=${encodeURIComponent(search.trim())}&`;
+    }
+    return url;
+  };
+
   const loadData = async () => {
     setLoading(true);
     try {
       if (activeTab === "available") {
-        let url = `/api/listings?itemType=SPARE_PART&`;
-        if (selectedCategory !== "ALL") {
-          url += `category=${encodeURIComponent(selectedCategory)}&`;
-        }
-        if (selectedStatus !== "ALL") {
-          url += `status=${encodeURIComponent(selectedStatus)}&`;
-        }
-        if (search.trim()) {
-          url += `query=${encodeURIComponent(search.trim())}&`;
-        }
-        const res = await fetch(url);
+        const res = await fetch(`${buildListingsUrl()}page=1`);
         const data = await res.json();
-        if (data?.listings) setListings(data.listings);
+        if (data?.listings) {
+          setListings(data.listings);
+          setListingsPage(1);
+          setListingsHasMore(1 < (data.pagination?.totalPages ?? 1));
+        }
       } else {
-        let url = `/api/requirements?itemType=SPARE_PART&`;
-        if (selectedCategory !== "ALL") {
-          url += `category=${encodeURIComponent(selectedCategory)}&`;
-        }
-        if (search.trim()) {
-          url += `query=${encodeURIComponent(search.trim())}&`;
-        }
-        const res = await fetch(url);
+        const res = await fetch(`${buildRequirementsUrl()}page=1`);
         const data = await res.json();
-        if (data?.requirements) setRequirements(data.requirements);
+        if (data?.requirements) {
+          setRequirements(data.requirements);
+          setRequirementsPage(1);
+          setRequirementsHasMore(1 < (data.pagination?.totalPages ?? 1));
+        }
       }
     } catch (err) {
       console.error("Failed to load spare parts data:", err);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const loadMore = async () => {
+    setLoadingMore(true);
+    try {
+      if (activeTab === "available") {
+        const nextPage = listingsPage + 1;
+        const res = await fetch(`${buildListingsUrl()}page=${nextPage}`);
+        const data = await res.json();
+        if (data?.listings) {
+          setListings((prev) => appendUnique(prev, data.listings));
+          setListingsPage(nextPage);
+          setListingsHasMore(nextPage < (data.pagination?.totalPages ?? nextPage));
+        }
+      } else {
+        const nextPage = requirementsPage + 1;
+        const res = await fetch(`${buildRequirementsUrl()}page=${nextPage}`);
+        const data = await res.json();
+        if (data?.requirements) {
+          setRequirements((prev) => appendUnique(prev, data.requirements));
+          setRequirementsPage(nextPage);
+          setRequirementsHasMore(nextPage < (data.pagination?.totalPages ?? nextPage));
+        }
+      }
+    } catch (err) {
+      console.error("Load more error:", err);
+    } finally {
+      setLoadingMore(false);
     }
   };
 
@@ -516,6 +575,9 @@ export default function SparePartsClient({
                 ))}
               </div>
             )}
+            {listings.length > 0 && (
+              <LoadMoreButton hasMore={listingsHasMore} loading={loadingMore} onClick={loadMore} />
+            )}
           </div>
         ) : (
           // TAB 2: WANTED SPARE PARTS REQUIREMENTS
@@ -591,6 +653,9 @@ export default function SparePartsClient({
                   </Link>
                 ))}
               </div>
+            )}
+            {requirements.length > 0 && (
+              <LoadMoreButton hasMore={requirementsHasMore} loading={loadingMore} onClick={loadMore} />
             )}
           </div>
         )}

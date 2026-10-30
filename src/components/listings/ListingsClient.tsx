@@ -17,6 +17,7 @@ import {
   IndianRupee,
 } from "lucide-react";
 import { getOptimizedImageUrl, IMAGE_PRESETS } from "@/lib/images";
+import LoadMoreButton from "@/components/listings/LoadMoreButton";
 
 export interface Listing {
   id: string;
@@ -63,6 +64,14 @@ const STATUS_OPTIONS: { label: string; value: "ALL" | "AVAILABLE" | "SOLD" }[] =
   { label: "Sold Out", value: "SOLD" },
 ];
 
+const PAGE_SIZE = 30;
+
+/** Appends items that aren't already in the list (pages can shift while new items are posted). */
+function appendUnique<T extends { id: string }>(prev: T[], next: T[]): T[] {
+  const seen = new Set(prev.map((item) => item.id));
+  return [...prev, ...next.filter((item) => !seen.has(item.id))];
+}
+
 export default function ListingsClient({
   initialListings = [],
 }: {
@@ -74,6 +83,9 @@ export default function ListingsClient({
   const urlStatus = searchParams.get("status");
 
   const [listings, setListings] = useState<Listing[]>(initialListings);
+  const [page, setPage] = useState(1);
+  const [hasMore, setHasMore] = useState(initialListings.length >= PAGE_SIZE);
+  const [loadingMore, setLoadingMore] = useState(false);
   const [loading, setLoading] = useState(initialListings.length === 0);
   const [search, setSearch] = useState(urlQuery || "");
   const [selectedCategory, setSelectedCategory] = useState(
@@ -120,33 +132,56 @@ export default function ListingsClient({
     fetchListings();
   }, [selectedCategory, selectedPriceTier, selectedStatus]);
 
+  const buildListingsUrl = () => {
+    let url = `/api/listings?itemType=MACHINE&limit=${PAGE_SIZE}&`;
+    if (selectedCategory !== "ALL") {
+      url += `category=${encodeURIComponent(selectedCategory)}&`;
+    }
+    if (selectedStatus !== "ALL") {
+      url += `status=${encodeURIComponent(selectedStatus)}&`;
+    }
+    if (search.trim()) {
+      url += `query=${encodeURIComponent(search.trim())}&`;
+    }
+
+    const tier = PRICE_TIERS[selectedPriceTier];
+    if (tier.min) url += `minPrice=${tier.min}&`;
+    if (tier.max) url += `maxPrice=${tier.max}&`;
+    return url;
+  };
+
   const fetchListings = async () => {
     setLoading(true);
     try {
-      let url = `/api/listings?itemType=MACHINE&`;
-      if (selectedCategory !== "ALL") {
-        url += `category=${encodeURIComponent(selectedCategory)}&`;
-      }
-      if (selectedStatus !== "ALL") {
-        url += `status=${encodeURIComponent(selectedStatus)}&`;
-      }
-      if (search.trim()) {
-        url += `query=${encodeURIComponent(search.trim())}&`;
-      }
-
-      const tier = PRICE_TIERS[selectedPriceTier];
-      if (tier.min) url += `minPrice=${tier.min}&`;
-      if (tier.max) url += `maxPrice=${tier.max}&`;
-
-      const res = await fetch(url);
+      const res = await fetch(`${buildListingsUrl()}page=1`);
       const data = await res.json();
       if (data?.listings) {
         setListings(data.listings);
+        setPage(1);
+        setHasMore(1 < (data.pagination?.totalPages ?? 1));
       }
     } catch (err) {
       console.error("Fetch listings error:", err);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const loadMoreListings = async () => {
+    setLoadingMore(true);
+    try {
+      const nextPage = page + 1;
+      const res = await fetch(`${buildListingsUrl()}page=${nextPage}`);
+      const data = await res.json();
+      if (data?.listings) {
+        setListings((prev) => appendUnique(prev, data.listings));
+        setPage(nextPage);
+        setHasMore(nextPage < (data.pagination?.totalPages ?? nextPage));
+      }
+    } catch (err) {
+      console.error("Load more error:", err);
+    } finally {
+      setLoadingMore(false);
     }
   };
 
@@ -459,6 +494,10 @@ export default function ListingsClient({
               </Link>
             ))}
           </div>
+        )}
+
+        {!loading && listings.length > 0 && (
+          <LoadMoreButton hasMore={hasMore} loading={loadingMore} onClick={loadMoreListings} />
         )}
       </div>
     </div>

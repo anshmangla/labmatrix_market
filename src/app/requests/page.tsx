@@ -15,6 +15,7 @@ import {
   Building,
   Wrench,
 } from "lucide-react";
+import LoadMoreButton from "@/components/listings/LoadMoreButton";
 
 interface Requirement {
   id: string;
@@ -45,6 +46,15 @@ const CATEGORIES = [
   "Other Lab Equipment",
 ];
 
+
+const PAGE_SIZE = 30;
+
+/** Appends items that aren't already in the list (pages can shift while new items are posted). */
+function appendUnique<T extends { id: string }>(prev: T[], next: T[]): T[] {
+  const seen = new Set(prev.map((item) => item.id));
+  return [...prev, ...next.filter((item) => !seen.has(item.id))];
+}
+
 function RequestsContent() {
   const searchParams = useSearchParams();
   const urlCategory = searchParams.get("category");
@@ -52,6 +62,9 @@ function RequestsContent() {
   const urlType = searchParams.get("type");
 
   const [requirements, setRequirements] = useState<Requirement[]>([]);
+  const [page, setPage] = useState(1);
+  const [hasMore, setHasMore] = useState(false);
+  const [loadingMore, setLoadingMore] = useState(false);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState(urlQuery || "");
   const [selectedCategory, setSelectedCategory] = useState(
@@ -87,29 +100,52 @@ function RequestsContent() {
     fetchRequirements();
   }, [selectedCategory, selectedItemType]);
 
+  const buildRequirementsUrl = () => {
+    let url = `/api/requirements?limit=${PAGE_SIZE}&`;
+    if (selectedItemType !== "ALL") {
+      url += `itemType=${encodeURIComponent(selectedItemType)}&`;
+    }
+    if (selectedCategory !== "ALL") {
+      url += `category=${encodeURIComponent(selectedCategory)}&`;
+    }
+    if (search.trim()) {
+      url += `query=${encodeURIComponent(search.trim())}&`;
+    }
+    return url;
+  };
+
   const fetchRequirements = async () => {
     setLoading(true);
     try {
-      let url = `/api/requirements?`;
-      if (selectedItemType !== "ALL") {
-        url += `itemType=${encodeURIComponent(selectedItemType)}&`;
-      }
-      if (selectedCategory !== "ALL") {
-        url += `category=${encodeURIComponent(selectedCategory)}&`;
-      }
-      if (search.trim()) {
-        url += `query=${encodeURIComponent(search.trim())}&`;
-      }
-
-      const res = await fetch(url);
+      const res = await fetch(`${buildRequirementsUrl()}page=1`);
       const data = await res.json();
       if (data?.requirements) {
         setRequirements(data.requirements);
+        setPage(1);
+        setHasMore(1 < (data.pagination?.totalPages ?? 1));
       }
     } catch (err) {
       console.error("Fetch requirements error:", err);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const loadMoreRequirements = async () => {
+    setLoadingMore(true);
+    try {
+      const nextPage = page + 1;
+      const res = await fetch(`${buildRequirementsUrl()}page=${nextPage}`);
+      const data = await res.json();
+      if (data?.requirements) {
+        setRequirements((prev) => appendUnique(prev, data.requirements));
+        setPage(nextPage);
+        setHasMore(nextPage < (data.pagination?.totalPages ?? nextPage));
+      }
+    } catch (err) {
+      console.error("Load more error:", err);
+    } finally {
+      setLoadingMore(false);
     }
   };
 
@@ -333,6 +369,10 @@ function RequestsContent() {
               </div>
             ))}
           </div>
+        )}
+
+        {!loading && requirements.length > 0 && (
+          <LoadMoreButton hasMore={hasMore} loading={loadingMore} onClick={loadMoreRequirements} />
         )}
       </div>
     </div>
