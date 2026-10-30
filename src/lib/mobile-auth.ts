@@ -1,12 +1,8 @@
 import { SignJWT, jwtVerify } from "jose";
-import { credentialStamp } from "@/lib/session-validity";
+import { credentialStamp, getAuthSecret } from "@/lib/session-validity";
 
 function getSecretKey(): Uint8Array {
-  const secret =
-    process.env.AUTH_SECRET ||
-    process.env.NEXTAUTH_SECRET ||
-    "labmatrix_secure_jwt_fallback_key_2026_at_least_32_characters_long";
-  return new TextEncoder().encode(secret);
+  return new TextEncoder().encode(getAuthSecret());
 }
 
 export interface MobileTokenPayload {

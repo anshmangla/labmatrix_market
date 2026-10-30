@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
-import crypto from "crypto";
 import bcrypt from "bcryptjs";
 import { prisma } from "@/lib/prisma";
+import { checkOtp } from "@/lib/otp";
 import { checkRateLimit, getClientIp } from "@/lib/rate-limit";
 
 export async function POST(request: Request) {
@@ -70,29 +70,30 @@ export async function POST(request: Request) {
     }
 
     // 3. Verify OTP against stored token
-    const tokenRecord = await prisma.verificationToken.findFirst({
-      where: { identifier: cleanEmail },
-    });
+    const otpResult = await checkOtp(cleanEmail, cleanOtp);
 
-    if (!tokenRecord) {
+    if (otpResult === "missing") {
       return NextResponse.json(
         { error: "No verification code found for this email. Please request a new code." },
         { status: 400 }
       );
     }
 
-    if (tokenRecord.expires < new Date()) {
-      await prisma.verificationToken.deleteMany({
-        where: { identifier: cleanEmail },
-      });
+    if (otpResult === "expired") {
       return NextResponse.json(
         { error: "Verification code has expired. Please click Resend Code to get a fresh one." },
         { status: 400 }
       );
     }
 
-    const hashedInput = crypto.createHash("sha256").update(cleanOtp).digest("hex");
-    if (hashedInput !== tokenRecord.token) {
+    if (otpResult === "retry") {
+      return NextResponse.json(
+        { error: "A verification attempt is already in progress. Please try again." },
+        { status: 409 }
+      );
+    }
+
+    if (otpResult !== "valid") {
       return NextResponse.json(
         { error: "Incorrect verification code. Please check your inbox or request a new code." },
         { status: 400 }
