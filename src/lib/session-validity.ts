@@ -27,6 +27,7 @@ export function credentialStamp(passwordHash: string | null | undefined): string
 export interface ActiveUserState {
   role: string;
   stamp: string;
+  name: string | null;
 }
 
 /**
@@ -36,12 +37,12 @@ export interface ActiveUserState {
 export async function getActiveUserState(userId: string): Promise<ActiveUserState | null> {
   const user = await prisma.user.findUnique({
     where: { id: userId },
-    select: { email: true, password: true, role: true },
+    select: { email: true, password: true, role: true, name: true },
   });
 
   if (!user || user.email.endsWith(ARCHIVED_EMAIL_DOMAIN)) {
     return null;
   }
 
-  return { role: user.role, stamp: credentialStamp(user.password) };
+  return { role: user.role, stamp: credentialStamp(user.password), name: user.name };
 }

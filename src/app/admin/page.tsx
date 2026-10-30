@@ -28,6 +28,28 @@ import {
   Pencil,
 } from "lucide-react";
 
+/**
+ * Loads every page of an admin list (the API returns at most 100 per page) so the
+ * console's client-side search and filters cover all records, not just the first page.
+ * Returns null if the first page fails, so callers keep their current data.
+ */
+async function fetchAllAdminPages(url: string, key: string): Promise<unknown[] | null> {
+  const items: unknown[] = [];
+  let page = 1;
+  let totalPages = 1;
+  do {
+    const res = await fetch(`${url}?page=${page}&limit=100`);
+    const data = await res.json();
+    if (!res.ok || !Array.isArray(data?.[key])) {
+      return page === 1 ? null : items;
+    }
+    items.push(...data[key]);
+    totalPages = data.pagination?.totalPages ?? 1;
+    page += 1;
+  } while (page <= totalPages && page <= 100);
+  return items;
+}
+
 export default function AdminDashboardPage() {
   const { data: session, status } = useSession();
   const [isAdmin, setIsAdmin] = useState<boolean | null>(null);
@@ -98,21 +120,17 @@ export default function AdminDashboardPage() {
     setTabLoading(true);
     try {
       if (tab === "inquiries") {
-        const res = await fetch("/api/admin/inquiries");
-        const data = await res.json();
-        if (data?.inquiries) setInquiries(data.inquiries);
+        const items = await fetchAllAdminPages("/api/admin/inquiries", "inquiries");
+        if (items) setInquiries(items);
       } else if (tab === "users") {
-        const res = await fetch("/api/admin/users");
-        const data = await res.json();
-        if (data?.users) setUsers(data.users);
+        const items = await fetchAllAdminPages("/api/admin/users", "users");
+        if (items) setUsers(items);
       } else if (tab === "listings") {
-        const res = await fetch("/api/admin/listings");
-        const data = await res.json();
-        if (data?.listings) setListings(data.listings);
+        const items = await fetchAllAdminPages("/api/admin/listings", "listings");
+        if (items) setListings(items);
       } else if (tab === "requirements") {
-        const res = await fetch("/api/admin/requirements");
-        const data = await res.json();
-        if (data?.requirements) setRequirements(data.requirements);
+        const items = await fetchAllAdminPages("/api/admin/requirements", "requirements");
+        if (items) setRequirements(items);
       }
     } catch (err) {
       console.error(`Error loading ${tab} data:`, err);

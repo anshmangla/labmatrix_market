@@ -83,6 +83,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           }
           token.role = state.role;
           token.sv = state.stamp;
+          token.name = state.name;
         } catch (error) {
           // On a transient DB failure keep the existing session rather than signing users out
           console.warn("Could not verify session state:", error);

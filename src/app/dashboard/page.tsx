@@ -34,7 +34,7 @@ import {
 } from "lucide-react";
 
 function DashboardContent() {
-  const { data: session, status } = useSession();
+  const { data: session, status, update: updateSession } = useSession();
   const router = useRouter();
   const searchParams = useSearchParams();
 
@@ -49,6 +49,12 @@ function DashboardContent() {
       : "listings";
 
   const [profile, setProfile] = useState<any>(null);
+  const [isEditingProfile, setIsEditingProfile] = useState(false);
+  const [editName, setEditName] = useState("");
+  const [editPhone, setEditPhone] = useState("");
+  const [editCompany, setEditCompany] = useState("");
+  const [profileSaving, setProfileSaving] = useState(false);
+  const [profileError, setProfileError] = useState("");
   const [listings, setListings] = useState<any[]>([]);
   const [requirements, setRequirements] = useState<any[]>([]);
   const [notifications, setNotifications] = useState<any[]>([]);
@@ -100,6 +106,44 @@ function DashboardContent() {
     if (listingStatusFilter === "ALL") return true;
     return item.status === listingStatusFilter;
   });
+
+  const startEditingProfile = () => {
+    setEditName(profile?.name || "");
+    setEditPhone(profile?.phoneNumber || "");
+    setEditCompany(profile?.companyName || "");
+    setProfileError("");
+    setIsEditingProfile(true);
+  };
+
+  const handleSaveProfile = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setProfileError("");
+    setProfileSaving(true);
+    try {
+      const res = await fetch("/api/user/profile", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: editName,
+          phoneNumber: editPhone,
+          companyName: editCompany,
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setProfileError(data.error || "Failed to update profile. Please try again.");
+        return;
+      }
+      setProfile((prev: typeof profile) => ({ ...prev, ...data.user }));
+      setIsEditingProfile(false);
+      // Refresh the session so the navbar shows the new name
+      await updateSession();
+    } catch {
+      setProfileError("Network error. Please try again.");
+    } finally {
+      setProfileSaving(false);
+    }
+  };
 
   const loadUserData = async () => {
     setLoading(true);
@@ -1001,12 +1045,90 @@ function DashboardContent() {
                 <div className="w-10 h-10 rounded-xl bg-brand-blue-50 text-brand-blue flex items-center justify-center font-bold">
                   <User className="w-5 h-5" />
                 </div>
-                <div>
+                <div className="flex-1">
                   <h2 className="text-base font-bold text-slate-900">Account Profile</h2>
                   <p className="text-xs text-slate-500">Your verified marketplace credentials</p>
                 </div>
+                {!isEditingProfile && profile && (
+                  <button
+                    type="button"
+                    onClick={startEditingProfile}
+                    className="inline-flex items-center space-x-1.5 px-3 py-2 border border-slate-300 rounded-xl text-xs font-semibold text-slate-700 hover:bg-slate-50 transition-colors"
+                  >
+                    <Pencil className="w-3.5 h-3.5" />
+                    <span>Edit</span>
+                  </button>
+                )}
               </div>
 
+              {isEditingProfile ? (
+                <form onSubmit={handleSaveProfile} className="space-y-4 text-xs">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <label className="block">
+                      <span className="text-slate-500 font-medium block mb-1">Full Name</span>
+                      <input
+                        type="text"
+                        value={editName}
+                        onChange={(e) => setEditName(e.target.value)}
+                        maxLength={100}
+                        className="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-sm text-slate-900 bg-white focus:outline-none focus:ring-2 focus:ring-brand-blue focus:border-brand-blue"
+                      />
+                    </label>
+                    <label className="block">
+                      <span className="text-slate-500 font-medium block mb-1">Email Address</span>
+                      <input
+                        type="email"
+                        value={profile?.email || ""}
+                        disabled
+                        className="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl text-sm text-slate-500 bg-slate-50"
+                      />
+                    </label>
+                    <label className="block">
+                      <span className="text-slate-500 font-medium block mb-1">Phone / Mobile</span>
+                      <input
+                        type="tel"
+                        value={editPhone}
+                        onChange={(e) => setEditPhone(e.target.value)}
+                        maxLength={20}
+                        className="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-sm text-slate-900 bg-white focus:outline-none focus:ring-2 focus:ring-brand-blue focus:border-brand-blue"
+                      />
+                    </label>
+                    <label className="block">
+                      <span className="text-slate-500 font-medium block mb-1">Company / Lab</span>
+                      <input
+                        type="text"
+                        value={editCompany}
+                        onChange={(e) => setEditCompany(e.target.value)}
+                        maxLength={100}
+                        className="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-sm text-slate-900 bg-white focus:outline-none focus:ring-2 focus:ring-brand-blue focus:border-brand-blue"
+                      />
+                    </label>
+                  </div>
+
+                  {profileError && (
+                    <p className="text-xs text-red-600 font-medium">{profileError}</p>
+                  )}
+
+                  <div className="flex items-center gap-3">
+                    <button
+                      type="submit"
+                      disabled={profileSaving}
+                      className="inline-flex items-center space-x-1.5 px-4 py-2.5 rounded-xl text-xs font-bold text-white bg-brand-blue hover:bg-brand-blue-500 transition-colors disabled:opacity-60"
+                    >
+                      {profileSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : <CheckCircle2 className="w-4 h-4" />}
+                      <span>{profileSaving ? "Saving..." : "Save Changes"}</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setIsEditingProfile(false)}
+                      disabled={profileSaving}
+                      className="px-4 py-2.5 border border-slate-300 rounded-xl text-xs font-semibold text-slate-700 hover:bg-slate-50"
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                </form>
+              ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
                 <div className="bg-slate-50 p-3.5 rounded-xl border border-slate-200/80">
                   <span className="text-slate-500 font-medium block mb-1">Full Name</span>
@@ -1025,6 +1147,7 @@ function DashboardContent() {
                   <span className="font-bold text-slate-900 text-sm">{profile?.companyName || "Not provided"}</span>
                 </div>
               </div>
+              )}
 
               <div className="mt-5 p-3.5 bg-blue-50/70 border border-blue-200 rounded-xl flex items-start space-x-2.5 text-xs text-blue-900">
                 <ShieldCheck className="w-4 h-4 text-blue-600 mt-0.5 shrink-0" />
