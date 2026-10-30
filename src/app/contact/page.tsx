@@ -381,6 +381,7 @@ export default function ContactPage() {
                   <textarea
                     required
                     rows={5}
+                    maxLength={5000}
                     placeholder="Specify model numbers (HPLC, GC-MS, FTIR), manufacturer preference, urgency, target city/state, or any specific spare part catalog IDs..."
                     value={message}
                     onChange={(e) => setMessage(e.target.value)}

@@ -1,5 +1,6 @@
 import { auth } from "@/auth";
 import { verifyMobileToken } from "@/lib/mobile-auth";
+import { getActiveUserState } from "@/lib/session-validity";
 
 export interface AuthenticatedUser {
   id: string;
@@ -31,12 +32,25 @@ export async function getAuthSession(request?: Request): Promise<AuthSession | n
       if (token) {
         const payload = await verifyMobileToken(token);
         if (payload?.id) {
+          let role = payload.role || "USER";
+          try {
+            // Reject tokens for deleted accounts or issued before the last password change
+            const state = await getActiveUserState(payload.id);
+            if (!state || (payload.sv && payload.sv !== state.stamp)) {
+              return null;
+            }
+            role = state.role;
+          } catch (error) {
+            // On a transient DB failure keep the signed token's claims rather than logging users out
+            console.warn("Could not verify mobile token state:", error);
+          }
+
           return {
             user: {
               id: payload.id,
               email: payload.email,
               name: payload.name || null,
-              role: payload.role || "USER",
+              role,
             },
           };
         }

@@ -14,6 +14,19 @@ export const DEFAULT_FROM_EMAIL =
 export const ADMIN_SALES_EMAIL =
   process.env.ADMIN_NOTIF_EMAIL || process.env.CONTACT_TO_EMAIL || "sales@labmatrixindia.com";
 
+const HTML_ESCAPES: Record<string, string> = {
+  "&": "&amp;",
+  "<": "&lt;",
+  ">": "&gt;",
+  '"': "&quot;",
+  "'": "&#39;",
+};
+
+/** Escapes user-supplied text before interpolating it into email HTML. */
+function esc(value: unknown): string {
+  return String(value ?? "").replace(/[&<>"']/g, (c) => HTML_ESCAPES[c]);
+}
+
 export interface ContactPayload {
   name: string;
   email: string;
@@ -64,7 +77,7 @@ export async function sendContactEmail(payload: ContactPayload) {
               New Website Inquiry Received
             </h1>
             <p style="margin: 6px 0 0; font-size: 13px; color: #cbd5e1;">
-              Requirement: <strong style="color: #ffffff;">${subject}</strong>
+              Requirement: <strong style="color: #ffffff;">${esc(subject)}</strong>
             </p>
           </div>
 
@@ -78,28 +91,28 @@ export async function sendContactEmail(payload: ContactPayload) {
               <tbody>
                 <tr style="border-bottom: 1px solid #f1f5f9;">
                   <td style="padding: 10px 0; font-weight: 600; color: #64748b; width: 140px;">Name:</td>
-                  <td style="padding: 10px 0; font-weight: 700; color: #0f172a;">${name}</td>
+                  <td style="padding: 10px 0; font-weight: 700; color: #0f172a;">${esc(name)}</td>
                 </tr>
                 <tr style="border-bottom: 1px solid #f1f5f9;">
                   <td style="padding: 10px 0; font-weight: 600; color: #64748b;">Email Address:</td>
                   <td style="padding: 10px 0;">
-                    <a href="mailto:${email}" style="color: #033A7D; text-decoration: none; font-weight: 600;">${email}</a>
+                    <a href="mailto:${esc(email)}" style="color: #033A7D; text-decoration: none; font-weight: 600;">${esc(email)}</a>
                   </td>
                 </tr>
                 <tr style="border-bottom: 1px solid #f1f5f9;">
                   <td style="padding: 10px 0; font-weight: 600; color: #64748b;">Mobile / Phone:</td>
                   <td style="padding: 10px 0;">
-                    <a href="tel:${phone}" style="color: #033A7D; text-decoration: none; font-weight: 700;">${phone}</a>
-                    <a href="https://wa.me/${phone.replace(/\\D/g, "")}" style="margin-left: 8px; color: #16a34a; font-size: 12px; font-weight: 600; text-decoration: none;">(WhatsApp)</a>
+                    <a href="tel:${esc(phone)}" style="color: #033A7D; text-decoration: none; font-weight: 700;">${esc(phone)}</a>
+                    <a href="https://wa.me/${esc(phone).replace(/\\D/g, "")}" style="margin-left: 8px; color: #16a34a; font-size: 12px; font-weight: 600; text-decoration: none;">(WhatsApp)</a>
                   </td>
                 </tr>
                 <tr style="border-bottom: 1px solid #f1f5f9;">
                   <td style="padding: 10px 0; font-weight: 600; color: #64748b;">Company / Lab:</td>
-                  <td style="padding: 10px 0; color: #0f172a;">${company || "Not Specified"}</td>
+                  <td style="padding: 10px 0; color: #0f172a;">${esc(company || "Not Specified")}</td>
                 </tr>
                 <tr>
                   <td style="padding: 10px 0; font-weight: 600; color: #64748b;">Category:</td>
-                  <td style="padding: 10px 0; font-weight: 700; color: #033A7D;">${subject}</td>
+                  <td style="padding: 10px 0; font-weight: 700; color: #033A7D;">${esc(subject)}</td>
                 </tr>
               </tbody>
             </table>
@@ -108,16 +121,16 @@ export async function sendContactEmail(payload: ContactPayload) {
               Message Content
             </h2>
             <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 18px; font-size: 14px; line-height: 1.6; color: #334155; white-space: pre-wrap;">
-${message}
+${esc(message)}
             </div>
 
             <!-- Action Buttons -->
             <div style="margin-top: 28px; padding-top: 24px; border-top: 1px solid #e2e8f0; display: flex; gap: 12px;">
-              <a href="mailto:${email}?subject=Re:%20${encodeURIComponent(subject)}%20-%20LabMatrix%20Instrument%20India" style="display: inline-block; background-color: #033A7D; color: #ffffff; font-weight: 700; font-size: 13px; text-decoration: none; padding: 12px 22px; border-radius: 10px;">
+              <a href="mailto:${esc(email)}?subject=Re:%20${encodeURIComponent(subject)}%20-%20LabMatrix%20Instrument%20India" style="display: inline-block; background-color: #033A7D; color: #ffffff; font-weight: 700; font-size: 13px; text-decoration: none; padding: 12px 22px; border-radius: 10px;">
                 Reply via Email
               </a>
-              <a href="tel:${phone}" style="display: inline-block; background-color: #f1f5f9; color: #1e293b; font-weight: 700; font-size: 13px; text-decoration: none; padding: 12px 22px; border-radius: 10px; margin-left: 10px;">
-                Call: ${phone}
+              <a href="tel:${esc(phone)}" style="display: inline-block; background-color: #f1f5f9; color: #1e293b; font-weight: 700; font-size: 13px; text-decoration: none; padding: 12px 22px; border-radius: 10px; margin-left: 10px;">
+                Call: ${esc(phone)}
               </a>
             </div>
           </div>
@@ -155,10 +168,10 @@ ${message}
 
           <div style="padding: 32px;">
             <p style="font-size: 15px; color: #334155; margin-top: 0; line-height: 1.6;">
-              Dear <strong>${name}</strong>,
+              Dear <strong>${esc(name)}</strong>,
             </p>
             <p style="font-size: 14px; color: #475569; line-height: 1.6;">
-              Thank you for reaching out to <strong>LabMatrix Instrument India Pvt. Ltd.</strong> regarding <strong>${subject}</strong>. Your inquiry has been routed to our technical support and procurement specialists.
+              Thank you for reaching out to <strong>LabMatrix Instrument India Pvt. Ltd.</strong> regarding <strong>${esc(subject)}</strong>. Your inquiry has been routed to our technical support and procurement specialists.
             </p>
 
             <div style="background-color: #eff5fb; border-left: 4px solid #033A7D; border-radius: 8px; padding: 16px; margin: 24px 0;">
@@ -277,7 +290,7 @@ export async function sendOtpEmail(payload: SendOtpPayload) {
           <!-- Body Content -->
           <div style="padding: 32px; text-align: center;">
             <p style="font-size: 15px; color: #334155; margin-top: 0; margin-bottom: 20px; line-height: 1.5;">
-              Hello${name ? ` <strong>${name}</strong>` : ""},<br />
+              Hello${name ? ` <strong>${esc(name)}</strong>` : ""},<br />
               Please enter the following 6-digit verification code to complete your registration on the LabMatrix Marketplace:
             </p>
 
@@ -377,7 +390,7 @@ export async function sendPasswordResetOtpEmail(payload: SendOtpPayload) {
           <!-- Body Content -->
           <div style="padding: 32px; text-align: center;">
             <p style="font-size: 15px; color: #334155; margin-top: 0; margin-bottom: 20px; line-height: 1.5;">
-              Hello${name ? ` <strong>${name}</strong>` : ""},<br />
+              Hello${name ? ` <strong>${esc(name)}</strong>` : ""},<br />
               We received a request to reset the password for your LabMatrix Marketplace account. Enter this 6-digit code on the reset page:
             </p>
 
@@ -482,7 +495,7 @@ export async function sendAccountDeletionEmail(payload: AccountDeletionEmailPayl
           <!-- Body Content -->
           <div style="padding: 32px; text-align: left;">
             <p style="font-size: 15px; color: #334155; margin-top: 0; margin-bottom: 16px; line-height: 1.5;">
-              Hello${name ? ` <strong>${name}</strong>` : ""},<br /><br />
+              Hello${name ? ` <strong>${esc(name)}</strong>` : ""},<br /><br />
               This email confirms that your account on the <strong>LabMatrix Marketplace</strong> has been closed and deactivated.
             </p>
 
@@ -625,7 +638,7 @@ export async function sendAdminNewListingEmail(payload: AdminNewListingPayload) 
             <table style="width: 100%; border-collapse: collapse; margin-bottom: 24px; font-size: 13px;">
               <tr style="border-bottom: 1px solid #f1f5f9;">
                 <td style="padding: 10px 0; color: #64748b; font-weight: 600; width: 130px;">Title:</td>
-                <td style="padding: 10px 0; color: #0f172a; font-weight: 700;">${title}</td>
+                <td style="padding: 10px 0; color: #0f172a; font-weight: 700;">${esc(title)}</td>
               </tr>
               <tr style="border-bottom: 1px solid #f1f5f9;">
                 <td style="padding: 10px 0; color: #64748b; font-weight: 600;">Type:</td>
@@ -633,17 +646,17 @@ export async function sendAdminNewListingEmail(payload: AdminNewListingPayload) 
               </tr>
               <tr style="border-bottom: 1px solid #f1f5f9;">
                 <td style="padding: 10px 0; color: #64748b; font-weight: 600;">Category:</td>
-                <td style="padding: 10px 0; color: #334155;">${category}</td>
+                <td style="padding: 10px 0; color: #334155;">${esc(category)}</td>
               </tr>
               ${partNumber ? `
               <tr style="border-bottom: 1px solid #f1f5f9;">
                 <td style="padding: 10px 0; color: #64748b; font-weight: 600;">Part / Model #:</td>
-                <td style="padding: 10px 0; color: #334155; font-family: monospace;">${partNumber}</td>
+                <td style="padding: 10px 0; color: #334155; font-family: monospace;">${esc(partNumber)}</td>
               </tr>` : ""}
               ${compatibleWith ? `
               <tr style="border-bottom: 1px solid #f1f5f9;">
                 <td style="padding: 10px 0; color: #64748b; font-weight: 600;">Compatible With:</td>
-                <td style="padding: 10px 0; color: #334155;">${compatibleWith}</td>
+                <td style="padding: 10px 0; color: #334155;">${esc(compatibleWith)}</td>
               </tr>` : ""}
               <tr style="border-bottom: 1px solid #f1f5f9;">
                 <td style="padding: 10px 0; color: #64748b; font-weight: 600;">Price Guide:</td>
@@ -655,11 +668,11 @@ export async function sendAdminNewListingEmail(payload: AdminNewListingPayload) 
               </tr>
               <tr style="border-bottom: 1px solid #f1f5f9;">
                 <td style="padding: 10px 0; color: #64748b; font-weight: 600;">Condition:</td>
-                <td style="padding: 10px 0; color: #334155;">${condition || "Used - Good"}</td>
+                <td style="padding: 10px 0; color: #334155;">${esc(condition || "Used - Good")}</td>
               </tr>
               <tr>
                 <td style="padding: 10px 0; color: #64748b; font-weight: 600;">Location:</td>
-                <td style="padding: 10px 0; color: #334155;">${location || "India"}</td>
+                <td style="padding: 10px 0; color: #334155;">${esc(location || "India")}</td>
               </tr>
             </table>
 
@@ -668,10 +681,10 @@ export async function sendAdminNewListingEmail(payload: AdminNewListingPayload) 
               👤 Submitter / Seller Details
             </h2>
             <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 16px; margin-bottom: 24px; font-size: 13px;">
-              <p style="margin: 0 0 6px;"><strong>Name:</strong> ${sellerName || "Registered User"}</p>
-              <p style="margin: 0 0 6px;"><strong>Email:</strong> <a href="mailto:${sellerEmail}" style="color: #033A7D; text-decoration: none;">${sellerEmail}</a></p>
-              <p style="margin: 0 0 6px;"><strong>Phone:</strong> <a href="tel:${sellerPhone}" style="color: #033A7D; text-decoration: none;">${sellerPhone || "Not provided"}</a></p>
-              <p style="margin: 0;"><strong>Company:</strong> ${sellerCompany || "Not specified"}</p>
+              <p style="margin: 0 0 6px;"><strong>Name:</strong> ${esc(sellerName || "Registered User")}</p>
+              <p style="margin: 0 0 6px;"><strong>Email:</strong> <a href="mailto:${esc(sellerEmail)}" style="color: #033A7D; text-decoration: none;">${esc(sellerEmail)}</a></p>
+              <p style="margin: 0 0 6px;"><strong>Phone:</strong> <a href="tel:${esc(sellerPhone)}" style="color: #033A7D; text-decoration: none;">${esc(sellerPhone || "Not provided")}</a></p>
+              <p style="margin: 0;"><strong>Company:</strong> ${esc(sellerCompany || "Not specified")}</p>
             </div>
 
             <!-- Action Button -->
@@ -787,25 +800,25 @@ export async function sendAdminNewRequirementEmail(payload: AdminNewRequirementP
             <table style="width: 100%; border-collapse: collapse; margin-bottom: 24px; font-size: 13px;">
               <tr style="border-bottom: 1px solid #f1f5f9;">
                 <td style="padding: 10px 0; color: #64748b; font-weight: 600; width: 130px;">Item Wanted:</td>
-                <td style="padding: 10px 0; color: #0f172a; font-weight: 700;">${title}</td>
+                <td style="padding: 10px 0; color: #0f172a; font-weight: 700;">${esc(title)}</td>
               </tr>
               <tr style="border-bottom: 1px solid #f1f5f9;">
                 <td style="padding: 10px 0; color: #64748b; font-weight: 600;">Category:</td>
-                <td style="padding: 10px 0; color: #334155;">${category}</td>
+                <td style="padding: 10px 0; color: #334155;">${esc(category)}</td>
               </tr>
               ${partNumber ? `
               <tr style="border-bottom: 1px solid #f1f5f9;">
                 <td style="padding: 10px 0; color: #64748b; font-weight: 600;">Part / Model #:</td>
-                <td style="padding: 10px 0; color: #334155; font-family: monospace;">${partNumber}</td>
+                <td style="padding: 10px 0; color: #334155; font-family: monospace;">${esc(partNumber)}</td>
               </tr>` : ""}
               ${compatibleWith ? `
               <tr style="border-bottom: 1px solid #f1f5f9;">
                 <td style="padding: 10px 0; color: #64748b; font-weight: 600;">Compatible With:</td>
-                <td style="padding: 10px 0; color: #334155;">${compatibleWith}</td>
+                <td style="padding: 10px 0; color: #334155;">${esc(compatibleWith)}</td>
               </tr>` : ""}
               <tr>
                 <td style="padding: 10px 0; color: #64748b; font-weight: 600; vertical-align: top;">Description:</td>
-                <td style="padding: 10px 0; color: #334155; line-height: 1.5;">${description}</td>
+                <td style="padding: 10px 0; color: #334155; line-height: 1.5;">${esc(description)}</td>
               </tr>
             </table>
 
@@ -813,10 +826,10 @@ export async function sendAdminNewRequirementEmail(payload: AdminNewRequirementP
               👤 Buyer Details
             </h2>
             <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 16px; margin-bottom: 24px; font-size: 13px;">
-              <p style="margin: 0 0 6px;"><strong>Name:</strong> ${buyerName || "Registered User"}</p>
-              <p style="margin: 0 0 6px;"><strong>Email:</strong> <a href="mailto:${buyerEmail}" style="color: #033A7D; text-decoration: none;">${buyerEmail}</a></p>
-              <p style="margin: 0 0 6px;"><strong>Phone:</strong> <a href="tel:${buyerPhone}" style="color: #033A7D; text-decoration: none;">${buyerPhone || "Not provided"}</a></p>
-              <p style="margin: 0;"><strong>Company:</strong> ${buyerCompany || "Not specified"}</p>
+              <p style="margin: 0 0 6px;"><strong>Name:</strong> ${esc(buyerName || "Registered User")}</p>
+              <p style="margin: 0 0 6px;"><strong>Email:</strong> <a href="mailto:${esc(buyerEmail)}" style="color: #033A7D; text-decoration: none;">${esc(buyerEmail)}</a></p>
+              <p style="margin: 0 0 6px;"><strong>Phone:</strong> <a href="tel:${esc(buyerPhone)}" style="color: #033A7D; text-decoration: none;">${esc(buyerPhone || "Not provided")}</a></p>
+              <p style="margin: 0;"><strong>Company:</strong> ${esc(buyerCompany || "Not specified")}</p>
             </div>
 
             <div style="text-align: center; margin: 32px 0 16px;">
@@ -918,7 +931,7 @@ export async function sendUserListingApprovedEmail(payload: UserListingApprovedP
           <!-- Body Content -->
           <div style="padding: 32px;">
             <p style="font-size: 15px; color: #334155; margin-top: 0; margin-bottom: 20px; line-height: 1.6;">
-              Hello${userName ? ` <strong>${userName}</strong>` : ""},<br /><br />
+              Hello${userName ? ` <strong>${esc(userName)}</strong>` : ""},<br /><br />
               We are pleased to inform you that your listing has been reviewed and approved by the LabMatrix engineering team. It is now published and accessible to buyers across India.
             </p>
 
@@ -928,10 +941,10 @@ export async function sendUserListingApprovedEmail(payload: UserListingApprovedP
                 ● Live &amp; Available
               </div>
               <h3 style="margin: 0 0 8px; font-size: 17px; font-weight: 800; color: #0f172a;">
-                ${title}
+                ${esc(title)}
               </h3>
               <p style="margin: 0 0 6px; font-size: 13px; color: #64748b;">
-                <strong>Type:</strong> ${itemLabel} &bull; <strong>Category:</strong> ${category}
+                <strong>Type:</strong> ${itemLabel} &bull; <strong>Category:</strong> ${esc(category)}
               </p>
               <p style="margin: 0; font-size: 14px; color: #02244E; font-weight: 700;">
                 Price: ₹${Number(minPrice).toLocaleString("en-IN")} – ₹${Number(maxPrice).toLocaleString("en-IN")}
@@ -1030,8 +1043,8 @@ export async function sendUserRequirementApprovedEmail(payload: UserRequirementA
           <!-- Body Content -->
           <div style="padding: 32px;">
             <p style="font-size: 15px; color: #334155; margin-top: 0; margin-bottom: 20px; line-height: 1.6;">
-              Hello${userName ? ` <strong>${userName}</strong>` : ""},<br /><br />
-              Your procurement request for <strong>${title}</strong> has been approved by our admin team. Verified suppliers and equipment owners can now review your requirement and submit matching solutions.
+              Hello${userName ? ` <strong>${esc(userName)}</strong>` : ""},<br /><br />
+              Your procurement request for <strong>${esc(title)}</strong> has been approved by our admin team. Verified suppliers and equipment owners can now review your requirement and submit matching solutions.
             </p>
 
             <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-left: 4px solid #10b981; border-radius: 12px; padding: 20px; margin: 24px 0;">
@@ -1039,10 +1052,10 @@ export async function sendUserRequirementApprovedEmail(payload: UserRequirementA
                 ● Published &amp; Sourcing Active
               </div>
               <h3 style="margin: 0 0 8px; font-size: 17px; font-weight: 800; color: #0f172a;">
-                ${title}
+                ${esc(title)}
               </h3>
               <p style="margin: 0; font-size: 13px; color: #64748b;">
-                <strong>Category:</strong> ${category}
+                <strong>Category:</strong> ${esc(category)}
               </p>
             </div>
 

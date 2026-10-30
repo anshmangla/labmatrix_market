@@ -1,4 +1,5 @@
 import { SignJWT, jwtVerify } from "jose";
+import { credentialStamp } from "@/lib/session-validity";
 
 function getSecretKey(): Uint8Array {
   const secret =
@@ -13,6 +14,8 @@ export interface MobileTokenPayload {
   email: string;
   name?: string | null;
   role: string;
+  /** Credential stamp; absent on tokens issued before revocation support. */
+  sv?: string;
 }
 
 /**
@@ -23,6 +26,7 @@ export async function signMobileToken(user: {
   email: string;
   name?: string | null;
   role?: string;
+  password?: string | null;
 }): Promise<string> {
   const key = getSecretKey();
   return await new SignJWT({
@@ -30,6 +34,7 @@ export async function signMobileToken(user: {
     email: user.email,
     name: user.name || null,
     role: user.role || "USER",
+    sv: credentialStamp(user.password),
   })
     .setProtectedHeader({ alg: "HS256" })
     .setSubject(user.id)
@@ -53,6 +58,7 @@ export async function verifyMobileToken(token: string): Promise<MobileTokenPaylo
       email: payload.email as string,
       name: (payload.name as string) || null,
       role: (payload.role as string) || "USER",
+      sv: typeof payload.sv === "string" ? payload.sv : undefined,
     };
   } catch {
     return null;

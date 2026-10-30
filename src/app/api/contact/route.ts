@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { sendContactEmail } from "@/lib/resend";
+import { checkRateLimit, getClientIp } from "@/lib/rate-limit";
 
 export async function OPTIONS() {
   return new NextResponse(null, {
@@ -15,6 +16,19 @@ export async function OPTIONS() {
 
 export async function POST(req: NextRequest) {
   try {
+    // Rate limit: Max 5 contact submissions per 10 minutes per IP (each sends two emails)
+    const ip = getClientIp(req);
+    const rateLimit = checkRateLimit(`contact:${ip}`, 5, 10 * 60 * 1000);
+    if (!rateLimit.success) {
+      return NextResponse.json(
+        { error: "Too many inquiries from this network. Please try again in a few minutes or call +91 7303040804." },
+        {
+          status: 429,
+          headers: { "Retry-After": rateLimit.resetSeconds.toString() },
+        }
+      );
+    }
+
     // 1. Safely parse incoming payload body
     let body: any;
     try {
@@ -72,6 +86,20 @@ export async function POST(req: NextRequest) {
     if (!message || typeof message !== "string" || message.trim().length < 10) {
       return NextResponse.json(
         { error: "Please describe your requirement (at least 10 characters)." },
+        { status: 400 }
+      );
+    }
+
+    if (
+      name.trim().length > 100 ||
+      email.trim().length > 254 ||
+      phone.trim().length > 30 ||
+      (company && String(company).trim().length > 150) ||
+      subject.trim().length > 200 ||
+      message.trim().length > 5000
+    ) {
+      return NextResponse.json(
+        { error: "One or more fields are too long. Please shorten your message and try again." },
         { status: 400 }
       );
     }
