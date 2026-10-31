@@ -29,6 +29,7 @@ const CONNECT_FAILURE_PATTERNS = [
 
 // Failures where an existing connection was dropped (e.g. closed while the database slept)
 const DROPPED_CONNECTION_PATTERNS = [
+  /query read timeout/i,
   /connection terminated/i,
   /server has closed the connection/i,
   /ECONNRESET/i,
@@ -37,7 +38,7 @@ const DROPPED_CONNECTION_PATTERNS = [
 ];
 
 const CONNECT_FAILURE_CODES = new Set(["P1001", "P1002"]);
-const DROPPED_CONNECTION_CODES = new Set(["P1017"]);
+const DROPPED_CONNECTION_CODES = new Set(["P1008", "P1017"]);
 
 function describe(error: unknown): { code?: string; text: string } {
   if (!error || typeof error !== "object") return { text: String(error) };

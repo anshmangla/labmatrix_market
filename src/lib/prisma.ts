@@ -8,8 +8,11 @@ function getOrCreatePool(): Pool {
     const pool = new Pool({
       connectionString: process.env.DATABASE_URL,
       max: 5, // Small per-instance pool; Neon's pooler endpoint shares connections across instances
-      idleTimeoutMillis: 30000, // Reclaim idle connections after 30 seconds
+      idleTimeoutMillis: 10000, // Close idle connections soon so fewer go stale while Neon/Vercel sleep
       connectionTimeoutMillis: 10000, // Give a suspended Neon database time to wake (fits the app's 15s request timeout)
+      // A query on a connection that died silently during idle would otherwise wait forever.
+      // After 6s it errors, the pool discards that connection, and reads retry on a fresh one.
+      query_timeout: 6000,
       keepAlive: true, // Detect dead TCP connections sooner
     });
     // A connection closed while idle (e.g. Neon suspended) must never crash the process;
