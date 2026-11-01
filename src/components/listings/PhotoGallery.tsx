@@ -53,7 +53,7 @@ export default function PhotoGallery({
             >
               <img
                 src={getOptimizedImageUrl(url, IMAGE_PRESETS.THUMBNAIL)}
-                alt="thumbnail"
+                alt={`${title} - thumbnail ${idx + 1}`}
                 loading="lazy"
                 decoding="async"
                 width={160}

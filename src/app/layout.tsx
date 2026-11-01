@@ -56,9 +56,6 @@ export const metadata: Metadata = {
     "sell surplus lab equipment India",
     "lab instrument AMC calibration relocation",
   ],
-  alternates: {
-    canonical: "/",
-  },
   openGraph: {
     type: "website",
     locale: "en_IN",

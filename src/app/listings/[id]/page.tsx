@@ -199,7 +199,8 @@ export default async function ListingDetailPage({
           priceValidUntil: new Date(Date.now() + 60 * 24 * 60 * 60 * 1000)
             .toISOString()
             .split("T")[0],
-          availability: "https://schema.org/InStock",
+          availability:
+            listing.status === "SOLD" ? "https://schema.org/SoldOut" : "https://schema.org/InStock",
           seller: {
             "@type": "Organization",
             name: "LabMatrix Instrument India Pvt Ltd",

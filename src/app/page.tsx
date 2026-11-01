@@ -22,7 +22,9 @@ import {
 import { toJsonLd } from "@/lib/json-ld";
 
 export const metadata: Metadata = {
-  title: "LabMatrix Marketplace | Refurbished & Pre-Owned Analytical Lab Instruments",
+  title: {
+    absolute: "LabMatrix Marketplace | Refurbished & Pre-Owned Analytical Lab Instruments",
+  },
   description:
     "India's dedicated B2B marketplace to buy and sell certified refurbished & pre-owned analytical equipment: HPLC, GC-MS, UV-Vis, AAS, ICP-OES, and spare parts with technical inspection.",
   keywords: [
