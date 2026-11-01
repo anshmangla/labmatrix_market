@@ -191,6 +191,10 @@ export default function Footer() {
               Contact Sales
             </Link>
             <span>•</span>
+            <Link href="/privacy" className="hover:text-slate-400 transition-colors">
+              Privacy Policy
+            </Link>
+            <span>•</span>
             <a
               href="https://www.labmatrixindia.com"
               target="_blank"
