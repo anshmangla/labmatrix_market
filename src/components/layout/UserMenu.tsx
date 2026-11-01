@@ -124,7 +124,7 @@ export default function UserMenu({ user }: UserMenuProps) {
               ) : (
                 <span className="inline-flex items-center space-x-1 px-2 py-0.5 rounded-md text-[10px] font-medium bg-emerald-50 text-emerald-700 border border-emerald-200">
                   <CheckCircle2 className="w-3 h-3 text-emerald-600" />
-                  <span>Verified Member</span>
+                  <span>Member</span>
                 </span>
               )}
             </div>

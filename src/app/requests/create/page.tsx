@@ -492,7 +492,7 @@ function CreateRequirementForm() {
             {userHasPhone && (
               <div className="mt-3 flex items-center space-x-1.5 text-xs text-brand-gold">
                 <CheckCircle2 className="w-3.5 h-3.5" />
-                <span>Phone on file: Verified for inquiry notifications.</span>
+                <span>Phone on file: used for inquiry notifications.</span>
               </div>
             )}
           </div>

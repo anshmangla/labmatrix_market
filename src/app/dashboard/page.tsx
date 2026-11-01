@@ -1047,7 +1047,7 @@ function DashboardContent() {
                 </div>
                 <div className="flex-1">
                   <h2 className="text-base font-bold text-slate-900">Account Profile</h2>
-                  <p className="text-xs text-slate-500">Your verified marketplace credentials</p>
+                  <p className="text-xs text-slate-500">Your marketplace account details</p>
                 </div>
                 {!isEditingProfile && profile && (
                   <button
