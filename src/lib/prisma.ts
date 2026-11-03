@@ -25,12 +25,23 @@ function getOrCreatePool(): Pool {
   return globalForPrisma.pgPool;
 }
 
+// Set DB_QUERY_LOG=1 to log every query with its duration (for profiling; off in production)
+const LOG_QUERIES = process.env.DB_QUERY_LOG === "1";
+
 function createPrismaClient() {
   const adapter = new PrismaPg(getOrCreatePool());
   return new PrismaClient({ adapter }).$extends({
     query: {
-      async $allOperations({ operation, args, query }) {
-        return withConnectionRetry(operation, () => query(args));
+      async $allOperations({ model, operation, args, query }) {
+        if (!LOG_QUERIES) {
+          return withConnectionRetry(operation, () => query(args));
+        }
+        const start = performance.now();
+        try {
+          return await withConnectionRetry(operation, () => query(args));
+        } finally {
+          console.log(`[db] ${model ?? "raw"}.${operation} ${(performance.now() - start).toFixed(1)}ms`);
+        }
       },
     },
   });

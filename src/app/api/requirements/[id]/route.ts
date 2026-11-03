@@ -13,25 +13,28 @@ export async function GET(
 ) {
   try {
     const { id } = await params;
-    const session = await getAuthSession(request);
 
-    const requirement = await prisma.requirement.findUnique({
-      where: { id },
-      select: {
-        id: true,
-        title: true,
-        description: true,
-        category: true,
-        itemType: true,
-        partNumber: true,
-        compatibleWith: true,
-        status: true,
-        isApproved: true,
-        buyerId: true,
-        createdAt: true,
-        // STRICT PRIVACY: Buyer details are never selected for public viewing
-      },
-    });
+    // The session check and the requirement lookup are independent, so run them together
+    const [session, requirement] = await Promise.all([
+      getAuthSession(request),
+      prisma.requirement.findUnique({
+        where: { id },
+        select: {
+          id: true,
+          title: true,
+          description: true,
+          category: true,
+          itemType: true,
+          partNumber: true,
+          compatibleWith: true,
+          status: true,
+          isApproved: true,
+          buyerId: true,
+          createdAt: true,
+          // STRICT PRIVACY: Buyer details are never selected for public viewing
+        },
+      }),
+    ]);
 
     if (!requirement) {
       return NextResponse.json(
@@ -43,7 +46,10 @@ export async function GET(
     // If not approved yet, only the buyer or an admin can view it
     const isOwner = session?.user?.id === requirement.buyerId;
     let isAdmin = false;
-    if (session?.user?.id) {
+    if (session?.profile) {
+      // Role was read from the database while verifying this request's session
+      isAdmin = session.profile.role === "ADMIN";
+    } else if (session?.user?.id) {
       const user = await prisma.user.findUnique({
         where: { id: session.user.id },
         select: { role: true },

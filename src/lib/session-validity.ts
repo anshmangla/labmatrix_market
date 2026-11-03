@@ -24,10 +24,23 @@ export function credentialStamp(passwordHash: string | null | undefined): string
     .slice(0, 32);
 }
 
+/** Public profile fields of the signed-in user, loaded with the session check at no extra cost. */
+export interface ActiveUserProfile {
+  id: string;
+  name: string | null;
+  email: string;
+  phoneNumber: string | null;
+  companyName: string | null;
+  role: string;
+  createdAt: Date;
+  hasPassword: boolean;
+}
+
 export interface ActiveUserState {
   role: string;
   stamp: string;
   name: string | null;
+  profile: ActiveUserProfile;
 }
 
 /**
@@ -37,12 +50,27 @@ export interface ActiveUserState {
 export async function getActiveUserState(userId: string): Promise<ActiveUserState | null> {
   const user = await prisma.user.findUnique({
     where: { id: userId },
-    select: { email: true, password: true, role: true, name: true },
+    select: {
+      id: true,
+      email: true,
+      password: true,
+      role: true,
+      name: true,
+      phoneNumber: true,
+      companyName: true,
+      createdAt: true,
+    },
   });
 
   if (!user || user.email.endsWith(ARCHIVED_EMAIL_DOMAIN)) {
     return null;
   }
 
-  return { role: user.role, stamp: credentialStamp(user.password), name: user.name };
+  const { password, ...rest } = user;
+  return {
+    role: user.role,
+    stamp: credentialStamp(password),
+    name: user.name,
+    profile: { ...rest, hasPassword: Boolean(password) },
+  };
 }

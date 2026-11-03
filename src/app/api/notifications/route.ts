@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { getAuthSession } from "@/lib/auth-session";
+import { getAuthSession, getAuthSessionAndRead } from "@/lib/auth-session";
 import { prisma } from "@/lib/prisma";
 import { handleCorsOptions } from "@/lib/cors";
 
@@ -9,21 +9,21 @@ export async function OPTIONS() {
 
 export async function GET(request: Request) {
   try {
-    const session = await getAuthSession(request);
-    if (!session?.user?.id) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
-
-    const [notifications, unreadCount] = await Promise.all([
+    const result = await getAuthSessionAndRead(request, (userId) => Promise.all([
       prisma.notification.findMany({
-        where: { userId: session.user.id },
+        where: { userId },
         orderBy: { createdAt: "desc" },
         take: 30,
       }),
       prisma.notification.count({
-        where: { userId: session.user.id, isRead: false },
+        where: { userId, isRead: false },
       }),
-    ]);
+    ]));
+    if (!result) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const [notifications, unreadCount] = result.data;
 
     return NextResponse.json({ notifications, unreadCount });
   } catch (error: any) {

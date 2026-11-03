@@ -14,31 +14,34 @@ export async function GET(
 ) {
   try {
     const { id } = await params;
-    const session = await getAuthSession(request);
 
-    const listing = await prisma.listing.findUnique({
-      where: { id },
-      select: {
-        id: true,
-        title: true,
-        description: true,
-        category: true,
-        itemType: true,
-        partNumber: true,
-        compatibleWith: true,
-        minPrice: true,
-        maxPrice: true,
-        condition: true,
-        location: true,
-        photos: true,
-        quantity: true,
-        status: true,
-        isApproved: true,
-        sellerId: true,
-        createdAt: true,
-        // PRIVACY RULE: Seller phone, email, and name are omitted!
-      },
-    });
+    // The session check and the listing lookup are independent, so run them together
+    const [session, listing] = await Promise.all([
+      getAuthSession(request),
+      prisma.listing.findUnique({
+        where: { id },
+        select: {
+          id: true,
+          title: true,
+          description: true,
+          category: true,
+          itemType: true,
+          partNumber: true,
+          compatibleWith: true,
+          minPrice: true,
+          maxPrice: true,
+          condition: true,
+          location: true,
+          photos: true,
+          quantity: true,
+          status: true,
+          isApproved: true,
+          sellerId: true,
+          createdAt: true,
+          // PRIVACY RULE: Seller phone, email, and name are omitted!
+        },
+      }),
+    ]);
 
     if (!listing) {
       return NextResponse.json(
@@ -50,7 +53,10 @@ export async function GET(
     // If listing is not approved yet, only the seller or an admin can view it
     const isOwner = session?.user?.id === listing.sellerId;
     let isAdmin = false;
-    if (session?.user?.id) {
+    if (session?.profile) {
+      // Role was read from the database while verifying this request's session
+      isAdmin = session.profile.role === "ADMIN";
+    } else if (session?.user?.id) {
       const user = await prisma.user.findUnique({
         where: { id: session.user.id },
         select: { role: true },

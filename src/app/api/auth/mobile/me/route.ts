@@ -17,7 +17,21 @@ export async function GET(request: Request) {
       );
     }
 
-    const user = await prisma.user.findUnique({
+    // Mobile sessions already loaded the user's record while verifying the token
+    const p = session.profile;
+    const fromSession = p
+      ? {
+          id: p.id,
+          name: p.name,
+          email: p.email,
+          phoneNumber: p.phoneNumber,
+          companyName: p.companyName,
+          role: p.role,
+          createdAt: p.createdAt,
+        }
+      : null;
+
+    const user = fromSession ?? await prisma.user.findUnique({
       where: { id: session.user.id },
       select: {
         id: true,

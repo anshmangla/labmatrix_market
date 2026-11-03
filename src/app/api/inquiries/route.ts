@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { getAuthSession } from "@/lib/auth-session";
+import { getAuthSession, getAuthSessionAndRead } from "@/lib/auth-session";
 import { prisma } from "@/lib/prisma";
 import { checkRateLimit } from "@/lib/rate-limit";
 import { handleCorsOptions, corsHeaders } from "@/lib/cors";
@@ -10,17 +10,12 @@ export async function OPTIONS() {
 
 export async function GET(request: Request) {
   try {
-    const session = await getAuthSession(request);
-    if (!session?.user?.id) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
-
-    const [received, sent] = await Promise.all([
+    const result = await getAuthSessionAndRead(request, (userId) => Promise.all([
       prisma.inquiry.findMany({
         where: {
           OR: [
-            { listing: { sellerId: session.user.id } },
-            { requirement: { buyerId: session.user.id } },
+            { listing: { sellerId: userId } },
+            { requirement: { buyerId: userId } },
           ],
         },
         orderBy: { createdAt: "desc" },
@@ -34,7 +29,7 @@ export async function GET(request: Request) {
         },
       }),
       prisma.inquiry.findMany({
-        where: { inquirerId: session.user.id },
+        where: { inquirerId: userId },
         orderBy: { createdAt: "desc" },
         include: {
           listing: {
@@ -45,8 +40,12 @@ export async function GET(request: Request) {
           },
         },
       }),
-    ]);
+    ]));
+    if (!result) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
 
+    const [received, sent] = result.data;
     return NextResponse.json({ received, sent }, { headers: corsHeaders() });
   } catch (error: any) {
     console.error("Fetch inquiries error:", error);

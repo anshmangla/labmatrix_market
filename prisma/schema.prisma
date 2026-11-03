@@ -1,10 +1,14 @@
 generator client {
-  provider = "prisma-client"
-  output   = "../src/generated/prisma"
+  provider        = "prisma-client"
+  output          = "../src/generated/prisma"
+  // Lets the schema declare pg_trgm below, so `prisma db push` creates it on a fresh database
+  previewFeatures = ["postgresqlExtensions"]
 }
 
 datasource db {
-  provider = "postgresql"
+  provider   = "postgresql"
+  // Trigram matching: lets the GIN indexes below serve "contains" (ILIKE '%term%') searches
+  extensions = [pg_trgm]
 }
 
 enum Role {
@@ -68,6 +72,7 @@ model Account {
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@id([provider, providerAccountId])
+  @@index([userId])
 }
 
 model Session {
@@ -77,6 +82,8 @@ model Session {
   user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
+
+  @@index([userId])
 }
 
 model VerificationToken {
@@ -108,6 +115,18 @@ model Listing {
   inquiries      Inquiry[]
   createdAt      DateTime      @default(now())
   updatedAt      DateTime      @updatedAt
+
+  // Public feeds, newest first. createdAt comes before status so the feed's
+  // "status IN (AVAILABLE, SOLD)" filter can still read the index in order and stop at the page size.
+  @@index([isApproved, createdAt(sort: Desc), status])
+  @@index([isApproved, itemType, createdAt(sort: Desc), status])
+  // Seller's own items, "received" inquiries join, and cascade deletes
+  @@index([sellerId, createdAt(sort: Desc)])
+  // Marketplace search matches any of these four columns with "contains"
+  @@index([title(ops: raw("gin_trgm_ops"))], type: Gin)
+  @@index([description(ops: raw("gin_trgm_ops"))], type: Gin)
+  @@index([partNumber(ops: raw("gin_trgm_ops"))], type: Gin)
+  @@index([compatibleWith(ops: raw("gin_trgm_ops"))], type: Gin)
 }
 
 model Requirement {
@@ -125,6 +144,16 @@ model Requirement {
   inquiries      Inquiry[]
   createdAt      DateTime          @default(now())
   updatedAt      DateTime          @updatedAt
+
+  // Public request feed: approved + open, newest first
+  @@index([isApproved, status, createdAt(sort: Desc)])
+  // Buyer's own requests, "received" inquiries join, and cascade deletes
+  @@index([buyerId, createdAt(sort: Desc)])
+  // Request search matches any of these four columns with "contains"
+  @@index([title(ops: raw("gin_trgm_ops"))], type: Gin)
+  @@index([description(ops: raw("gin_trgm_ops"))], type: Gin)
+  @@index([partNumber(ops: raw("gin_trgm_ops"))], type: Gin)
+  @@index([compatibleWith(ops: raw("gin_trgm_ops"))], type: Gin)
 }
 
 model Inquiry {
@@ -139,6 +168,10 @@ model Inquiry {
   status        InquiryStatus @default(NEW)
   createdAt     DateTime      @default(now())
   updatedAt     DateTime      @updatedAt
+
+  @@index([inquirerId, createdAt(sort: Desc)])
+  @@index([listingId])
+  @@index([requirementId])
 }
 
 model Notification {

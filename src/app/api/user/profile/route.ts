@@ -14,6 +14,14 @@ export async function GET(request: Request) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401, headers: corsHeaders() });
     }
 
+    // Mobile sessions already loaded the user's record while verifying the token
+    if (session.profile) {
+      return NextResponse.json(
+        { user: session.profile },
+        { status: 200, headers: corsHeaders() }
+      );
+    }
+
     const user = await prisma.user.findUnique({
       where: { id: session.user.id },
       select: {
