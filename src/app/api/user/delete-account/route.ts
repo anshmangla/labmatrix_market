@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
 import { getAuthSession } from "@/lib/auth-session";
 import { prisma } from "@/lib/prisma";
+import { invalidatePublicListings, invalidatePublicRequirements } from "@/lib/public-cache";
 import { sendAccountDeletionEmail } from "@/lib/resend";
 import { checkRateLimit, getClientIp } from "@/lib/rate-limit";
 import { handleCorsOptions, corsHeaders } from "@/lib/cors";
@@ -92,6 +93,8 @@ export async function POST(request: Request) {
         isApproved: false,
       },
     });
+    // Refresh cached public pages (catalogs, detail pages, sitemap)
+    invalidatePublicListings();
 
     // 4. Archive user's buyer requirements (mark as CLOSED and unapproved)
     await prisma.requirement.updateMany({
@@ -101,6 +104,8 @@ export async function POST(request: Request) {
         isApproved: false,
       },
     });
+    // Refresh cached public pages (catalogs, detail pages, sitemap)
+    invalidatePublicRequirements();
 
     // 5. Invalidate all sessions, OAuth accounts, and notifications
     await Promise.all([

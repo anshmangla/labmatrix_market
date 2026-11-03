@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { revalidatePath } from "next/cache";
 import { getAuthSession } from "@/lib/auth-session";
 import { prisma } from "@/lib/prisma";
+import { invalidatePublicListings } from "@/lib/public-cache";
 import { handleCorsOptions, corsHeaders } from "@/lib/cors";
 
 export async function OPTIONS() {
@@ -287,6 +288,8 @@ export async function PATCH(
       where: { id },
       data: updateData,
     });
+    // Refresh cached public pages (catalogs, detail pages, sitemap)
+    invalidatePublicListings();
 
     // Notify user and admin if content was edited by owner
     if (!isAdmin && contentChanged) {
@@ -403,6 +406,8 @@ export async function DELETE(
     await prisma.listing.delete({
       where: { id },
     });
+    // Refresh cached public pages (catalogs, detail pages, sitemap)
+    invalidatePublicListings();
 
     try {
       revalidatePath("/listings");

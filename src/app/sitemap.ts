@@ -1,5 +1,6 @@
 import type { MetadataRoute } from "next";
 import { prisma } from "@/lib/prisma";
+import { cachedPublicRead, PUBLIC_LISTINGS_TAG, PUBLIC_REQUIREMENTS_TAG } from "@/lib/public-cache";
 
 export const dynamic = "force-dynamic";
 
@@ -55,16 +56,18 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // 2. Dynamic Approved Machinery & Spare Part Listings
   let listingRoutes: MetadataRoute.Sitemap = [];
   try {
-    const listings = await prisma.listing.findMany({
-      where: {
-        isApproved: true,
-        status: "AVAILABLE",
-      },
-      select: {
-        id: true,
-        updatedAt: true,
-      },
-    });
+    const listings = await cachedPublicRead(PUBLIC_LISTINGS_TAG, ["sitemap-listings"], () =>
+      prisma.listing.findMany({
+        where: {
+          isApproved: true,
+          status: "AVAILABLE",
+        },
+        select: {
+          id: true,
+          updatedAt: true,
+        },
+      })
+    );
 
     listingRoutes = listings.map((item) => ({
       url: `${baseUrl}/listings/${item.id}`,
@@ -79,16 +82,18 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // 3. Dynamic Approved Buyer Requirements
   let requestRoutes: MetadataRoute.Sitemap = [];
   try {
-    const requests = await prisma.requirement.findMany({
-      where: {
-        isApproved: true,
-        status: "OPEN",
-      },
-      select: {
-        id: true,
-        updatedAt: true,
-      },
-    });
+    const requests = await cachedPublicRead(PUBLIC_REQUIREMENTS_TAG, ["sitemap-requests"], () =>
+      prisma.requirement.findMany({
+        where: {
+          isApproved: true,
+          status: "OPEN",
+        },
+        select: {
+          id: true,
+          updatedAt: true,
+        },
+      })
+    );
 
     requestRoutes = requests.map((item) => ({
       url: `${baseUrl}/requests/${item.id}`,

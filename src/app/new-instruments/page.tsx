@@ -1,6 +1,7 @@
 import React, { Suspense } from "react";
 import type { Metadata } from "next";
 import { prisma } from "@/lib/prisma";
+import { cachedPublicRead, PUBLIC_LISTINGS_TAG } from "@/lib/public-cache";
 import NewInstrumentsClient from "@/components/listings/NewInstrumentsClient";
 import { Listing } from "@/components/listings/ListingsClient";
 
@@ -60,25 +61,30 @@ export default async function NewInstrumentsPage({
       ];
     }
 
-    const rows = await prisma.listing.findMany({
-      where,
-      orderBy: { createdAt: "desc" },
-      take: 30,
-      select: {
-        id: true,
-        title: true,
-        description: true,
-        category: true,
-        minPrice: true,
-        maxPrice: true,
-        condition: true,
-        location: true,
-        photos: true,
-        quantity: true,
-        createdAt: true,
-        status: true,
-      },
-    });
+    const readRows = () =>
+      prisma.listing.findMany({
+        where,
+        orderBy: { createdAt: "desc" },
+        take: 30,
+        select: {
+          id: true,
+          title: true,
+          description: true,
+          category: true,
+          minPrice: true,
+          maxPrice: true,
+          condition: true,
+          location: true,
+          photos: true,
+          quantity: true,
+          createdAt: true,
+          status: true,
+        },
+      });
+    // Free-text searches aren't cached: each term would be its own, rarely reused entry
+    const rows = query
+      ? await readRows()
+      : await cachedPublicRead(PUBLIC_LISTINGS_TAG, ["new-instruments-page", category ?? "", statusParam ?? ""], readRows);
 
     initialListings = rows.map((item) => ({
       ...item,

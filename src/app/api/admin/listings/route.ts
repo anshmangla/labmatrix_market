@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { revalidatePath } from "next/cache";
 import { getAuthSession } from "@/lib/auth-session";
 import { prisma } from "@/lib/prisma";
+import { invalidatePublicListings } from "@/lib/public-cache";
 import { sendUserListingApprovedEmail } from "@/lib/resend";
 
 export async function GET(request: Request) {
@@ -113,6 +114,8 @@ export async function PATCH(request: Request) {
         },
       },
     });
+    // Refresh cached public pages (catalogs, detail pages, sitemap)
+    invalidatePublicListings();
 
     // Notify user if listing was just approved (and was not already approved)
     if (isApproved === true && !existing?.isApproved) {
@@ -198,6 +201,8 @@ export async function DELETE(request: Request) {
     await prisma.listing.delete({
       where: { id },
     });
+    // Refresh cached public pages (catalogs, detail pages, sitemap)
+    invalidatePublicListings();
 
     try {
       revalidatePath("/listings");

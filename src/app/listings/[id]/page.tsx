@@ -4,6 +4,7 @@ import Link from "next/link";
 import type { Metadata } from "next";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
+import { cachedPublicRead, PUBLIC_LISTINGS_TAG } from "@/lib/public-cache";
 import PhotoGallery from "@/components/listings/PhotoGallery";
 import InquiryBox from "@/components/inquiries/InquiryBox";
 import {
@@ -24,8 +25,10 @@ import { toJsonLd } from "@/lib/json-ld";
 
 export const dynamic = "force-dynamic";
 
+// Cached across requests (shared cache) and within one request (React cache);
+// owner/admin visibility checks still run per request on the result
 const getListing = cache(async (id: string) => {
-  return prisma.listing.findUnique({
+  return cachedPublicRead(PUBLIC_LISTINGS_TAG, ["listing", id], () => prisma.listing.findUnique({
     where: { id },
     select: {
       id: true,
@@ -46,7 +49,7 @@ const getListing = cache(async (id: string) => {
       sellerId: true,
       createdAt: true,
     },
-  });
+  }));
 });
 
 export async function generateMetadata({

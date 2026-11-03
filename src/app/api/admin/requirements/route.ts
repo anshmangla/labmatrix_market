@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { getAuthSession } from "@/lib/auth-session";
 import { prisma } from "@/lib/prisma";
+import { invalidatePublicRequirements } from "@/lib/public-cache";
 import { sendUserRequirementApprovedEmail } from "@/lib/resend";
 
 export async function GET(request: Request) {
@@ -112,6 +113,8 @@ export async function PATCH(request: Request) {
         },
       },
     });
+    // Refresh cached public pages (catalogs, detail pages, sitemap)
+    invalidatePublicRequirements();
 
     // Notify user if requirement was just approved (and was not already approved)
     if (isApproved === true && !existing?.isApproved) {
@@ -180,6 +183,8 @@ export async function DELETE(request: Request) {
     await prisma.requirement.delete({
       where: { id },
     });
+    // Refresh cached public pages (catalogs, detail pages, sitemap)
+    invalidatePublicRequirements();
 
     return NextResponse.json({ message: "Requirement deleted successfully" });
   } catch (error: any) {

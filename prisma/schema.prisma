@@ -1,8 +1,9 @@
 generator client {
   provider        = "prisma-client"
   output          = "../src/generated/prisma"
-  // Lets the schema declare pg_trgm below, so `prisma db push` creates it on a fresh database
-  previewFeatures = ["postgresqlExtensions"]
+  // postgresqlExtensions: lets the schema declare pg_trgm below, so `prisma db push` creates it on a fresh database
+  // relationJoins: allows relationLoadStrategy "join" (load related records in the same query)
+  previewFeatures = ["postgresqlExtensions", "relationJoins"]
 }
 
 datasource db {

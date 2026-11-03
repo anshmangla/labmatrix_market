@@ -8,37 +8,107 @@ export async function OPTIONS() {
   return handleCorsOptions();
 }
 
+// Linked listing/request fields shown with each inquiry. Loaded with a join in the same
+// query (relationLoadStrategy "join") rather than a follow-up query per relation.
+const inquiryInclude = {
+  listing: {
+    select: { id: true, title: true, itemType: true, minPrice: true, maxPrice: true },
+  },
+  requirement: {
+    select: { id: true, title: true, itemType: true },
+  },
+} as const;
+
+/** Inquiries the user received: on their listings or on their buyer requests. */
+const receivedWhere = (userId: string) => ({
+  OR: [
+    { listing: { sellerId: userId } },
+    { requirement: { buyerId: userId } },
+  ],
+});
+
+/** Inquiries the user sent. */
+const sentWhere = (userId: string) => ({ inquirerId: userId });
+
+const MAX_PAGE_SIZE = 50;
+
+/**
+ * GET /api/inquiries
+ *
+ * Without parameters: every received and sent inquiry, as { received, sent } (unchanged contract).
+ *
+ * Paged: ?box=received|sent&limit=20&cursor=<last inquiry id from the previous page>
+ * returns { inquiries, nextCursor } for that box, newest first. The first page (no cursor)
+ * also includes counts: { received, sent } so both tab totals can be shown.
+ */
 export async function GET(request: Request) {
   try {
+    const { searchParams } = new URL(request.url);
+    const box = searchParams.get("box");
+
+    if (box !== null) {
+      if (box !== "received" && box !== "sent") {
+        return NextResponse.json(
+          { error: "box must be 'received' or 'sent'." },
+          { status: 400, headers: corsHeaders() }
+        );
+      }
+      const limit = Math.min(
+        MAX_PAGE_SIZE,
+        Math.max(1, parseInt(searchParams.get("limit") || "20", 10) || 20)
+      );
+      const cursor = searchParams.get("cursor") || undefined;
+
+      const result = await getAuthSessionAndRead(request, (userId) => {
+        const where = box === "received" ? receivedWhere(userId) : sentWhere(userId);
+        return Promise.all([
+          prisma.inquiry.findMany({
+            where,
+            orderBy: [{ createdAt: "desc" }, { id: "desc" }],
+            // One extra row tells us whether another page exists
+            take: limit + 1,
+            ...(cursor ? { cursor: { id: cursor }, skip: 1 } : {}),
+            include: inquiryInclude,
+            relationLoadStrategy: "join",
+          }),
+          // Tab totals only on the first page
+          cursor
+            ? null
+            : Promise.all([
+                prisma.inquiry.count({ where: receivedWhere(userId) }),
+                prisma.inquiry.count({ where: sentWhere(userId) }),
+              ]),
+        ]);
+      });
+      if (!result) {
+        return NextResponse.json({ error: "Unauthorized" }, { status: 401, headers: corsHeaders() });
+      }
+
+      const [rows, counts] = result.data;
+      const hasMore = rows.length > limit;
+      const inquiries = hasMore ? rows.slice(0, limit) : rows;
+      return NextResponse.json(
+        {
+          inquiries,
+          nextCursor: hasMore ? inquiries[inquiries.length - 1].id : null,
+          ...(counts ? { counts: { received: counts[0], sent: counts[1] } } : {}),
+        },
+        { headers: corsHeaders() }
+      );
+    }
+
     const result = await getAuthSessionAndRead(request, (userId) => Promise.all([
       prisma.inquiry.findMany({
-        where: {
-          OR: [
-            { listing: { sellerId: userId } },
-            { requirement: { buyerId: userId } },
-          ],
-        },
+        where: receivedWhere(userId),
         orderBy: { createdAt: "desc" },
-        include: {
-          listing: {
-            select: { id: true, title: true, itemType: true, minPrice: true, maxPrice: true },
-          },
-          requirement: {
-            select: { id: true, title: true, itemType: true },
-          },
-        },
+        include: inquiryInclude,
+        relationLoadStrategy: "join",
       }),
       prisma.inquiry.findMany({
-        where: { inquirerId: userId },
+        where: sentWhere(userId),
         orderBy: { createdAt: "desc" },
-        include: {
-          listing: {
-            select: { id: true, title: true, itemType: true, minPrice: true, maxPrice: true },
-          },
-          requirement: {
-            select: { id: true, title: true, itemType: true },
-          },
-        },
+        include: inquiryInclude,
+        relationLoadStrategy: "join",
       }),
     ]));
     if (!result) {

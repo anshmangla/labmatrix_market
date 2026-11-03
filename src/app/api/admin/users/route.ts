@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { getAuthSession } from "@/lib/auth-session";
 import { prisma } from "@/lib/prisma";
+import { invalidatePublicListings, invalidatePublicRequirements } from "@/lib/public-cache";
 
 export async function GET(request: Request) {
   try {
@@ -200,6 +201,8 @@ export async function DELETE(req: Request) {
         isApproved: false,
       },
     });
+    // Refresh cached public pages (catalogs, detail pages, sitemap)
+    invalidatePublicListings();
 
     // 3. Archive user's buyer requirements (mark as CLOSED and unapproved)
     await prisma.requirement.updateMany({
@@ -209,6 +212,8 @@ export async function DELETE(req: Request) {
         isApproved: false,
       },
     });
+    // Refresh cached public pages (catalogs, detail pages, sitemap)
+    invalidatePublicRequirements();
 
     // 4. Invalidate all sessions, OAuth accounts, notifications, and verification tokens
     await Promise.all([

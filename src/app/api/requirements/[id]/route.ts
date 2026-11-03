@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { getAuthSession } from "@/lib/auth-session";
 import { prisma } from "@/lib/prisma";
+import { invalidatePublicRequirements } from "@/lib/public-cache";
 import { handleCorsOptions, corsHeaders } from "@/lib/cors";
 
 export async function OPTIONS() {
@@ -211,6 +212,8 @@ export async function PATCH(
       where: { id },
       data: updateData,
     });
+    // Refresh cached public pages (catalogs, detail pages, sitemap)
+    invalidatePublicRequirements();
 
     // Notify user and admin if content was edited by owner
     if (!isAdmin && contentChanged) {
@@ -310,6 +313,8 @@ export async function DELETE(
     await prisma.requirement.delete({
       where: { id },
     });
+    // Refresh cached public pages (catalogs, detail pages, sitemap)
+    invalidatePublicRequirements();
 
     return NextResponse.json({
       message: "Requirement successfully deleted by administrator.",
