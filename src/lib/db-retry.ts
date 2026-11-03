@@ -25,6 +25,8 @@ const CONNECT_FAILURE_PATTERNS = [
   /ECONNREFUSED/i,
   /ENOTFOUND/i,
   /EAI_AGAIN/i,
+  // The server refused the connection at startup (Postgres 53300), before any query ran
+  /too many (database )?(connections|clients)/i,
 ];
 
 // Failures where an existing connection was dropped (e.g. closed while the database slept)
@@ -37,7 +39,9 @@ const DROPPED_CONNECTION_PATTERNS = [
   /Client has encountered a connection error/i,
 ];
 
-const CONNECT_FAILURE_CODES = new Set(["P1001", "P1002"]);
+// P1001 can't reach server, P1002 connect timed out, P1011 TLS handshake failed,
+// P2037 too many connections (Prisma 7 driver adapters): all happen before a query is sent
+const CONNECT_FAILURE_CODES = new Set(["P1001", "P1002", "P1011", "P2037"]);
 const DROPPED_CONNECTION_CODES = new Set(["P1008", "P1017"]);
 
 function describe(error: unknown): { code?: string; text: string } {
