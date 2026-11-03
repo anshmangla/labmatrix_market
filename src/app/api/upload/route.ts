@@ -4,6 +4,14 @@ import cloudinary from "@/lib/cloudinary";
 import { checkRateLimit } from "@/lib/rate-limit";
 import { handleCorsOptions } from "@/lib/cors";
 
+// Must match the mobile app's transformation strings exactly to be reused
+const MOBILE_IMAGE_SIZES = [
+  "f_webp,q_auto:good,w_600,c_limit", // card
+  "f_webp,q_auto:best,w_1000,c_limit", // detail photo
+  "f_webp,q_auto:good,w_160,h_160,c_fill", // thumbnail
+  "f_webp,q_auto:best,w_1600,c_limit", // zoom
+];
+
 export async function OPTIONS() {
   return handleCorsOptions();
 }
@@ -69,6 +77,11 @@ export async function POST(request: Request) {
           {
             folder: "labmatrix/machines",
             transformation: [{ quality: "auto", fetch_format: "auto" }],
+            // Pre-generate the exact sizes the mobile app requests (src/lib/images.ts there:
+            // card, detail, thumbnail, zoom) so the first viewer doesn't wait for Cloudinary to
+            // create them. Async: the upload response doesn't wait for this.
+            eager: MOBILE_IMAGE_SIZES.map((raw_transformation) => ({ raw_transformation })),
+            eager_async: true,
           },
           (error, result) => {
             if (error || !result) {

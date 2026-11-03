@@ -79,7 +79,9 @@ export async function GET(request: Request) {
       },
       {
         headers: {
-          "Cache-Control": "public, s-maxage=10, stale-while-revalidate=59",
+          // CDN: fresh for 60s, then served instantly from cache for up to an hour while it refreshes
+          // in the background, so most requests skip the trip to the server and database
+          "Cache-Control": "public, s-maxage=60, stale-while-revalidate=3600",
           ...corsHeaders(),
         },
       }
