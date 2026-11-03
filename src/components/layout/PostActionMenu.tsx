@@ -2,7 +2,7 @@
 
 import React, { useState, useRef, useEffect } from "react";
 import Link from "next/link";
-import { PlusCircle, FileQuestion, ChevronDown, Tag, Sparkles } from "lucide-react";
+import { PlusCircle, FileQuestion, ChevronDown, Tag } from "lucide-react";
 
 export default function PostActionMenu() {
   const [isOpen, setIsOpen] = useState(false);
@@ -102,7 +102,7 @@ export default function PostActionMenu() {
                 </span>
               </div>
               <p className="text-[11px] text-slate-500 mt-0.5 leading-snug">
-                Can't find a specific machine or part? Request quotes from our verified network.
+                Can&apos;t find a specific machine or part? Request quotes from our verified network.
               </p>
             </div>
           </Link>

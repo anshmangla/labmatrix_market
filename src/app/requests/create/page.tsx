@@ -2,19 +2,15 @@
 
 import React, { useState, useEffect, Suspense } from "react";
 import { useSession } from "next-auth/react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import {
-  FileQuestion,
   Lock,
   Phone,
   Building2,
   AlertCircle,
   CheckCircle2,
   ArrowRight,
-  ShieldCheck,
-  Wrench,
-  Cpu,
   Clock,
 } from "lucide-react";
 
@@ -36,7 +32,6 @@ const CATEGORIES = [
 
 function CreateRequirementForm() {
   const { data: session, status } = useSession();
-  const router = useRouter();
   const searchParams = useSearchParams();
 
   // Type: MACHINE vs SPARE_PART
@@ -158,7 +153,7 @@ function CreateRequirementForm() {
         itemType,
       });
       setLoading(false);
-    } catch (err: any) {
+    } catch {
       setError("Network error. Please try again.");
       setLoading(false);
     }

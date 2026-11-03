@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { sendContactEmail } from "@/lib/resend";
 import { checkRateLimit, getClientIp } from "@/lib/rate-limit";
+import { errorMessage } from "@/lib/errors";
 
 export async function OPTIONS() {
   return new NextResponse(null, {
@@ -30,7 +31,7 @@ export async function POST(req: NextRequest) {
     }
 
     // 1. Safely parse incoming payload body
-    let body: any;
+    let body: Record<string, unknown>;
     try {
       const rawText = await req.text();
       if (!rawText || !rawText.trim()) {
@@ -40,8 +41,8 @@ export async function POST(req: NextRequest) {
         );
       }
       body = JSON.parse(rawText);
-    } catch (parseErr: any) {
-      console.warn("[Contact API] Malformed JSON received:", parseErr?.message);
+    } catch (parseErr) {
+      console.warn("[Contact API] Malformed JSON received:", errorMessage(parseErr));
       return NextResponse.json(
         { error: "Invalid data format received. Please refresh the page and try submitting again." },
         { status: 400 }
@@ -152,7 +153,7 @@ export async function POST(req: NextRequest) {
         },
       }
     );
-  } catch (error: any) {
+  } catch (error) {
     console.error("[Contact API Error]:", error);
     return NextResponse.json(
       { error: "Failed to process your message. Please try again or call +91 7303040804 directly." },

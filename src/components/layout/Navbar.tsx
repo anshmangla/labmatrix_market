@@ -291,7 +291,7 @@ export default function Navbar() {
                       {session.user.email}
                     </p>
                   </div>
-                  {(session.user as any)?.role === "ADMIN" ? (
+                  {session.user?.role === "ADMIN" ? (
                     <span className="text-[10px] font-bold bg-brand-blue-900 text-brand-gold px-2 py-0.5 rounded-md flex-shrink-0">
                       Admin
                     </span>
@@ -340,7 +340,7 @@ export default function Navbar() {
                     <span>Inquiries & Messages</span>
                   </Link>
 
-                  {(session.user as any)?.role === "ADMIN" && (
+                  {session.user?.role === "ADMIN" && (
                     <Link
                       href="/admin"
                       onClick={() => setMobileMenuOpen(false)}

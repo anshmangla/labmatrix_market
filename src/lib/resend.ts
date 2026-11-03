@@ -1,4 +1,5 @@
 import { Resend } from "resend";
+import { errorMessage } from "@/lib/errors";
 
 const resendApiKey = process.env.RESEND_API_KEY;
 export const resend = resendApiKey ? new Resend(resendApiKey) : null;
@@ -232,11 +233,11 @@ ${esc(message)}
       success: true,
       data: salesResult,
     };
-  } catch (error: any) {
+  } catch (error) {
     console.error("[Resend] Error sending contact email:", error);
     return {
       success: false,
-      error: error?.message || "Failed to dispatch email via Resend",
+      error: errorMessage(error) || "Failed to dispatch email via Resend",
     };
   }
 }
@@ -338,11 +339,11 @@ export async function sendOtpEmail(payload: SendOtpPayload) {
       success: true,
       data: result,
     };
-  } catch (error: any) {
+  } catch (error) {
     console.error("[Resend] Error sending OTP email:", error);
     return {
       success: false,
-      error: error?.message || "Failed to dispatch verification code via email.",
+      error: errorMessage(error) || "Failed to dispatch verification code via email.",
     };
   }
 }
@@ -438,11 +439,11 @@ export async function sendPasswordResetOtpEmail(payload: SendOtpPayload) {
       success: true,
       data: result,
     };
-  } catch (error: any) {
+  } catch (error) {
     console.error("[Resend] Error sending password reset OTP email:", error);
     return {
       success: false,
-      error: error?.message || "Failed to dispatch password reset code via email.",
+      error: errorMessage(error) || "Failed to dispatch password reset code via email.",
     };
   }
 }
@@ -538,11 +539,11 @@ export async function sendAccountDeletionEmail(payload: AccountDeletionEmailPayl
       success: true,
       data: result,
     };
-  } catch (error: any) {
+  } catch (error) {
     console.error("[Resend] Error sending account deletion email:", error);
     return {
       success: false,
-      error: error?.message || "Failed to dispatch account closure email.",
+      error: errorMessage(error) || "Failed to dispatch account closure email.",
     };
   }
 }
@@ -570,7 +571,6 @@ export interface AdminNewListingPayload {
  */
 export async function sendAdminNewListingEmail(payload: AdminNewListingPayload) {
   const {
-    listingId,
     title,
     category,
     itemType,
@@ -717,9 +717,9 @@ export async function sendAdminNewListingEmail(payload: AdminNewListingPayload) 
     });
 
     return { success: true, data: result };
-  } catch (error: any) {
+  } catch (error) {
     console.error("[Resend] Error sending admin new listing email:", error);
-    return { success: false, error: error?.message || "Failed to notify admin via email." };
+    return { success: false, error: errorMessage(error) || "Failed to notify admin via email." };
   }
 }
 
@@ -742,7 +742,6 @@ export interface AdminNewRequirementPayload {
  */
 export async function sendAdminNewRequirementEmail(payload: AdminNewRequirementPayload) {
   const {
-    requirementId,
     title,
     category,
     itemType,
@@ -857,9 +856,9 @@ export async function sendAdminNewRequirementEmail(payload: AdminNewRequirementP
     });
 
     return { success: true, data: result };
-  } catch (error: any) {
+  } catch (error) {
     console.error("[Resend] Error sending admin new requirement email:", error);
-    return { success: false, error: error?.message || "Failed to notify admin via email." };
+    return { success: false, error: errorMessage(error) || "Failed to notify admin via email." };
   }
 }
 
@@ -984,9 +983,9 @@ export async function sendUserListingApprovedEmail(payload: UserListingApprovedP
     });
 
     return { success: true, data: result };
-  } catch (error: any) {
+  } catch (error) {
     console.error("[Resend] Error sending user listing approval email:", error);
-    return { success: false, error: error?.message || "Failed to dispatch approval email." };
+    return { success: false, error: errorMessage(error) || "Failed to dispatch approval email." };
   }
 }
 
@@ -1003,7 +1002,7 @@ export interface UserRequirementApprovedPayload {
  * Send email notification to user ONLY AFTER admin approves their procurement request.
  */
 export async function sendUserRequirementApprovedEmail(payload: UserRequirementApprovedPayload) {
-  const { userEmail, userName, requirementId, title, itemType, category } = payload;
+  const { userEmail, userName, requirementId, title, category } = payload;
   const fromEmail = DEFAULT_FROM_EMAIL;
   const requestUrl = `${BASE_URL}/requests/${requirementId}`;
 
@@ -1085,9 +1084,9 @@ export async function sendUserRequirementApprovedEmail(payload: UserRequirementA
     });
 
     return { success: true, data: result };
-  } catch (error: any) {
+  } catch (error) {
     console.error("[Resend] Error sending user requirement approval email:", error);
-    return { success: false, error: error?.message || "Failed to dispatch approval email." };
+    return { success: false, error: errorMessage(error) || "Failed to dispatch approval email." };
   }
 }
 

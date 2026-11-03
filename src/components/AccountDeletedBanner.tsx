@@ -7,11 +7,16 @@ import { CheckCircle2, X } from "lucide-react";
 function BannerContent() {
   const searchParams = useSearchParams();
   const isDeleted = searchParams.get("account_deleted") === "true";
-  const [visible, setVisible] = useState(false);
+  // Stays shown after the URL parameter is removed below, until dismissed
+  const [visible, setVisible] = useState(isDeleted);
+  const [prevIsDeleted, setPrevIsDeleted] = useState(isDeleted);
+  if (isDeleted !== prevIsDeleted) {
+    setPrevIsDeleted(isDeleted);
+    if (isDeleted) setVisible(true);
+  }
 
   useEffect(() => {
     if (isDeleted) {
-      setVisible(true);
       // Clean up URL parameter cleanly without full reload
       const url = new URL(window.location.href);
       url.searchParams.delete("account_deleted");

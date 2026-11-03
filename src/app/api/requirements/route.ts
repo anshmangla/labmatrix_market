@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { getAuthSession } from "@/lib/auth-session";
 import { prisma } from "@/lib/prisma";
+import type { Prisma } from "@/generated/prisma/client";
 import { checkRateLimit } from "@/lib/rate-limit";
 import { sendAdminNewRequirementEmail } from "@/lib/resend";
 import { handleCorsOptions, corsHeaders } from "@/lib/cors";
@@ -22,7 +23,7 @@ export async function GET(request: Request) {
     const limit = Math.min(50, Math.max(1, parseInt(searchParams.get("limit") || "30") || 30));
     const skip = (page - 1) * limit;
 
-    const where: any = {
+    const where: Prisma.RequirementWhereInput = {
       isApproved: true,
       status: "OPEN",
     };
@@ -83,7 +84,7 @@ export async function GET(request: Request) {
         },
       }
     );
-  } catch (error: any) {
+  } catch (error) {
     console.error("Fetch requirements error:", error);
     return NextResponse.json(
       { error: "Failed to fetch equipment requirements" },
@@ -247,7 +248,7 @@ export async function POST(request: Request) {
       },
       { status: 201 }
     );
-  } catch (error: any) {
+  } catch (error) {
     console.error("Create requirement error:", error);
     return NextResponse.json(
       { error: "Failed to post requirement. Please verify your inputs and try again." },

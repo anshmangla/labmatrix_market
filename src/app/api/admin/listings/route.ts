@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { revalidatePath } from "next/cache";
 import { getAuthSession } from "@/lib/auth-session";
 import { prisma } from "@/lib/prisma";
+import type { Prisma } from "@/generated/prisma/client";
 import { invalidatePublicListings } from "@/lib/public-cache";
 import { sendUserListingApprovedEmail } from "@/lib/resend";
 
@@ -60,7 +61,7 @@ export async function GET(request: Request) {
         totalPages: Math.ceil(total / limit),
       },
     });
-  } catch (error: any) {
+  } catch (error) {
     console.error("Admin fetch listings error:", error);
     return NextResponse.json(
       { error: "Failed to fetch listings" },
@@ -97,7 +98,7 @@ export async function PATCH(request: Request) {
       select: { isApproved: true },
     });
 
-    const updateData: any = {};
+    const updateData: Prisma.ListingUpdateInput = {};
     if (status) updateData.status = status;
     if (typeof isApproved === "boolean") updateData.isApproved = isApproved;
 
@@ -166,7 +167,7 @@ export async function PATCH(request: Request) {
     }
 
     return NextResponse.json({ listing: updated });
-  } catch (error: any) {
+  } catch (error) {
     console.error("Admin update listing error:", error);
     return NextResponse.json(
       { error: "Failed to update listing" },
@@ -215,7 +216,7 @@ export async function DELETE(request: Request) {
     }
 
     return NextResponse.json({ message: "Listing deleted successfully" });
-  } catch (error: any) {
+  } catch (error) {
     console.error("Admin delete listing error:", error);
     return NextResponse.json(
       { error: "Failed to delete listing" },

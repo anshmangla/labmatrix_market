@@ -58,7 +58,7 @@ export async function GET(request: Request) {
         totalPages: Math.ceil(total / limit),
       },
     });
-  } catch (error: any) {
+  } catch (error) {
     console.error("Admin fetch users error:", error);
     return NextResponse.json(
       { error: "Failed to fetch users" },
@@ -120,7 +120,7 @@ export async function PATCH(req: Request) {
       message: `User role updated to ${role} successfully.`,
       user: updatedUser,
     });
-  } catch (error: any) {
+  } catch (error) {
     console.error("Admin update user role error:", error);
     return NextResponse.json(
       { error: "Failed to update user role" },
@@ -231,7 +231,7 @@ export async function DELETE(req: Request) {
       success: true,
       message: `User account for ${originalEmail} has been deactivated and records archived.`,
     });
-  } catch (error: any) {
+  } catch (error) {
     console.error("Admin delete user error:", error);
     return NextResponse.json(
       { error: "Failed to delete user account." },

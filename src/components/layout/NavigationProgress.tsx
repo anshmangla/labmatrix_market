@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState, useTransition } from "react";
+import React, { useEffect, useState } from "react";
 import { usePathname, useSearchParams } from "next/navigation";
 
 export default function NavigationProgress() {
@@ -10,18 +10,28 @@ export default function NavigationProgress() {
   const [progress, setProgress] = useState(0);
   const [visible, setVisible] = useState(false);
 
-  // When pathname or searchParams change, navigation has completed
-  useEffect(() => {
+  // When pathname or searchParams change, navigation has completed: fill the bar, then hide it.
+  // The change is detected during render; the hide timer restarts on every completed navigation.
+  const routeKey = `${pathname}?${searchParams.toString()}`;
+  const [prevRouteKey, setPrevRouteKey] = useState(routeKey);
+  const [completedNavigations, setCompletedNavigations] = useState(0);
+  if (routeKey !== prevRouteKey) {
+    setPrevRouteKey(routeKey);
     if (loading) {
       setProgress(100);
-      const timer = setTimeout(() => {
-        setVisible(false);
-        setLoading(false);
-        setProgress(0);
-      }, 250);
-      return () => clearTimeout(timer);
+      setCompletedNavigations((n) => n + 1);
     }
-  }, [pathname, searchParams]);
+  }
+
+  useEffect(() => {
+    if (completedNavigations === 0) return;
+    const timer = setTimeout(() => {
+      setVisible(false);
+      setLoading(false);
+      setProgress(0);
+    }, 250);
+    return () => clearTimeout(timer);
+  }, [completedNavigations]);
 
   // Intercept click on internal links
   useEffect(() => {
@@ -87,7 +97,7 @@ export default function NavigationProgress() {
           setProgress(0);
           if (progressTimer) clearInterval(progressTimer);
         }, 8000);
-      } catch (err) {
+      } catch {
         // Invalid URL, ignore
       }
     };

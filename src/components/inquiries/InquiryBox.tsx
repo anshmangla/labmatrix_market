@@ -11,6 +11,7 @@ import {
   Lock,
   Phone,
 } from "lucide-react";
+import { errorMessage } from "@/lib/errors";
 
 export default function InquiryBox({
   listingId,
@@ -63,8 +64,8 @@ export default function InquiryBox({
       }
 
       setSubmitted(true);
-    } catch (err: any) {
-      setError(err.message || "Something went wrong.");
+    } catch (err) {
+      setError(errorMessage(err) || "Something went wrong.");
     } finally {
       setLoading(false);
     }

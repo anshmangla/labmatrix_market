@@ -48,7 +48,7 @@ export async function POST() {
       message: "Your account has been elevated to Platform Administrator.",
       role: updated.role,
     });
-  } catch (error: any) {
+  } catch (error) {
     console.error("Promote admin error:", error);
     return NextResponse.json(
       { error: "Failed to promote user" },

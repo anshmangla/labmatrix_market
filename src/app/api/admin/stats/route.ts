@@ -49,7 +49,7 @@ export async function GET(request: Request) {
         pendingRequirements,
       },
     });
-  } catch (error: any) {
+  } catch (error) {
     console.error("Admin stats error:", error);
     return NextResponse.json(
       { error: "Failed to fetch admin stats" },

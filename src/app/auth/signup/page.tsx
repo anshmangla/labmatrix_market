@@ -111,7 +111,7 @@ export default function SignUpPage() {
       setCanResend(false);
       setOtp(["", "", "", "", "", ""]);
       setLoading(false);
-    } catch (err: any) {
+    } catch {
       setError("Network error. Please check your connection and try again.");
       setLoading(false);
     }
@@ -187,7 +187,7 @@ export default function SignUpPage() {
       setOtp(["", "", "", "", "", ""]);
       setResending(false);
       otpInputsRef.current[0]?.focus();
-    } catch (err: any) {
+    } catch {
       setError("Network error while resending code.");
       setResending(false);
     }
@@ -239,7 +239,7 @@ export default function SignUpPage() {
       } else {
         router.push("/auth/signin");
       }
-    } catch (err: any) {
+    } catch {
       setError("Registration error. Please check your connection and try again.");
       setLoading(false);
     }
@@ -251,7 +251,7 @@ export default function SignUpPage() {
     setGoogleLoading(true);
     try {
       await signIn("google", { callbackUrl: "/" });
-    } catch (err: any) {
+    } catch {
       setError("Google sign-in failed. Please try again.");
       setGoogleLoading(false);
     }

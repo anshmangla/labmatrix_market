@@ -10,12 +10,10 @@ import {
   Send,
   CheckCircle2,
   AlertCircle,
-  MessageSquare,
   ShieldCheck,
-  Building,
-  ArrowRight,
   ExternalLink,
 } from "lucide-react";
+import { errorMessage } from "@/lib/errors";
 
 const INQUIRY_CATEGORIES = [
   "Buy Pre-owned / Refurbished Laboratory Instrument",
@@ -59,7 +57,7 @@ export default function ContactPage() {
         }),
       });
 
-      let data: any = {};
+      let data: { error?: string } = {};
       try {
         data = await res.json();
       } catch {
@@ -79,13 +77,14 @@ export default function ContactPage() {
       setPhone("");
       setCompany("");
       setMessage("");
-    } catch (err: any) {
-      if (err?.name === "TypeError" || err?.message?.toLowerCase().includes("networkerror") || err?.message?.toLowerCase().includes("failed to fetch")) {
+    } catch (err) {
+      const errMessage = errorMessage(err)?.toLowerCase();
+      if ((err instanceof Error && err.name === "TypeError") || errMessage?.includes("networkerror") || errMessage?.includes("failed to fetch")) {
         setError(
           "Connection issue detected. If you are browsing on an unencrypted HTTP link, please switch to https://surplus.labmatrixindia.com/contact or check your connection."
         );
       } else {
-        setError(err.message || "An unexpected error occurred. Please try again.");
+        setError(errorMessage(err) || "An unexpected error occurred. Please try again.");
       }
     } finally {
       setLoading(false);

@@ -134,7 +134,7 @@ export async function POST(request: Request) {
       success: true,
       message: "Your password has been updated successfully. Please sign in with your new password.",
     });
-  } catch (error: any) {
+  } catch (error) {
     console.error("Password reset confirmation error:", error);
     return NextResponse.json(
       { error: "Internal server error while resetting password." },

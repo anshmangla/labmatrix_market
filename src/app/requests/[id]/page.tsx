@@ -11,8 +11,6 @@ import {
   ShieldCheck,
   CheckCircle,
   FileText,
-  PhoneOff,
-  Building,
   Pencil,
 } from "lucide-react";
 import { toJsonLd } from "@/lib/json-ld";
@@ -121,7 +119,7 @@ export default async function RequirementDetailPage({
   }
 
   const isOwner = session?.user?.id === req.buyerId;
-  const isAdmin = (session?.user as any)?.role === "ADMIN";
+  const isAdmin = session?.user?.role === "ADMIN";
 
   // If not approved, only owner or admin can preview it
   if (!req.isApproved && !isOwner && !isAdmin) {

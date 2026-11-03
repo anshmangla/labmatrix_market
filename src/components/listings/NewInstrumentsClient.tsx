@@ -1,13 +1,12 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useEffectEvent } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import {
   Search,
   Filter,
   PlusCircle,
-  ShieldCheck,
   Tag,
   MapPin,
   Sparkles,
@@ -83,8 +82,12 @@ export default function NewInstrumentsClient({
   const [selectedPriceTier, setSelectedPriceTier] = useState(0);
   const [hasUserInteracted, setHasUserInteracted] = useState(Boolean(urlStatus));
 
-  // Sync state if searchParams change in the URL
-  useEffect(() => {
+  // Sync state if searchParams change in the URL (detected during render; the initial
+  // state above already reflects the URL on first render)
+  const urlKey = searchParams.toString();
+  const [prevUrlKey, setPrevUrlKey] = useState(urlKey);
+  if (urlKey !== prevUrlKey) {
+    setPrevUrlKey(urlKey);
     const cat = searchParams.get("category");
     if (cat && CATEGORIES.includes(cat)) {
       setSelectedCategory(cat);
@@ -108,14 +111,7 @@ export default function NewInstrumentsClient({
       setSearch(q);
       setHasUserInteracted(true);
     }
-  }, [searchParams]);
-
-  useEffect(() => {
-    if (!hasUserInteracted && initialListings.length > 0) {
-      return;
-    }
-    fetchListings();
-  }, [selectedCategory, selectedPriceTier, selectedStatus]);
+  }
 
   const buildListingsUrl = () => {
     let url = `/api/listings?itemType=NEW_INSTRUMENT&limit=${PAGE_SIZE}&`;
@@ -169,6 +165,19 @@ export default function NewInstrumentsClient({
       setLoadingMore(false);
     }
   };
+
+  // Refetch when a filter changes; reads the latest search text and interaction state when it runs
+  const refetchForFilters = useEffectEvent(() => {
+    // Skip re-fetching on mount if initial listings were already provided from SSR
+    if (!hasUserInteracted && initialListings.length > 0) {
+      return;
+    }
+    fetchListings();
+  });
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- shows the loading state while new results are fetched
+    refetchForFilters();
+  }, [selectedCategory, selectedPriceTier, selectedStatus]);
 
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();

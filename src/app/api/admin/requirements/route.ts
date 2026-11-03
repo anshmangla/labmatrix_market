@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { getAuthSession } from "@/lib/auth-session";
 import { prisma } from "@/lib/prisma";
+import type { Prisma } from "@/generated/prisma/client";
 import { invalidatePublicRequirements } from "@/lib/public-cache";
 import { sendUserRequirementApprovedEmail } from "@/lib/resend";
 
@@ -59,7 +60,7 @@ export async function GET(request: Request) {
         totalPages: Math.ceil(total / limit),
       },
     });
-  } catch (error: any) {
+  } catch (error) {
     console.error("Admin fetch requirements error:", error);
     return NextResponse.json(
       { error: "Failed to fetch requirements" },
@@ -96,7 +97,7 @@ export async function PATCH(request: Request) {
       select: { isApproved: true },
     });
 
-    const updateData: any = {};
+    const updateData: Prisma.RequirementUpdateInput = {};
     if (status) updateData.status = status;
     if (typeof isApproved === "boolean") updateData.isApproved = isApproved;
 
@@ -148,7 +149,7 @@ export async function PATCH(request: Request) {
     }
 
     return NextResponse.json({ requirement: updated });
-  } catch (error: any) {
+  } catch (error) {
     console.error("Admin update requirement error:", error);
     return NextResponse.json(
       { error: "Failed to update requirement" },
@@ -187,7 +188,7 @@ export async function DELETE(request: Request) {
     invalidatePublicRequirements();
 
     return NextResponse.json({ message: "Requirement deleted successfully" });
-  } catch (error: any) {
+  } catch (error) {
     console.error("Admin delete requirement error:", error);
     return NextResponse.json(
       { error: "Failed to delete requirement" },

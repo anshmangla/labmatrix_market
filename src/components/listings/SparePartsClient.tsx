@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useEffectEvent } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import {
@@ -9,13 +9,8 @@ import {
   PlusCircle,
   FileQuestion,
   ShieldCheck,
-  Tag,
   ArrowRight,
   ExternalLink,
-  Layers,
-  CheckCircle2,
-  Package,
-  Cpu,
   SlidersHorizontal,
 } from "lucide-react";
 import { getOptimizedImageUrl, IMAGE_PRESETS } from "@/lib/images";
@@ -110,8 +105,12 @@ export default function SparePartsClient({
     Boolean(urlCategory || urlQuery || urlTab || urlStatus)
   );
 
-  // Sync state if searchParams change in the URL
-  useEffect(() => {
+  // Sync state if searchParams change in the URL (detected during render; the initial
+  // state above already reflects the URL on first render)
+  const urlKey = searchParams.toString();
+  const [prevUrlKey, setPrevUrlKey] = useState(urlKey);
+  if (urlKey !== prevUrlKey) {
+    setPrevUrlKey(urlKey);
     const cat = searchParams.get("category");
     if (cat && COMMON_PART_CATEGORIES.includes(cat)) {
       setSelectedCategory(cat);
@@ -144,25 +143,16 @@ export default function SparePartsClient({
       setActiveTab("available");
       setHasUserInteracted(true);
     }
-  }, [searchParams]);
+  }
 
-  useEffect(() => {
+  // Take fresh server-rendered listings until the user has changed filters
+  const [prevInitialListings, setPrevInitialListings] = useState(initialListings);
+  if (initialListings !== prevInitialListings) {
+    setPrevInitialListings(initialListings);
     if (!hasUserInteracted) {
       setListings(initialListings);
     }
-  }, [initialListings, hasUserInteracted]);
-
-  useEffect(() => {
-    if (
-      !hasUserInteracted &&
-      initialListings.length > 0 &&
-      activeTab === "available" &&
-      selectedStatus === "ALL"
-    ) {
-      return;
-    }
-    loadData();
-  }, [activeTab, selectedCategory, selectedStatus]);
+  }
 
   const buildListingsUrl = () => {
     let url = `/api/listings?itemType=SPARE_PART&limit=${PAGE_SIZE}&`;
@@ -244,6 +234,23 @@ export default function SparePartsClient({
       setLoadingMore(false);
     }
   };
+
+  // Reload when the tab or a filter changes; reads the latest search text and interaction state
+  const reloadForFilters = useEffectEvent(() => {
+    if (
+      !hasUserInteracted &&
+      initialListings.length > 0 &&
+      activeTab === "available" &&
+      selectedStatus === "ALL"
+    ) {
+      return;
+    }
+    loadData();
+  });
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- shows the loading state while new results are fetched
+    reloadForFilters();
+  }, [activeTab, selectedCategory, selectedStatus]);
 
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();

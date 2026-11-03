@@ -12,13 +12,14 @@ import {
   Lock,
   ArrowRight,
   Info,
-  Image as ImageIcon,
+  Image as 
   Wrench,
   Clock,
   ArrowLeft,
   Loader2,
   ShieldAlert,
 } from "lucide-react";
+import { errorMessage } from "@/lib/errors";
 
 const CATEGORIES = [
   "HPLC & UHPLC",
@@ -58,7 +59,7 @@ const SPARE_CONDITIONS = [
 ];
 
 export default function EditListingPage() {
-  const { data: session, status: authStatus } = useSession();
+  const { status: authStatus } = useSession();
   const router = useRouter();
   const params = useParams();
   const id = params?.id as string;
@@ -81,7 +82,6 @@ export default function EditListingPage() {
   const [description, setDescription] = useState("");
   const [listingStatus, setListingStatus] = useState("AVAILABLE");
   const [photos, setPhotos] = useState<string[]>([]);
-  const [wasApproved, setWasApproved] = useState(false);
 
   // Form states
   const [uploading, setUploading] = useState(false);
@@ -129,9 +129,8 @@ export default function EditListingPage() {
         setDescription(l.description || "");
         setListingStatus(l.status || "AVAILABLE");
         setPhotos(Array.isArray(l.photos) ? l.photos : []);
-        setWasApproved(!!l.isApproved);
-      } catch (err: any) {
-        setError(err.message || "Failed to load listing details");
+      } catch (err) {
+        setError(errorMessage(err) || "Failed to load listing details");
       } finally {
         setInitialLoading(false);
       }
@@ -139,10 +138,15 @@ export default function EditListingPage() {
 
     if (authStatus === "authenticated") {
       loadListing();
-    } else if (authStatus === "unauthenticated") {
-      setInitialLoading(false);
     }
   }, [id, authStatus]);
+
+  // Signed-out visitors have nothing to load (handled during render whenever the auth status changes)
+  const [handledAuthStatus, setHandledAuthStatus] = useState<typeof authStatus | null>(null);
+  if (authStatus !== handledAuthStatus) {
+    setHandledAuthStatus(authStatus);
+    if (authStatus === "unauthenticated") setInitialLoading(false);
+  }
 
   if (authStatus === "loading" || initialLoading) {
     return (
@@ -226,9 +230,9 @@ export default function EditListingPage() {
 
       const uploadedUrls = await Promise.all(uploadPromises);
       setPhotos((prev) => [...prev, ...uploadedUrls]);
-    } catch (err: any) {
+    } catch (err) {
       console.error("Upload error:", err);
-      setError(err.message || "Failed to upload one or more images");
+      setError(errorMessage(err) || "Failed to upload one or more images");
     } finally {
       setUploading(false);
     }
@@ -294,7 +298,7 @@ export default function EditListingPage() {
       });
       router.refresh();
       setSaving(false);
-    } catch (err: any) {
+    } catch {
       setError("Network error. Please try again.");
       setSaving(false);
     }
@@ -680,7 +684,6 @@ export default function EditListingPage() {
                   key={idx}
                   className="relative group aspect-square rounded-xl overflow-hidden border border-slate-200 bg-slate-100 shadow-2xs"
                 >
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
                     src={url}
                     alt={`Photo ${idx + 1}`}

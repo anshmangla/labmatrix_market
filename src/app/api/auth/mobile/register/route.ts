@@ -174,7 +174,7 @@ export async function POST(request: Request) {
         headers: corsHeaders(),
       }
     );
-  } catch (error: any) {
+  } catch (error) {
     console.error("Mobile registration error:", error);
     return NextResponse.json(
       { error: "Internal server error. Please try again later." },

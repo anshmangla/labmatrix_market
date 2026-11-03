@@ -55,7 +55,7 @@ export async function GET(request: Request) {
       { user },
       { status: 200, headers: corsHeaders() }
     );
-  } catch (error: any) {
+  } catch (error) {
     console.error("Mobile me error:", error);
     return NextResponse.json(
       { error: "Failed to fetch user profile" },

@@ -14,9 +14,7 @@ import {
   CheckCircle,
   FileText,
   BadgeAlert,
-  Layers,
   ArrowRight,
-  PhoneOff,
   Pencil,
   Copy,
 } from "lucide-react";
@@ -143,7 +141,7 @@ export default async function ListingDetailPage({
   }
 
   const isOwner = session?.user?.id === listing.sellerId;
-  const isAdmin = (session?.user as any)?.role === "ADMIN";
+  const isAdmin = session?.user?.role === "ADMIN";
 
   // If not approved, only owner or admin can preview it
   if (!listing.isApproved && !isOwner && !isAdmin) {
@@ -199,6 +197,8 @@ export default async function ListingDetailPage({
           lowPrice: listing.minPrice,
           highPrice: listing.maxPrice,
           offerCount: "1",
+          // Server Component: rendered once per request, so "60 days from now" is intended
+          // eslint-disable-next-line react-hooks/purity
           priceValidUntil: new Date(Date.now() + 60 * 24 * 60 * 60 * 1000)
             .toISOString()
             .split("T")[0],

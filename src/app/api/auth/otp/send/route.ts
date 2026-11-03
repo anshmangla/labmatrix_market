@@ -112,7 +112,7 @@ export async function POST(request: Request) {
       message: `A 6-digit verification code has been dispatched to ${cleanEmail}.`,
       expiresInMinutes: 10,
     });
-  } catch (error: any) {
+  } catch (error) {
     console.error("Send OTP error:", error);
     return NextResponse.json(
       { error: "Internal server error while sending verification code." },

@@ -68,7 +68,7 @@ async function getCookieSession(): Promise<AuthSession | null> {
           id: session.user.id,
           email: session.user.email || null,
           name: session.user.name || null,
-          role: (session.user as any).role || "USER",
+          role: session.user.role || "USER",
         },
       };
     }

@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { revalidatePath } from "next/cache";
 import { getAuthSession } from "@/lib/auth-session";
 import { prisma } from "@/lib/prisma";
+import type { Prisma } from "@/generated/prisma/client";
 import { invalidatePublicListings } from "@/lib/public-cache";
 import { handleCorsOptions, corsHeaders } from "@/lib/cors";
 
@@ -83,7 +84,7 @@ export async function GET(
       },
       { headers: corsHeaders() }
     );
-  } catch (error: any) {
+  } catch (error) {
     console.error("Fetch listing by id error:", error);
     return NextResponse.json(
       { error: "Failed to fetch listing details" },
@@ -153,7 +154,7 @@ export async function PATCH(
       );
     }
 
-    const updateData: any = {};
+    const updateData: Prisma.ListingUpdateInput = {};
     let contentChanged = false;
 
     // 1. Content field validations
@@ -368,7 +369,7 @@ export async function PATCH(
       listing: updated,
       requiresReapproval: contentChanged && !isAdmin,
     });
-  } catch (error: any) {
+  } catch (error) {
     console.error("Update listing error:", error);
     return NextResponse.json(
       { error: "Failed to update listing" },
@@ -422,7 +423,7 @@ export async function DELETE(
     return NextResponse.json({
       message: "Listing successfully deleted by administrator.",
     });
-  } catch (error: any) {
+  } catch (error) {
     console.error("Delete listing error:", error);
     return NextResponse.json(
       { error: "Failed to delete listing" },

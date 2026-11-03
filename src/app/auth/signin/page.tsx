@@ -36,7 +36,7 @@ function SignInContent() {
         router.push("/");
         router.refresh();
       }
-    } catch (err: any) {
+    } catch {
       setError("An unexpected error occurred. Please try again.");
     } finally {
       setLoading(false);
@@ -48,7 +48,7 @@ function SignInContent() {
     setGoogleLoading(true);
     try {
       await signIn("google", { callbackUrl: "/" });
-    } catch (err: any) {
+    } catch {
       setError("Google authentication failed. Please try again.");
       setGoogleLoading(false);
     }

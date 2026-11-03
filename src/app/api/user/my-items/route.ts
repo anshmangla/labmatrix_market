@@ -31,7 +31,7 @@ export async function GET(request: Request) {
       { listings, requirements },
       { status: 200, headers: corsHeaders() }
     );
-  } catch (error: any) {
+  } catch (error) {
     console.error("Fetch my items error:", error);
     return NextResponse.json(
       { error: "Failed to fetch user items" },

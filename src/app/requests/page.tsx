@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, Suspense } from "react";
+import React, { useState, useEffect, useEffectEvent, Suspense } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import {
@@ -11,8 +11,6 @@ import {
   ShieldCheck,
   Clock,
   ArrowRight,
-  Send,
-  Building,
   Wrench,
 } from "lucide-react";
 import LoadMoreButton from "@/components/listings/LoadMoreButton";
@@ -74,8 +72,12 @@ function RequestsContent() {
     urlType === "SPARE_PART" || urlType === "MACHINE" ? urlType : "ALL"
   );
 
-  // Sync state if searchParams change in the URL
-  useEffect(() => {
+  // Sync state if searchParams change in the URL (detected during render; the initial
+  // state above already reflects the URL on first render)
+  const urlKey = searchParams.toString();
+  const [prevUrlKey, setPrevUrlKey] = useState(urlKey);
+  if (urlKey !== prevUrlKey) {
+    setPrevUrlKey(urlKey);
     const cat = searchParams.get("category");
     if (cat && CATEGORIES.includes(cat)) {
       setSelectedCategory(cat);
@@ -94,11 +96,7 @@ function RequestsContent() {
     if (q !== null) {
       setSearch(q);
     }
-  }, [searchParams]);
-
-  useEffect(() => {
-    fetchRequirements();
-  }, [selectedCategory, selectedItemType]);
+  }
 
   const buildRequirementsUrl = () => {
     let url = `/api/requirements?limit=${PAGE_SIZE}&`;
@@ -148,6 +146,16 @@ function RequestsContent() {
       setLoadingMore(false);
     }
   };
+
+  // Refetch when the category or type filter changes (not on every keystroke in search,
+  // which is submitted with the search button); reads the latest search text when it runs
+  const refetchForFilters = useEffectEvent(() => {
+    fetchRequirements();
+  });
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- shows the loading state while new results are fetched
+    refetchForFilters();
+  }, [selectedCategory, selectedItemType]);
 
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();

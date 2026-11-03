@@ -40,7 +40,7 @@ export async function PATCH(
     });
 
     return NextResponse.json({ inquiry: updated });
-  } catch (error: any) {
+  } catch (error) {
     console.error("Update inquiry error:", error);
     return NextResponse.json(
       { error: "Failed to update inquiry" },

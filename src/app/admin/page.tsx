@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useEffectEvent } from "react";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
 import {
@@ -11,11 +11,8 @@ import {
   Building,
   CheckCircle2,
   Clock,
-  ArrowRight,
-  UserCheck,
   AlertCircle,
   FileQuestion,
-  Layers,
   Inbox,
   Users,
   Tag,
@@ -23,18 +20,18 @@ import {
   ExternalLink,
   Trash2,
   Check,
-  X,
   Copy,
   Pencil,
 } from "lucide-react";
+import type { AdminInquiry, AdminListing, AdminRequirement, AdminStats, AdminUser } from "@/types/admin";
 
 /**
  * Loads every page of an admin list (the API returns at most 100 per page) so the
  * console's client-side search and filters cover all records, not just the first page.
  * Returns null if the first page fails, so callers keep their current data.
  */
-async function fetchAllAdminPages(url: string, key: string): Promise<unknown[] | null> {
-  const items: unknown[] = [];
+async function fetchAllAdminPages<T>(url: string, key: string): Promise<T[] | null> {
+  const items: T[] = [];
   let page = 1;
   let totalPages = 1;
   do {
@@ -58,16 +55,16 @@ export default function AdminDashboardPage() {
   >("inquiries");
 
   // Data states
-  const [stats, setStats] = useState<any>(null);
-  const [inquiries, setInquiries] = useState<any[]>([]);
-  const [users, setUsers] = useState<any[]>([]);
-  const [listings, setListings] = useState<any[]>([]);
-  const [requirements, setRequirements] = useState<any[]>([]);
+  const [stats, setStats] = useState<AdminStats | null>(null);
+  const [inquiries, setInquiries] = useState<AdminInquiry[]>([]);
+  const [users, setUsers] = useState<AdminUser[]>([]);
+  const [listings, setListings] = useState<AdminListing[]>([]);
+  const [requirements, setRequirements] = useState<AdminRequirement[]>([]);
   const [initialLoading, setInitialLoading] = useState(true);
   const [tabLoading, setTabLoading] = useState(false);
   const [actionLoading, setActionLoading] = useState(false);
   const [claimSuccess, setClaimSuccess] = useState("");
-  const [deleteTargetUser, setDeleteTargetUser] = useState<any | null>(null);
+  const [deleteTargetUser, setDeleteTargetUser] = useState<AdminUser | null>(null);
   const [deleteConfirmText, setDeleteConfirmText] = useState("");
   const [deleteLoading, setDeleteLoading] = useState(false);
   const [deleteError, setDeleteError] = useState("");
@@ -75,22 +72,15 @@ export default function AdminDashboardPage() {
   const sessionUserId = session?.user?.id;
   const sessionUserEmail = session?.user?.email;
 
-  // 1. Initial admin verification - ONLY fires when authenticated user ID/email is known or unauthenticated
-  useEffect(() => {
-    if (status === "authenticated" && (sessionUserId || sessionUserEmail)) {
-      checkAdminAccess();
-    } else if (status === "unauthenticated") {
+  // Signed-out visitors are not admins (handled during render whenever the auth status changes)
+  const [handledStatus, setHandledStatus] = useState<typeof status | null>(null);
+  if (status !== handledStatus) {
+    setHandledStatus(status);
+    if (status === "unauthenticated") {
       setIsAdmin(false);
       setInitialLoading(false);
     }
-  }, [sessionUserId, sessionUserEmail, status]);
-
-  // 2. Tab data load - fires when admin rights confirmed or activeTab changes
-  useEffect(() => {
-    if (isAdmin) {
-      loadTabData(activeTab);
-    }
-  }, [isAdmin, activeTab]);
+  }
 
   const checkAdminAccess = async () => {
     try {
@@ -120,16 +110,16 @@ export default function AdminDashboardPage() {
     setTabLoading(true);
     try {
       if (tab === "inquiries") {
-        const items = await fetchAllAdminPages("/api/admin/inquiries", "inquiries");
+        const items = await fetchAllAdminPages<AdminInquiry>("/api/admin/inquiries", "inquiries");
         if (items) setInquiries(items);
       } else if (tab === "users") {
-        const items = await fetchAllAdminPages("/api/admin/users", "users");
+        const items = await fetchAllAdminPages<AdminUser>("/api/admin/users", "users");
         if (items) setUsers(items);
       } else if (tab === "listings") {
-        const items = await fetchAllAdminPages("/api/admin/listings", "listings");
+        const items = await fetchAllAdminPages<AdminListing>("/api/admin/listings", "listings");
         if (items) setListings(items);
       } else if (tab === "requirements") {
-        const items = await fetchAllAdminPages("/api/admin/requirements", "requirements");
+        const items = await fetchAllAdminPages<AdminRequirement>("/api/admin/requirements", "requirements");
         if (items) setRequirements(items);
       }
     } catch (err) {
@@ -138,6 +128,28 @@ export default function AdminDashboardPage() {
       setTabLoading(false);
     }
   };
+
+  // 1. Initial admin verification - ONLY fires when the authenticated user's ID/email is known
+  const verifyAdminAccess = useEffectEvent(() => {
+    checkAdminAccess();
+  });
+  useEffect(() => {
+    if (status === "authenticated" && (sessionUserId || sessionUserEmail)) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- asks the API; state is only set after it responds
+      verifyAdminAccess();
+    }
+  }, [sessionUserId, sessionUserEmail, status]);
+
+  // 2. Tab data load - fires when admin rights confirmed or activeTab changes
+  const loadActiveTab = useEffectEvent((tab: string) => {
+    loadTabData(tab);
+  });
+  useEffect(() => {
+    if (isAdmin) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- shows the tab's loading state while its data is fetched
+      loadActiveTab(activeTab);
+    }
+  }, [isAdmin, activeTab]);
 
   const refreshAll = async () => {
     await checkAdminAccess();
@@ -158,7 +170,7 @@ export default function AdminDashboardPage() {
       } else {
         alert(data.error || "Failed to claim admin status");
       }
-    } catch (err) {
+    } catch {
       alert("Error claiming admin role");
     } finally {
       setActionLoading(false);
@@ -242,7 +254,7 @@ export default function AdminDashboardPage() {
         setListings((prev) =>
           prev.map((l) => (l.id === listingId ? { ...l, isApproved: newApproved } : l))
         );
-        setStats((prev: any) =>
+        setStats((prev) =>
           prev
             ? {
                 ...prev,
@@ -269,7 +281,7 @@ export default function AdminDashboardPage() {
       });
       if (res.ok) {
         setListings((prev) => prev.filter((l) => l.id !== listingId));
-        setStats((prev: any) =>
+        setStats((prev) =>
           prev
             ? {
                 ...prev,
@@ -301,7 +313,7 @@ export default function AdminDashboardPage() {
         setRequirements((prev) =>
           prev.map((r) => (r.id === reqId ? { ...r, isApproved: newApproved } : r))
         );
-        setStats((prev: any) =>
+        setStats((prev) =>
           prev
             ? {
                 ...prev,
@@ -328,7 +340,7 @@ export default function AdminDashboardPage() {
       });
       if (res.ok) {
         setRequirements((prev) => prev.filter((r) => r.id !== reqId));
-        setStats((prev: any) =>
+        setStats((prev) =>
           prev
             ? {
                 ...prev,
@@ -411,7 +423,7 @@ export default function AdminDashboardPage() {
       );
       setDeleteTargetUser(null);
       setDeleteConfirmText("");
-    } catch (err: any) {
+    } catch {
       setDeleteError("Network error. Please try again.");
     } finally {
       setDeleteLoading(false);
@@ -645,7 +657,7 @@ export default function AdminDashboardPage() {
             }`}
           >
             <span>Manage Listings</span>
-            {stats?.pendingListings > 0 && (
+            {stats && stats.pendingListings > 0 && (
               <span className="bg-amber-500 text-white text-[10px] font-black px-1.5 py-0.2 rounded-full">
                 {stats.pendingListings}
               </span>
@@ -660,7 +672,7 @@ export default function AdminDashboardPage() {
             }`}
           >
             <span>Manage Buyer Requests</span>
-            {stats?.pendingRequirements > 0 && (
+            {stats && stats.pendingRequirements > 0 && (
               <span className="bg-amber-500 text-white text-[10px] font-black px-1.5 py-0.2 rounded-full">
                 {stats.pendingRequirements}
               </span>
@@ -694,8 +706,8 @@ export default function AdminDashboardPage() {
             ) : (
               <div className="space-y-4">
                 {inquiries.map((inq) => {
-                  const hasListing = !!inq.listing;
-                  const hasReq = !!inq.requirement;
+                  const hasListing = inq.listing != null;
+                  const hasReq = inq.requirement != null;
 
                   return (
                     <div
@@ -1238,9 +1250,9 @@ export default function AdminDashboardPage() {
                               ⚙️ Spare Part
                             </span>
                           )}
-                          {(l as any).quantity && (l as any).quantity > 1 ? (
+                          {l.quantity && l.quantity > 1 ? (
                             <span className="block text-[10px] text-amber-800 font-semibold">
-                              Qty: {(l as any).quantity}
+                              Qty: {l.quantity}
                             </span>
                           ) : null}
                         </td>

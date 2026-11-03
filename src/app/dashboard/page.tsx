@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, Suspense } from "react";
+import React, { useState, useEffect, useEffectEvent, Suspense } from "react";
 import { useSession, signOut } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
@@ -23,15 +23,14 @@ import {
   CheckCheck,
   Pencil,
   MessageSquare,
-  ArrowRight,
   Inbox,
   Send,
   Settings,
   Trash2,
   AlertCircle,
-  ShieldAlert,
   Copy,
 } from "lucide-react";
+import type { InquiryWithTarget, ListingRecord, NotificationRecord, RequirementRecord, UserProfile } from "@/types/records";
 
 function DashboardContent() {
   const { data: session, status, update: updateSession } = useSession();
@@ -48,17 +47,17 @@ function DashboardContent() {
       ? "settings"
       : "listings";
 
-  const [profile, setProfile] = useState<any>(null);
+  const [profile, setProfile] = useState<UserProfile | null>(null);
   const [isEditingProfile, setIsEditingProfile] = useState(false);
   const [editName, setEditName] = useState("");
   const [editPhone, setEditPhone] = useState("");
   const [editCompany, setEditCompany] = useState("");
   const [profileSaving, setProfileSaving] = useState(false);
   const [profileError, setProfileError] = useState("");
-  const [listings, setListings] = useState<any[]>([]);
-  const [requirements, setRequirements] = useState<any[]>([]);
-  const [notifications, setNotifications] = useState<any[]>([]);
-  const [inquiries, setInquiries] = useState<{ received: any[]; sent: any[] }>({
+  const [listings, setListings] = useState<ListingRecord[]>([]);
+  const [requirements, setRequirements] = useState<RequirementRecord[]>([]);
+  const [notifications, setNotifications] = useState<NotificationRecord[]>([]);
+  const [inquiries, setInquiries] = useState<{ received: InquiryWithTarget[]; sent: InquiryWithTarget[] }>({
     received: [],
     sent: [],
   });
@@ -77,9 +76,12 @@ function DashboardContent() {
   const [deleteLoading, setDeleteLoading] = useState(false);
   const [deleteError, setDeleteError] = useState("");
 
-  // Sync tab with URL search parameter
-  useEffect(() => {
-    const tab = searchParams.get("tab");
+  // Sync tab with URL search parameter (detected during render; the initial tab above
+  // already reflects the URL on first render)
+  const [prevRawTab, setPrevRawTab] = useState(rawTab);
+  if (rawTab !== prevRawTab) {
+    setPrevRawTab(rawTab);
+    const tab = rawTab;
     if (tab === "requests") {
       setActiveTab("requests");
     } else if (tab === "inquiries" || tab === "notifications" || tab === "messages") {
@@ -89,18 +91,12 @@ function DashboardContent() {
     } else if (tab === "listings") {
       setActiveTab("listings");
     }
-  }, [searchParams]);
+  }
 
   const switchTab = (tab: "listings" | "requests" | "inquiries" | "settings") => {
     setActiveTab(tab);
     router.replace(`/dashboard?tab=${tab}`, { scroll: false });
   };
-
-  useEffect(() => {
-    if (session?.user) {
-      loadUserData();
-    }
-  }, [session]);
 
   const filteredListings = listings.filter((item) => {
     if (listingStatusFilter === "ALL") return true;
@@ -180,6 +176,17 @@ function DashboardContent() {
     }
   };
 
+  // Load the dashboard whenever the session (re)loads
+  const loadForSession = useEffectEvent(() => {
+    loadUserData();
+  });
+  useEffect(() => {
+    if (session?.user) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- shows the loading state while the dashboard data is fetched
+      loadForSession();
+    }
+  }, [session]);
+
   const handleMarkAllAsRead = async () => {
     try {
       await fetch("/api/notifications", {
@@ -210,7 +217,7 @@ function DashboardContent() {
       } else {
         alert(data.error || "Failed to update status");
       }
-    } catch (err) {
+    } catch {
       alert("Error updating listing status");
     } finally {
       setUpdatingId(null);
@@ -233,7 +240,7 @@ function DashboardContent() {
       } else {
         alert(data.error || "Failed to update status");
       }
-    } catch (err) {
+    } catch {
       alert("Error updating requirement status");
     } finally {
       setUpdatingId(null);
@@ -264,7 +271,7 @@ function DashboardContent() {
 
       // Success: Sign out and redirect to homepage with query param
       await signOut({ callbackUrl: "/?account_deleted=true" });
-    } catch (err: any) {
+    } catch {
       setDeleteError("Network error. Please try again.");
       setDeleteLoading(false);
     }
@@ -468,14 +475,14 @@ function DashboardContent() {
                     Status:
                   </span>
                   {[
-                    { label: `All (${listings.length})`, value: "ALL" },
+                    { label: `All (${listings.length})`, value: "ALL" as const },
                     {
                       label: `Available (${listings.filter((l) => l.status === "AVAILABLE").length})`,
-                      value: "AVAILABLE",
+                      value: "AVAILABLE" as const,
                     },
                     {
                       label: `Sold Out (${listings.filter((l) => l.status === "SOLD").length})`,
-                      value: "SOLD",
+                      value: "SOLD" as const,
                     },
                   ].map((pill) => {
                     const isSelected = listingStatusFilter === pill.value;
@@ -483,7 +490,7 @@ function DashboardContent() {
                       <button
                         key={pill.value}
                         type="button"
-                        onClick={() => setListingStatusFilter(pill.value as any)}
+                        onClick={() => setListingStatusFilter(pill.value)}
                         className={`px-3 py-1.5 rounded-lg font-semibold whitespace-nowrap transition-all cursor-pointer ${
                           isSelected
                             ? pill.value === "AVAILABLE"
@@ -528,9 +535,9 @@ function DashboardContent() {
                                   ⚙️ Spare Part
                                 </span>
                               )}
-                              {(item as any).quantity && (item as any).quantity > 1 ? (
+                              {item.quantity && item.quantity > 1 ? (
                                 <span className="bg-amber-100 text-amber-800 border border-amber-200 px-2 py-0.5 rounded text-[10px] font-bold">
-                                  Qty: {(item as any).quantity}
+                                  Qty: {item.quantity}
                                 </span>
                               ) : null}
                             </div>
@@ -794,7 +801,7 @@ function DashboardContent() {
                 </div>
 
                 <div className="space-y-3">
-                  {inquiries.received.map((inq: any) => (
+                  {inquiries.received.map((inq) => (
                     <div
                       key={inq.id}
                       className="bg-white rounded-2xl border border-slate-200 p-5 shadow-xs space-y-3 hover:border-slate-300 transition-colors"
@@ -877,7 +884,7 @@ function DashboardContent() {
                 </div>
 
                 <div className="space-y-3">
-                  {inquiries.sent.map((inq: any) => (
+                  {inquiries.sent.map((inq) => (
                     <div
                       key={inq.id}
                       className="bg-white rounded-2xl border border-slate-200 p-5 shadow-xs space-y-3 hover:border-slate-300 transition-colors"

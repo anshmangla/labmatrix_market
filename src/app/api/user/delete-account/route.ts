@@ -5,7 +5,7 @@ import { prisma } from "@/lib/prisma";
 import { invalidatePublicListings, invalidatePublicRequirements } from "@/lib/public-cache";
 import { sendAccountDeletionEmail } from "@/lib/resend";
 import { checkRateLimit, getClientIp } from "@/lib/rate-limit";
-import { handleCorsOptions, corsHeaders } from "@/lib/cors";
+import { handleCorsOptions } from "@/lib/cors";
 
 export async function OPTIONS() {
   return handleCorsOptions();
@@ -133,7 +133,7 @@ export async function POST(request: Request) {
       success: true,
       message: "Your account has been deactivated and your personal data removed.",
     });
-  } catch (error: any) {
+  } catch (error) {
     console.error("Account deletion error:", error);
     return NextResponse.json(
       { error: "An unexpected error occurred while deleting your account." },

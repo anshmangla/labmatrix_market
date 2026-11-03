@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
-import { useRouter, useParams } from "next/navigation";
+import { useParams } from "next/navigation";
 import Link from "next/link";
 import {
   FileQuestion,
@@ -17,6 +17,7 @@ import {
   CheckCircle2,
   AlertCircle,
 } from "lucide-react";
+import { errorMessage } from "@/lib/errors";
 
 const CATEGORIES = [
   "HPLC & UHPLC",
@@ -35,8 +36,7 @@ const CATEGORIES = [
 ];
 
 export default function EditRequirementPage() {
-  const { data: session, status: authStatus } = useSession();
-  const router = useRouter();
+  const { status: authStatus } = useSession();
   const params = useParams();
   const id = params?.id as string;
 
@@ -52,7 +52,6 @@ export default function EditRequirementPage() {
   const [partNumber, setPartNumber] = useState("");
   const [description, setDescription] = useState("");
   const [reqStatus, setReqStatus] = useState("OPEN");
-  const [wasApproved, setWasApproved] = useState(false);
 
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
@@ -88,9 +87,8 @@ export default function EditRequirementPage() {
         setPartNumber(r.partNumber || "");
         setDescription(r.description || "");
         setReqStatus(r.status || "OPEN");
-        setWasApproved(!!r.isApproved);
-      } catch (err: any) {
-        setError(err.message || "Failed to load requirement details");
+      } catch (err) {
+        setError(errorMessage(err) || "Failed to load requirement details");
       } finally {
         setInitialLoading(false);
       }
@@ -98,10 +96,15 @@ export default function EditRequirementPage() {
 
     if (authStatus === "authenticated") {
       loadRequirement();
-    } else if (authStatus === "unauthenticated") {
-      setInitialLoading(false);
     }
   }, [id, authStatus]);
+
+  // Signed-out visitors have nothing to load (handled during render whenever the auth status changes)
+  const [handledAuthStatus, setHandledAuthStatus] = useState<typeof authStatus | null>(null);
+  if (authStatus !== handledAuthStatus) {
+    setHandledAuthStatus(authStatus);
+    if (authStatus === "unauthenticated") setInitialLoading(false);
+  }
 
   if (authStatus === "loading" || initialLoading) {
     return (
@@ -187,7 +190,7 @@ export default function EditRequirementPage() {
         message: data.message,
       });
       setSaving(false);
-    } catch (err: any) {
+    } catch {
       setError("Network error. Please try again.");
       setSaving(false);
     }

@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { getAuthSession } from "@/lib/auth-session";
 import cloudinary from "@/lib/cloudinary";
 import { checkRateLimit } from "@/lib/rate-limit";
-import { handleCorsOptions, corsHeaders } from "@/lib/cors";
+import { handleCorsOptions } from "@/lib/cors";
 
 export async function OPTIONS() {
   return handleCorsOptions();
@@ -90,7 +90,7 @@ export async function POST(request: Request) {
         warning: "Cloudinary credentials not yet configured. Image stored as data URL for development.",
       });
     }
-  } catch (error: any) {
+  } catch (error) {
     console.error("Upload error:", error);
     return NextResponse.json(
       { error: "Failed to upload image. Please try again later." },

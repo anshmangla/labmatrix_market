@@ -1,17 +1,14 @@
 import React from "react";
 import Link from "next/link";
-import Image from "next/image";
 import type { Metadata } from "next";
 import {
   Search,
   ShieldCheck,
-  PhoneOff,
   UserCheck,
   ArrowRight,
   PlusCircle,
   FileQuestion,
   Cpu,
-  Layers,
   FlaskConical,
   Gauge,
   Microscope,

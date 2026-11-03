@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, Suspense } from "react";
 import { useSession } from "next-auth/react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import {
   Upload,
@@ -14,10 +14,10 @@ import {
   Building2,
   ArrowRight,
   Info,
-  Image as ImageIcon,
-  Wrench,
+  Image as 
   Clock,
 } from "lucide-react";
+import { errorMessage } from "@/lib/errors";
 
 const CATEGORIES = [
   "HPLC & UHPLC",
@@ -58,7 +58,6 @@ const SPARE_CONDITIONS = [
 
 function CreateListingForm() {
   const { data: session, status } = useSession();
-  const router = useRouter();
   const searchParams = useSearchParams();
 
   const initialType =
@@ -211,9 +210,9 @@ function CreateListingForm() {
 
       const uploadedUrls = await Promise.all(uploadPromises);
       setPhotos((prev) => [...prev, ...uploadedUrls]);
-    } catch (err: any) {
+    } catch (err) {
       console.error("Upload error:", err);
-      setError(err.message || "Failed to upload one or more images");
+      setError(errorMessage(err) || "Failed to upload one or more images");
     } finally {
       setUploading(false);
     }
@@ -277,7 +276,7 @@ function CreateListingForm() {
         itemType,
       });
       setLoading(false);
-    } catch (err: any) {
+    } catch {
       setError("Network error. Please try again.");
       setLoading(false);
     }

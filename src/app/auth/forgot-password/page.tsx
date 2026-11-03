@@ -109,7 +109,7 @@ export default function ForgotPasswordPage() {
       setOtp(["", "", "", "", "", ""]);
       setInfoMessage(data.message || "A 6-digit code has been dispatched to your email.");
       setLoading(false);
-    } catch (err: any) {
+    } catch {
       setError("Network error. Please check your connection and try again.");
       setLoading(false);
     }
@@ -177,7 +177,7 @@ export default function ForgotPasswordPage() {
       setInfoMessage("A fresh verification code has been dispatched to your inbox.");
       otpInputsRef.current[0]?.focus();
       setResending(false);
-    } catch (err: any) {
+    } catch {
       setError("Network error. Could not resend code.");
       setResending(false);
     }
@@ -227,7 +227,7 @@ export default function ForgotPasswordPage() {
 
       // Success: Redirect back to /auth/signin with success query parameter
       router.push("/auth/signin?reset=success");
-    } catch (err: any) {
+    } catch {
       setError("Network error. Please try again.");
       setLoading(false);
     }

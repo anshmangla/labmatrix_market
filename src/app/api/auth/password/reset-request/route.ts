@@ -118,7 +118,7 @@ export async function POST(request: Request) {
       message: genericSuccessMessage,
       expiresInMinutes: 10,
     });
-  } catch (error: any) {
+  } catch (error) {
     console.error("Password reset request error:", error);
     return NextResponse.json(
       { error: "Internal server error while processing password reset request." },

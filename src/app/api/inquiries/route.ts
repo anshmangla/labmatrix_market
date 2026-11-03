@@ -117,7 +117,7 @@ export async function GET(request: Request) {
 
     const [received, sent] = result.data;
     return NextResponse.json({ received, sent }, { headers: corsHeaders() });
-  } catch (error: any) {
+  } catch (error) {
     console.error("Fetch inquiries error:", error);
     return NextResponse.json({ error: "Failed to fetch inquiries" }, { status: 500 });
   }
@@ -253,7 +253,7 @@ export async function POST(request: Request) {
       { message: "Inquiry submitted successfully.", inquiryId: inquiry.id },
       { status: 201 }
     );
-  } catch (error: any) {
+  } catch (error) {
     console.error("Create inquiry error:", error);
     return NextResponse.json(
       { error: "Failed to submit inquiry. Please try again." },

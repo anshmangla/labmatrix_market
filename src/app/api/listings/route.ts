@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { getAuthSession } from "@/lib/auth-session";
 import { prisma } from "@/lib/prisma";
+import type { ListingStatus, Prisma } from "@/generated/prisma/client";
 import { checkRateLimit } from "@/lib/rate-limit";
 import { sendAdminNewListingEmail } from "@/lib/resend";
 import { handleCorsOptions, corsHeaders } from "@/lib/cors";
@@ -26,12 +27,13 @@ export async function GET(request: Request) {
 
     const statusParam = searchParams.get("status");
 
-    const where: any = {
+    const where: Prisma.ListingWhereInput = {
       isApproved: true,
     };
 
     if (statusParam && statusParam !== "ALL") {
-      where.status = statusParam;
+      // Unvalidated URL value: Prisma rejects anything that isn't a ListingStatus
+      where.status = statusParam as ListingStatus;
     } else {
       where.status = { in: ["AVAILABLE", "SOLD"] };
     }
@@ -104,7 +106,7 @@ export async function GET(request: Request) {
         },
       }
     );
-  } catch (error: any) {
+  } catch (error) {
     console.error("Fetch listings error:", error);
     return NextResponse.json(
       { error: "Failed to fetch listings" },
@@ -339,7 +341,7 @@ export async function POST(request: Request) {
       },
       { status: 201 }
     );
-  } catch (error: any) {
+  } catch (error) {
     console.error("Create listing error:", error);
     return NextResponse.json(
       { error: "Failed to create listing. Please verify your inputs and try again." },

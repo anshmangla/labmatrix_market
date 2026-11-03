@@ -8,8 +8,9 @@ import { checkRateLimit, getClientIp } from "@/lib/rate-limit";
 import { getActiveUserState } from "@/lib/session-validity";
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
-  // Note: cast prisma adapter to any if Prisma 7 client types have minor differences
-  adapter: PrismaAdapter(prisma as any),
+  // The query-extended client (retry wrapper) exposes the same model delegates the adapter uses,
+  // but its type differs from the plain PrismaClient the adapter is typed against
+  adapter: PrismaAdapter(prisma as unknown as Parameters<typeof PrismaAdapter>[0]),
   session: {
     strategy: "jwt",
   },
@@ -70,7 +71,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     async jwt({ token, user }) {
       if (user) {
         token.id = user.id;
-        token.role = (user as any).role || "USER";
+        token.role = user.role || "USER";
       }
 
       if (token.id) {
@@ -95,7 +96,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     async session({ session, token }) {
       if (session.user) {
         session.user.id = (token.id as string) || session.user.id;
-        (session.user as any).role = token.role || "USER";
+        session.user.role = token.role || "USER";
       }
       return session;
     },

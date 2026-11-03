@@ -50,7 +50,7 @@ export async function GET(request: Request) {
       },
       { status: 200, headers: corsHeaders() }
     );
-  } catch (error: any) {
+  } catch {
     return NextResponse.json(
       { error: "Failed to fetch user profile" },
       { status: 500, headers: corsHeaders() }
@@ -91,7 +91,7 @@ export async function PATCH(request: Request) {
       { user: updated, message: "Profile updated successfully" },
       { status: 200, headers: corsHeaders() }
     );
-  } catch (error: any) {
+  } catch (error) {
     console.error("Profile update error:", error);
     return NextResponse.json(
       { error: "Failed to update user profile" },

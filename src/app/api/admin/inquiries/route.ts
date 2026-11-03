@@ -86,7 +86,7 @@ export async function GET(request: Request) {
         totalPages: Math.ceil(total / limit),
       },
     });
-  } catch (error: any) {
+  } catch (error) {
     console.error("Admin inquiries error:", error);
     return NextResponse.json(
       { error: "Failed to fetch inquiries" },

@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { getAuthSession } from "@/lib/auth-session";
 import { prisma } from "@/lib/prisma";
+import type { Prisma } from "@/generated/prisma/client";
 import { invalidatePublicRequirements } from "@/lib/public-cache";
 import { handleCorsOptions, corsHeaders } from "@/lib/cors";
 
@@ -75,7 +76,7 @@ export async function GET(
       },
       { headers: corsHeaders() }
     );
-  } catch (error: any) {
+  } catch (error) {
     console.error("Fetch requirement by id error:", error);
     return NextResponse.json(
       { error: "Failed to fetch requirement details" },
@@ -139,7 +140,7 @@ export async function PATCH(
       );
     }
 
-    const updateData: any = {};
+    const updateData: Prisma.RequirementUpdateInput = {};
     let contentChanged = false;
 
     // Content fields
@@ -276,7 +277,7 @@ export async function PATCH(
       requirement: updated,
       requiresReapproval: contentChanged && !isAdmin,
     });
-  } catch (error: any) {
+  } catch (error) {
     console.error("Update requirement error:", error);
     return NextResponse.json(
       { error: "Failed to update requirement" },
@@ -319,7 +320,7 @@ export async function DELETE(
     return NextResponse.json({
       message: "Requirement successfully deleted by administrator.",
     });
-  } catch (error: any) {
+  } catch (error) {
     console.error("Delete requirement error:", error);
     return NextResponse.json(
       { error: "Failed to delete requirement" },

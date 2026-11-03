@@ -26,7 +26,7 @@ export async function GET(request: Request) {
     const [notifications, unreadCount] = result.data;
 
     return NextResponse.json({ notifications, unreadCount });
-  } catch (error: any) {
+  } catch (error) {
     console.error("Fetch notifications error:", error);
     return NextResponse.json(
       { error: "Failed to fetch notifications" },
@@ -62,7 +62,7 @@ export async function PATCH(request: Request) {
     }
 
     return NextResponse.json({ error: "Invalid request" }, { status: 400 });
-  } catch (error: any) {
+  } catch (error) {
     console.error("Update notifications error:", error);
     return NextResponse.json(
       { error: "Failed to update notification" },

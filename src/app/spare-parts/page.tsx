@@ -1,6 +1,7 @@
 import React, { Suspense } from "react";
 import type { Metadata } from "next";
 import { prisma } from "@/lib/prisma";
+import type { ListingStatus, Prisma } from "@/generated/prisma/client";
 import { cachedPublicRead, PUBLIC_LISTINGS_TAG } from "@/lib/public-cache";
 import SparePartsClient, { SpareListing } from "@/components/listings/SparePartsClient";
 
@@ -28,13 +29,14 @@ export default async function SparePartsHubPage({
 
   let initialListings: SpareListing[] = [];
   try {
-    const where: any = {
+    const where: Prisma.ListingWhereInput = {
       isApproved: true,
       itemType: "SPARE_PART",
     };
 
     if (statusParam && statusParam !== "ALL") {
-      where.status = statusParam;
+      // Unvalidated URL value: Prisma rejects anything that isn't a ListingStatus
+      where.status = statusParam as ListingStatus;
     } else {
       where.status = { in: ["AVAILABLE", "SOLD"] };
     }

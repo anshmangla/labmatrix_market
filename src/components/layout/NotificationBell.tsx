@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useEffectEvent, useRef } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
@@ -8,7 +8,6 @@ import {
   Bell,
   CheckCircle2,
   Clock,
-  Info,
   CheckCheck,
   ExternalLink,
 } from "lucide-react";
@@ -61,12 +60,18 @@ export function NotificationBell() {
     }
   };
 
+  // Reads the latest session without restarting polling on every render
+  const pollNotifications = useEffectEvent(() => {
+    fetchNotifications();
+  });
+
   useEffect(() => {
     if (!session?.user?.id) return;
-    fetchNotifications();
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- loads from the API; state is only set after the response arrives
+    pollNotifications();
 
     // Poll every 30 seconds only for authenticated users
-    const interval = setInterval(fetchNotifications, 30000);
+    const interval = setInterval(() => pollNotifications(), 30000);
     return () => clearInterval(interval);
   }, [session?.user?.id]);
 
