@@ -12,7 +12,7 @@ import {
   Lock,
   ArrowRight,
   Info,
-  Image as 
+  FileText,
   Wrench,
   Clock,
   ArrowLeft,
@@ -82,6 +82,8 @@ export default function EditListingPage() {
   const [description, setDescription] = useState("");
   const [listingStatus, setListingStatus] = useState("AVAILABLE");
   const [photos, setPhotos] = useState<string[]>([]);
+  const [documents, setDocuments] = useState<string[]>([]);
+  const [uploadingDoc, setUploadingDoc] = useState(false);
 
   // Form states
   const [uploading, setUploading] = useState(false);
@@ -129,6 +131,7 @@ export default function EditListingPage() {
         setDescription(l.description || "");
         setListingStatus(l.status || "AVAILABLE");
         setPhotos(Array.isArray(l.photos) ? l.photos : []);
+        setDocuments(Array.isArray(l.documents) ? l.documents : []);
       } catch (err) {
         setError(errorMessage(err) || "Failed to load listing details");
       } finally {
@@ -242,6 +245,58 @@ export default function EditListingPage() {
     setPhotos((prev) => prev.filter((_, idx) => idx !== indexToRemove));
   };
 
+  const handleDocumentUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
+
+    if (documents.length + files.length > 5) {
+      setError("A maximum of 5 PDF documents can be attached per listing.");
+      return;
+    }
+
+    setUploadingDoc(true);
+    setError("");
+
+    try {
+      const uploadPromises = Array.from(files).map(async (file) => {
+        if (file.type !== "application/pdf") {
+          throw new Error("Only PDF files are allowed for documents.");
+        }
+        if (file.size > 10 * 1024 * 1024) {
+          throw new Error("PDF file size must be under 10MB.");
+        }
+        const formData = new FormData();
+        formData.append("file", file);
+
+        const res = await fetch("/api/upload", {
+          method: "POST",
+          body: formData,
+        });
+
+        if (!res.ok) {
+          const errData = await res.json();
+          throw new Error(errData.error || "Upload failed");
+        }
+
+        const data = await res.json();
+        return data.url;
+      });
+
+      const uploadedUrls = await Promise.all(uploadPromises);
+      setDocuments((prev) => [...prev, ...uploadedUrls]);
+    } catch (err) {
+      console.error("Document upload error:", err);
+      setError(errorMessage(err) || "Failed to upload one or more documents");
+    } finally {
+      setUploadingDoc(false);
+      e.target.value = "";
+    }
+  };
+
+  const removeDocument = (indexToRemove: number) => {
+    setDocuments((prev) => prev.filter((_, idx) => idx !== indexToRemove));
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
@@ -275,6 +330,7 @@ export default function EditListingPage() {
         quantity: Math.max(1, parseInt(quantity, 10) || 1),
         description: description.trim(),
         photos,
+        documents,
         status: listingStatus,
       };
 
@@ -733,6 +789,77 @@ export default function EditListingPage() {
             </div>
           </div>
 
+          {/* Technical Documents (PDF) */}
+          <div className="bg-white rounded-2xl border border-slate-200 p-6 sm:p-8 shadow-xs space-y-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <h2 className="text-sm font-bold uppercase tracking-wider text-slate-400">
+                  Attached PDF Documents ({documents.length}/5)
+                </h2>
+                <p className="text-xs text-slate-500 mt-0.5">
+                  Attach equipment specification sheets, calibration certificates, brochures, or manuals (Max 10MB per PDF).
+                </p>
+              </div>
+            </div>
+
+            {documents.length > 0 && (
+              <div className="space-y-2">
+                {documents.map((docUrl, idx) => {
+                  const rawName = docUrl.split("/").pop()?.split("?")[0] || `Document_${idx + 1}.pdf`;
+                  const displayName = decodeURIComponent(rawName);
+                  return (
+                    <div
+                      key={idx}
+                      className="flex items-center justify-between p-3.5 bg-slate-50 rounded-xl border border-slate-200"
+                    >
+                      <div className="flex items-center space-x-3 min-w-0">
+                        <div className="w-8 h-8 rounded-lg bg-rose-100 text-rose-600 flex items-center justify-center flex-shrink-0">
+                          <FileText className="w-4 h-4" />
+                        </div>
+                        <div className="min-w-0">
+                          <p className="text-xs font-bold text-slate-800 truncate">
+                            {displayName}
+                          </p>
+                          <a
+                            href={docUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-[11px] text-brand-blue hover:underline font-semibold"
+                          >
+                            View Document ↗
+                          </a>
+                        </div>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => removeDocument(idx)}
+                        className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors ml-2"
+                        title="Remove document"
+                      >
+                        <X className="w-4 h-4" />
+                      </button>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+
+            {documents.length < 5 && (
+              <label className="inline-flex items-center space-x-2 px-4 py-2.5 rounded-xl border-2 border-dashed border-slate-300 hover:border-brand-blue bg-slate-50 hover:bg-brand-blue-50/30 cursor-pointer text-xs font-bold text-brand-blue transition-colors">
+                <FileText className="w-4 h-4 text-brand-blue" />
+                <span>{uploadingDoc ? "Uploading PDF..." : "+ Attach PDF Document"}</span>
+                <input
+                  type="file"
+                  accept="application/pdf"
+                  multiple
+                  disabled={uploadingDoc}
+                  onChange={handleDocumentUpload}
+                  className="hidden"
+                />
+              </label>
+            )}
+          </div>
+
           {/* Action Buttons */}
           <div className="flex items-center justify-end space-x-3 pt-2">
             <Link
@@ -743,7 +870,7 @@ export default function EditListingPage() {
             </Link>
             <button
               type="submit"
-              disabled={saving || uploading}
+              disabled={saving || uploading || uploadingDoc}
               className="px-6 py-2.5 rounded-xl bg-brand-gold hover:bg-brand-gold-500 text-brand-blue-950 text-xs font-black shadow-xs transition-colors flex items-center space-x-2 disabled:opacity-50"
             >
               {saving && <Loader2 className="w-4 h-4 animate-spin" />}

@@ -6,6 +6,7 @@ import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import {
   Upload,
+  FileText,
   X,
   AlertCircle,
   CheckCircle2,
@@ -89,9 +90,11 @@ function CreateListingForm() {
   const [description, setDescription] = useState("");
   const [duplicatingFrom, setDuplicatingFrom] = useState<string | null>(null);
 
-  // Photos
+  // Photos & Documents
   const [photos, setPhotos] = useState<string[]>([]);
   const [uploading, setUploading] = useState(false);
+  const [documents, setDocuments] = useState<string[]>([]);
+  const [uploadingDoc, setUploadingDoc] = useState(false);
 
   // Private contact fields (collected when user posts)
   const [userHasPhone, setUserHasPhone] = useState(false);
@@ -143,6 +146,7 @@ function CreateListingForm() {
           setMinPrice(l.minPrice !== undefined && l.minPrice !== null ? String(l.minPrice) : "");
           setMaxPrice(l.maxPrice !== undefined && l.maxPrice !== null ? String(l.maxPrice) : "");
           setPhotos(Array.isArray(l.photos) ? l.photos : []);
+          setDocuments(Array.isArray(l.documents) ? l.documents : []);
           setQuantity(l.quantity ? String(l.quantity) : "1");
           setDuplicatingFrom(l.title || "Selected Listing");
         }
@@ -220,6 +224,58 @@ function CreateListingForm() {
 
   const removePhoto = (indexToRemove: number) => {
     setPhotos((prev) => prev.filter((_, idx) => idx !== indexToRemove));
+  };
+
+  const handleDocumentUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
+
+    if (documents.length + files.length > 5) {
+      setError("A maximum of 5 PDF documents can be attached per listing.");
+      return;
+    }
+
+    setUploadingDoc(true);
+    setError("");
+
+    try {
+      const uploadPromises = Array.from(files).map(async (file) => {
+        if (file.type !== "application/pdf") {
+          throw new Error("Only PDF files are allowed for documents.");
+        }
+        if (file.size > 10 * 1024 * 1024) {
+          throw new Error("PDF file size must be under 10MB.");
+        }
+        const formData = new FormData();
+        formData.append("file", file);
+
+        const res = await fetch("/api/upload", {
+          method: "POST",
+          body: formData,
+        });
+
+        if (!res.ok) {
+          const errData = await res.json();
+          throw new Error(errData.error || "Upload failed");
+        }
+
+        const data = await res.json();
+        return data.url;
+      });
+
+      const uploadedUrls = await Promise.all(uploadPromises);
+      setDocuments((prev) => [...prev, ...uploadedUrls]);
+    } catch (err) {
+      console.error("Document upload error:", err);
+      setError(errorMessage(err) || "Failed to upload one or more documents");
+    } finally {
+      setUploadingDoc(false);
+      e.target.value = "";
+    }
+  };
+
+  const removeDocument = (indexToRemove: number) => {
+    setDocuments((prev) => prev.filter((_, idx) => idx !== indexToRemove));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -708,6 +764,63 @@ function CreateListingForm() {
                   className="hidden"
                 />
               </label>
+            </div>
+
+            {/* PDF Documents Attachment */}
+            <div className="mt-6 pt-6 border-t border-slate-100">
+              <div className="flex items-center justify-between mb-2">
+                <label className="block text-sm font-bold text-slate-800">
+                  Attached PDF Documents (Optional)
+                </label>
+                <span className="text-xs text-slate-400">{documents.length} / 5</span>
+              </div>
+              <p className="text-xs text-slate-500 mb-4">
+                Upload instrument brochure, technical datasheet, calibration certificate, or user manual (Max 10MB per PDF).
+              </p>
+
+              {documents.length > 0 && (
+                <div className="space-y-2 mb-4">
+                  {documents.map((docUrl, idx) => {
+                    const rawName = docUrl.split("/").pop()?.split("?")[0] || `Document_${idx + 1}.pdf`;
+                    const displayName = decodeURIComponent(rawName);
+                    return (
+                      <div
+                        key={idx}
+                        className="flex items-center justify-between p-3 bg-slate-50 rounded-xl border border-slate-200"
+                      >
+                        <div className="flex items-center space-x-2.5 min-w-0">
+                          <FileText className="w-4 h-4 text-rose-600 flex-shrink-0" />
+                          <span className="text-xs font-semibold text-slate-800 truncate">
+                            {displayName}
+                          </span>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => removeDocument(idx)}
+                          className="p-1 text-slate-400 hover:text-rose-600 transition-colors ml-2"
+                        >
+                          <X className="w-4 h-4" />
+                        </button>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+
+              {documents.length < 5 && (
+                <label className="inline-flex items-center space-x-2 px-4 py-2.5 rounded-xl border-2 border-dashed border-slate-300 hover:border-brand-blue bg-slate-50 hover:bg-brand-blue-50/30 cursor-pointer text-xs font-bold text-brand-blue transition-colors">
+                  <FileText className="w-4 h-4 text-brand-blue" />
+                  <span>{uploadingDoc ? "Uploading PDF..." : "+ Attach PDF Document"}</span>
+                  <input
+                    type="file"
+                    accept="application/pdf"
+                    multiple
+                    disabled={uploadingDoc}
+                    onChange={handleDocumentUpload}
+                    className="hidden"
+                  />
+                </label>
+              )}
             </div>
           </div>
 
