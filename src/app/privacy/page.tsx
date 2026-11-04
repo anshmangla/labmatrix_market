@@ -10,7 +10,7 @@ export const metadata: Metadata = {
   },
 };
 
-const EFFECTIVE_DATE = "1 November 2026";
+const EFFECTIVE_DATE = "4 November 2026";
 const CONTACT_EMAIL = "sales@labmatrixindia.com";
 const GRIEVANCE_OFFICER = "Pradeep Sharma";
 const GRIEVANCE_EMAIL = "pradeep.sharma@labmatrixindia.com";
@@ -58,7 +58,9 @@ export default function PrivacyPolicyPage() {
           <p>
             <strong>Listings and requests.</strong> When you list equipment or post a sourcing request, we
             collect the details you enter (such as title, description, category, condition, price range, part
-            numbers, quantity and the city or location you type in) and any photos you upload.
+            numbers, quantity and the city or location you type in), any photos you upload, and any documents
+            (such as equipment datasheets, calibration reports, user manuals, or specification sheets in PDF format)
+            you choose to attach.
           </p>
           <p>
             <strong>Inquiries and messages.</strong> When you send an inquiry about a listing or request, or use
@@ -82,12 +84,14 @@ export default function PrivacyPolicyPage() {
           </p>
         </Section>
 
-        <Section id="app-permissions" title="2. Camera and photo access (mobile app)">
+        <Section id="app-permissions" title="2. Camera, photo and document access (mobile app)">
           <p>
-            The mobile app asks for access to your <strong>camera</strong> and <strong>photo library</strong>{" "}
-            only when you choose to take or attach photos of equipment you are listing. Only the photos you
-            select are uploaded. The app does not record audio or access your microphone. You can withdraw these
-            permissions at any time in your device settings; you can still use the rest of the app.
+            The mobile app asks for access to your <strong>camera</strong>, <strong>photo library</strong>, and
+            <strong>document storage</strong> only when you choose to take photos or attach files (such as instrument photos
+            or specification PDFs) to equipment you are listing or sourcing. Only the specific photos or documents you
+            select in the device picker are uploaded. We do not scan, index, or access any other files on your device.
+            The app does not record audio or access your microphone. You can withdraw permissions at any time in your
+            device settings; you can still use the rest of the app.
           </p>
           <p>
             The app stores your sign-in token securely on your device (in the device&apos;s encrypted secure

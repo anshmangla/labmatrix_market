@@ -29,6 +29,7 @@ export async function GET(
           itemType: true,
           partNumber: true,
           compatibleWith: true,
+          documents: true,
           status: true,
           isApproved: true,
           buyerId: true,
@@ -105,6 +106,7 @@ export async function PATCH(
       itemType,
       partNumber,
       compatibleWith,
+      documents,
       status,
       isApproved,
     } = body;

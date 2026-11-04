@@ -59,6 +59,7 @@ export async function GET(request: Request) {
           itemType: true,
           partNumber: true,
           compatibleWith: true,
+          documents: true,
           status: true,
           createdAt: true,
           // STRICT PRIVACY: Buyer name, phone number, and email are NEVER exposed to the public!
@@ -126,6 +127,7 @@ export async function POST(request: Request) {
       itemType,
       partNumber,
       compatibleWith,
+      documents,
       phoneNumber,
       companyName,
     } = body;
@@ -195,6 +197,16 @@ export async function POST(request: Request) {
     const resolvedItemType =
       itemType || (trimmedCategory === "Spare Parts & Consumables" ? "SPARE_PART" : "MACHINE");
 
+    let sanitizedDocs: string[] = [];
+    if (Array.isArray(documents)) {
+      sanitizedDocs = documents
+        .filter((d): d is string => 
+          typeof d === "string" && 
+          (d.startsWith("https://") || d.startsWith("data:application/pdf") || d.startsWith("http://localhost"))
+        )
+        .slice(0, 5);
+    }
+
     const requirement = await prisma.requirement.create({
       data: {
         title: trimmedTitle,
@@ -203,6 +215,7 @@ export async function POST(request: Request) {
         itemType: resolvedItemType,
         partNumber: partNumber && typeof partNumber === "string" ? partNumber.trim().slice(0, 100) : null,
         compatibleWith: compatibleWith && typeof compatibleWith === "string" ? compatibleWith.trim().slice(0, 150) : null,
+        documents: sanitizedDocs,
         buyerId: session.user.id,
         status: "OPEN",
       },

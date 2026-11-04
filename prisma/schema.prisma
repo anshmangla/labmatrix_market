@@ -108,6 +108,7 @@ model Listing {
   condition      String?       @default("Used - Good")
   location       String?
   photos         String[]      @default([])
+  documents      String[]      @default([])
   quantity       Int           @default(1)
   status         ListingStatus @default(AVAILABLE)
   isApproved     Boolean       @default(false)
@@ -138,6 +139,7 @@ model Requirement {
   itemType       String            @default("MACHINE")
   partNumber     String?
   compatibleWith String?
+  documents      String[]          @default([])
   status         RequirementStatus @default(OPEN)
   isApproved     Boolean           @default(false)
   buyerId        String

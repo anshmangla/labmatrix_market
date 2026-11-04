@@ -35,6 +35,7 @@ export async function GET(
           condition: true,
           location: true,
           photos: true,
+          documents: true,
           quantity: true,
           status: true,
           isApproved: true,
@@ -118,6 +119,7 @@ export async function PATCH(
       condition,
       location,
       photos,
+      documents,
       quantity,
       status,
       isApproved,
@@ -192,6 +194,29 @@ export async function PATCH(
         updateData.itemType = itemType;
         contentChanged = true;
       }
+    }
+
+    if (documents !== undefined) {
+      if (!Array.isArray(documents)) {
+        return NextResponse.json(
+          { error: "Documents must be an array of URLs." },
+          { status: 400 }
+        );
+      }
+      if (documents.length > 5) {
+        return NextResponse.json(
+          { error: "A maximum of 5 documents can be attached per listing." },
+          { status: 400 }
+        );
+      }
+      updateData.documents = documents
+        .filter(
+          (d): d is string =>
+            typeof d === "string" &&
+            (d.startsWith("https://") || d.startsWith("data:application/pdf") || d.startsWith("http://localhost"))
+        )
+        .slice(0, 5);
+      contentChanged = true;
     }
 
     if (quantity !== undefined) {

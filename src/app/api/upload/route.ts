@@ -45,20 +45,32 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "No file provided" }, { status: 400 });
     }
 
-    // 1. File size enforcement: Maximum 5 MB per image to prevent server memory exhaustion
-    const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5 MB
+    const isPdf = file.type.toLowerCase() === "application/pdf";
+
+    // 1. File size enforcement: Maximum 10 MB for PDFs, 5 MB for images
+    const MAX_FILE_SIZE = isPdf ? 10 * 1024 * 1024 : 5 * 1024 * 1024;
     if (file.size > MAX_FILE_SIZE) {
       return NextResponse.json(
-        { error: "File exceeds 5MB size limit. Please upload a smaller image." },
+        {
+          error: isPdf
+            ? "PDF exceeds 10MB size limit. Please upload a smaller document."
+            : "File exceeds 5MB size limit. Please upload a smaller image.",
+        },
         { status: 400 }
       );
     }
 
-    // 2. Strict MIME type verification: Allow raster image formats only (explicitly disallowing SVG to prevent XSS)
-    const ALLOWED_MIME_TYPES = ["image/jpeg", "image/png", "image/webp", "image/jpg"];
+    // 2. Strict MIME type verification: Allow raster image formats and PDF documents
+    const ALLOWED_MIME_TYPES = [
+      "image/jpeg",
+      "image/png",
+      "image/webp",
+      "image/jpg",
+      "application/pdf",
+    ];
     if (!ALLOWED_MIME_TYPES.includes(file.type.toLowerCase())) {
       return NextResponse.json(
-        { error: "Only JPEG, PNG, and WEBP image files are allowed." },
+        { error: "Only JPEG, PNG, WEBP images and PDF documents are allowed." },
         { status: 400 }
       );
     }
@@ -72,17 +84,25 @@ export async function POST(request: Request) {
       process.env.CLOUDINARY_API_KEY &&
       process.env.CLOUDINARY_API_SECRET
     ) {
-      const uploadResult = await new Promise<{ secure_url: string }>((resolve, reject) => {
-        const uploadStream = cloudinary.uploader.upload_stream(
-          {
+      const uploadOptions: Record<string, any> = isPdf
+        ? {
+            folder: "labmatrix/documents",
+            resource_type: "raw",
+          }
+        : {
             folder: "labmatrix/machines",
+            resource_type: "image",
             transformation: [{ quality: "auto", fetch_format: "auto" }],
             // Pre-generate the exact sizes the mobile app requests (src/lib/images.ts there:
             // card, detail, thumbnail, zoom) so the first viewer doesn't wait for Cloudinary to
             // create them. Async: the upload response doesn't wait for this.
             eager: MOBILE_IMAGE_SIZES.map((raw_transformation) => ({ raw_transformation })),
             eager_async: true,
-          },
+          };
+
+      const uploadResult = await new Promise<{ secure_url: string }>((resolve, reject) => {
+        const uploadStream = cloudinary.uploader.upload_stream(
+          uploadOptions,
           (error, result) => {
             if (error || !result) {
               reject(error || new Error("Cloudinary upload failed"));
@@ -94,13 +114,21 @@ export async function POST(request: Request) {
         uploadStream.end(buffer);
       });
 
-      return NextResponse.json({ url: uploadResult.secure_url });
+      return NextResponse.json({
+        url: uploadResult.secure_url,
+        name: file.name,
+        size: file.size,
+        type: isPdf ? "pdf" : "image",
+      });
     } else {
       // Fallback for development if keys aren't set yet: Base64 data URL
-      const base64Image = `data:${file.type};base64,${buffer.toString("base64")}`;
+      const base64Data = `data:${file.type};base64,${buffer.toString("base64")}`;
       return NextResponse.json({
-        url: base64Image,
-        warning: "Cloudinary credentials not yet configured. Image stored as data URL for development.",
+        url: base64Data,
+        name: file.name,
+        size: file.size,
+        type: isPdf ? "pdf" : "image",
+        warning: "Cloudinary credentials not yet configured. File stored as data URL for development.",
       });
     }
   } catch (error) {

@@ -80,6 +80,7 @@ export async function GET(request: Request) {
           condition: true,
           location: true,
           photos: true,
+          documents: true,
           quantity: true,
           status: true,
           createdAt: true,
@@ -153,6 +154,7 @@ export async function POST(request: Request) {
       condition,
       location,
       photos,
+      documents,
       quantity,
       phoneNumber,
       companyName,
@@ -227,6 +229,23 @@ export async function POST(request: Request) {
         .slice(0, 10);
     }
 
+    // 4. Document array sanitization and limit (PDF attachments)
+    let sanitizedDocuments: string[] = [];
+    if (Array.isArray(documents)) {
+      if (documents.length > 5) {
+        return NextResponse.json(
+          { error: "A maximum of 5 documents can be attached per listing." },
+          { status: 400 }
+        );
+      }
+      sanitizedDocuments = documents
+        .filter((d): d is string => 
+          typeof d === "string" && 
+          (d.startsWith("https://") || d.startsWith("data:application/pdf") || d.startsWith("http://localhost"))
+        )
+        .slice(0, 5);
+    }
+
     // Check user's current contact info
     const currentUser = await prisma.user.findUnique({
       where: { id: session.user.id },
@@ -283,6 +302,7 @@ export async function POST(request: Request) {
         condition: condition && typeof condition === "string" ? condition.slice(0, 100) : "Used - Good",
         location: location && typeof location === "string" ? location.trim().slice(0, 100) : "India",
         photos: sanitizedPhotos,
+        documents: sanitizedDocuments,
         quantity: parsedQuantity,
         sellerId: session.user.id,
       },
