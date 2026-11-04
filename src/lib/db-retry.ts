@@ -21,6 +21,8 @@ const READ_OPERATIONS = new Set([
 // Failures where no connection was ever established, so the query never reached the database
 const CONNECT_FAILURE_PATTERNS = [
   /timeout exceeded when trying to connect/i,
+  // pg-pool's connectionTimeoutMillis firing while a new connection is being set up (before any query)
+  /connection terminated due to connection timeout/i,
   /can't reach database server/i,
   /ECONNREFUSED/i,
   /ENOTFOUND/i,
@@ -74,6 +76,7 @@ export async function withConnectionRetry<T>(
   run: () => Promise<T>,
   delayMs = 300
 ): Promise<T> {
+  const started = Date.now();
   try {
     return await run();
   } catch (error) {
@@ -81,8 +84,20 @@ export async function withConnectionRetry<T>(
       isConnectFailure(error) || (READ_OPERATIONS.has(operation) && isDroppedConnection(error));
     if (!retryable) throw error;
 
-    console.warn(`Retrying database ${operation} after connection error:`, describe(error).text);
+    // Timings show in the logs how long the failed attempt took and whether the retry recovered
+    console.warn(
+      `Retrying database ${operation} after connection error (failed after ${Date.now() - started}ms):`,
+      describe(error).text
+    );
     await new Promise((resolve) => setTimeout(resolve, delayMs));
-    return run();
+    const retryStarted = Date.now();
+    try {
+      const result = await run();
+      console.warn(`Database ${operation} retry succeeded in ${Date.now() - retryStarted}ms`);
+      return result;
+    } catch (retryError) {
+      console.warn(`Database ${operation} retry failed after ${Date.now() - retryStarted}ms:`, describe(retryError).text);
+      throw retryError;
+    }
   }
 }
