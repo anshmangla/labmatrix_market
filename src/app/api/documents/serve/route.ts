@@ -54,6 +54,8 @@ export async function GET(request: Request) {
       `${isDownload ? "attachment" : "inline"}; filename="${sanitizedName}"`
     );
     headers.set("Cache-Control", "public, max-age=86400, s-maxage=86400");
+    headers.set("X-Frame-Options", "SAMEORIGIN");
+    headers.set("Content-Security-Policy", "frame-ancestors 'self'");
 
     return new Response(arrayBuffer, {
       status: 200,
