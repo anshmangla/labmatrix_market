@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 import { getOptimizedImageUrl, IMAGE_PRESETS } from "@/lib/images";
 import LoadMoreButton from "@/components/listings/LoadMoreButton";
+import { formatPrice } from "@/lib/formatters";
 
 export interface SpareListing {
   id: string;
@@ -59,8 +60,8 @@ const COMMON_PART_CATEGORIES = [
 ];
 
 const STATUS_OPTIONS: { label: string; value: "ALL" | "AVAILABLE" | "SOLD" }[] = [
-  { label: "All Items", value: "ALL" },
   { label: "Available / In Stock", value: "AVAILABLE" },
+  { label: "All Items", value: "ALL" },
   { label: "Sold Out", value: "SOLD" },
 ];
 
@@ -99,7 +100,7 @@ export default function SparePartsClient({
     urlCategory && COMMON_PART_CATEGORIES.includes(urlCategory) ? urlCategory : "ALL"
   );
   const [selectedStatus, setSelectedStatus] = useState<"ALL" | "AVAILABLE" | "SOLD">(
-    urlStatus === "AVAILABLE" || urlStatus === "SOLD" ? urlStatus : "ALL"
+    urlStatus === "ALL" || urlStatus === "SOLD" ? urlStatus : "AVAILABLE"
   );
   const [hasUserInteracted, setHasUserInteracted] = useState(
     Boolean(urlCategory || urlQuery || urlTab || urlStatus)
@@ -121,11 +122,11 @@ export default function SparePartsClient({
     }
 
     const stat = searchParams.get("status");
-    if (stat === "AVAILABLE" || stat === "SOLD") {
+    if (stat === "AVAILABLE" || stat === "SOLD" || stat === "ALL") {
       setSelectedStatus(stat);
       setHasUserInteracted(true);
-    } else if (!stat && selectedStatus !== "ALL") {
-      setSelectedStatus("ALL");
+    } else if (!stat && selectedStatus !== "AVAILABLE") {
+      setSelectedStatus("AVAILABLE");
       setHasUserInteracted(true);
     }
 
@@ -557,12 +558,7 @@ export default function SparePartsClient({
                           {item.status === "SOLD" ? "Price (Sold)" : "Price Guide"}
                         </span>
                         <span className={`font-bold text-sm ${item.status === "SOLD" ? "text-slate-600" : "text-slate-900"}`}>
-                          ₹{item.minPrice.toLocaleString("en-IN")}
-                          {item.maxPrice > item.minPrice && (
-                            <span className="text-slate-400 font-normal text-xs ml-1">
-                              - ₹{item.maxPrice.toLocaleString("en-IN")}
-                            </span>
-                          )}
+                          {formatPrice(item.minPrice, item.maxPrice)}
                         </span>
                       </div>
 

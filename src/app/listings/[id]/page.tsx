@@ -20,6 +20,7 @@ import {
 } from "lucide-react";
 import { getOptimizedImageUrl } from "@/lib/images";
 import { toJsonLd } from "@/lib/json-ld";
+import { formatPrice, formatDate } from "@/lib/formatters";
 
 export const dynamic = "force-dynamic";
 
@@ -395,7 +396,7 @@ export default async function ListingDetailPage({
                   <span>•</span>
                   <span className="flex items-center">
                     <Clock className="w-3.5 h-3.5 mr-1 text-slate-400" />
-                    Listed on {new Date(listing.createdAt).toLocaleDateString()}
+                    Listed on {formatDate(listing.createdAt)}
                   </span>
                 </div>
 
@@ -494,11 +495,10 @@ export default async function ListingDetailPage({
                 </div>
               )}
               <span className="text-xs font-semibold text-slate-400 block mb-1">
-                {listing.status === "SOLD" ? "Recorded Price Range" : "Approximate Price Expectation"}
+                {listing.status === "SOLD" ? "Last Asking Price" : "Expected Price"}
               </span>
               <div className="text-2xl sm:text-3xl font-black text-brand-blue">
-                ₹{listing.minPrice.toLocaleString("en-IN")} - ₹
-                {listing.maxPrice.toLocaleString("en-IN")}
+                {formatPrice(listing.minPrice, listing.maxPrice)}
               </div>
               {listing.quantity && listing.quantity > 1 ? (
                 <div className="mt-1 text-xs font-semibold text-slate-700 flex items-center space-x-1.5">

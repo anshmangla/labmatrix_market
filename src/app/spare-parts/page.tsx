@@ -37,8 +37,10 @@ export default async function SparePartsHubPage({
     if (statusParam && statusParam !== "ALL") {
       // Unvalidated URL value: Prisma rejects anything that isn't a ListingStatus
       where.status = statusParam as ListingStatus;
-    } else {
+    } else if (statusParam === "ALL") {
       where.status = { in: ["AVAILABLE", "SOLD"] };
+    } else {
+      where.status = "AVAILABLE";
     }
 
     if (category && category !== "ALL") {
@@ -80,7 +82,7 @@ export default async function SparePartsHubPage({
     // Free-text searches aren't cached: each term would be its own, rarely reused entry
     const rows = query
       ? await readRows()
-      : await cachedPublicRead(PUBLIC_LISTINGS_TAG, ["spare-parts-page", category ?? "", statusParam ?? ""], readRows);
+      : await cachedPublicRead(PUBLIC_LISTINGS_TAG, ["spare-parts-page", category ?? "", statusParam ?? "AVAILABLE"], readRows);
 
     initialListings = rows.map((r) => ({
       ...r,

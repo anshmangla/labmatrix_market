@@ -28,6 +28,12 @@ export default function Navbar() {
   const { data: session, status } = useSession();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const pathname = usePathname();
+  const signInUrl = pathname && pathname !== "/auth/signin" && pathname !== "/auth/signup"
+    ? `/auth/signin?callbackUrl=${encodeURIComponent(pathname)}`
+    : "/auth/signin";
+  const signUpUrl = pathname && pathname !== "/auth/signin" && pathname !== "/auth/signup"
+    ? `/auth/signup?callbackUrl=${encodeURIComponent(pathname)}`
+    : "/auth/signup";
 
   const isEquipmentActive = pathname === "/listings" || (pathname.startsWith("/listings/") && !pathname.includes("/edit"));
   const isNewInstrumentsActive = pathname === "/new-instruments";
@@ -130,7 +136,7 @@ export default function Navbar() {
             ) : (
               <div className="flex items-center space-x-2 pl-1">
                 <Link
-                  href="/auth/signin"
+                  href={signInUrl}
                   prefetch={false}
                   className="inline-flex items-center space-x-1 px-3 py-1.5 rounded-xl text-xs font-bold text-slate-700 hover:text-brand-blue hover:bg-slate-100 transition-colors"
                 >
@@ -138,7 +144,7 @@ export default function Navbar() {
                   <span>Sign In</span>
                 </Link>
                 <Link
-                  href="/auth/signup"
+                  href={signUpUrl}
                   prefetch={false}
                   className="inline-flex items-center space-x-1 px-3.5 py-1.5 rounded-xl text-xs font-bold text-white bg-brand-blue hover:bg-brand-blue-500 shadow-xs transition-all"
                 >
@@ -369,7 +375,7 @@ export default function Navbar() {
             ) : (
               <div className="grid grid-cols-2 gap-2 pt-1">
                 <Link
-                  href="/auth/signin"
+                  href={signInUrl}
                   onClick={() => setMobileMenuOpen(false)}
                   className="w-full py-2.5 text-center text-xs font-bold border border-slate-300 rounded-xl text-slate-700 hover:bg-slate-50 flex items-center justify-center space-x-1"
                 >
@@ -377,7 +383,7 @@ export default function Navbar() {
                   <span>Sign In</span>
                 </Link>
                 <Link
-                  href="/auth/signup"
+                  href={signUpUrl}
                   onClick={() => setMobileMenuOpen(false)}
                   className="w-full py-2.5 text-center text-xs font-bold bg-brand-blue text-white rounded-xl hover:bg-brand-blue-500 shadow-xs flex items-center justify-center space-x-1"
                 >

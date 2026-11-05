@@ -1,7 +1,8 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
+import { usePathname } from "next/navigation";
 import Link from "next/link";
 import {
   ShieldCheck,
@@ -27,17 +28,45 @@ export default function InquiryBox({
   isSold?: boolean;
 }) {
   const { data: session, status } = useSession();
-  const [message, setMessage] = useState(
-    isOfferToRequirement
-      ? `Hello, I have an available ${itemTitle} matching this requirement. Please get in touch with me to discuss specs and inspection.`
-      : isSold
-      ? `Hello, I saw that this ${itemTitle} was recently sold. I am looking for a similar or equivalent unit. Please let me know what options or incoming inventory are available.`
-      : `Hello, I am interested in acquiring this ${itemTitle}. Please let me know the availability and inspection schedule.`
-  );
+  const pathname = usePathname();
+  const draftKey = `labmatrix_draft_inquiry_${listingId || requirementId || "generic"}`;
+
+  const defaultMessage = isOfferToRequirement
+    ? `Hello, I have an available ${itemTitle} matching this requirement. Please get in touch with me to discuss specs and inspection.`
+    : isSold
+    ? `Hello, I saw that this ${itemTitle} was recently sold. I am looking for a similar or equivalent unit. Please let me know what options or incoming inventory are available.`
+    : `Hello, I am interested in acquiring this ${itemTitle}. Please let me know the availability and inspection schedule.`;
+
+  const [message, setMessage] = useState(defaultMessage);
   const [phone, setPhone] = useState("");
   const [loading, setLoading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [error, setError] = useState("");
+
+  // Restore drafted message & phone if previously typed before sign-in
+  useEffect(() => {
+    try {
+      const saved = sessionStorage.getItem(draftKey);
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (parsed.message) setMessage(parsed.message);
+        if (parsed.phone) setPhone(parsed.phone);
+      }
+    } catch {
+      // sessionStorage unavailable or restricted
+    }
+  }, [draftKey]);
+
+  // Persist draft on edit
+  useEffect(() => {
+    try {
+      if (message !== defaultMessage || phone) {
+        sessionStorage.setItem(draftKey, JSON.stringify({ message, phone }));
+      }
+    } catch {
+      // sessionStorage unavailable
+    }
+  }, [message, phone, draftKey, defaultMessage]);
 
   const handleInquiry = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -63,6 +92,12 @@ export default function InquiryBox({
         throw new Error(data.error || "Failed to submit inquiry");
       }
 
+      try {
+        sessionStorage.removeItem(draftKey);
+      } catch {
+        // ignore
+      }
+
       setSubmitted(true);
     } catch (err) {
       setError(errorMessage(err) || "Something went wrong.");
@@ -82,10 +117,17 @@ export default function InquiryBox({
               : "Inquiry Submitted Successfully"}
           </span>
         </div>
-        <p className="text-xs text-emerald-800 leading-relaxed">
+        <p className="text-xs text-emerald-800 leading-relaxed mb-4">
           Your inquiry has been logged securely. We will review the details and follow up promptly
           to facilitate next steps.
         </p>
+        <Link
+          href="/dashboard?tab=inquiries"
+          className="inline-flex items-center space-x-1.5 text-xs font-bold text-brand-blue hover:text-brand-blue-700 hover:underline"
+        >
+          <span>Track in Dashboard → Inquiries</span>
+          <span>↗</span>
+        </Link>
       </div>
     );
   }
@@ -129,10 +171,12 @@ export default function InquiryBox({
         <div className="mt-5 p-4 rounded-xl bg-slate-50 border border-slate-200 text-center">
           <Lock className="w-8 h-8 text-slate-400 mx-auto mb-2" />
           <p className="text-xs text-slate-600 font-medium">
-            Sign in to submit an offer or inquiry for this requirement.
+            {isOfferToRequirement
+              ? "Sign in to submit an offer for this requirement."
+              : "Sign in to send an inquiry for this equipment."}
           </p>
           <Link
-            href="/auth/signin"
+            href={`/auth/signin?callbackUrl=${encodeURIComponent(pathname || "/listings")}`}
             className="mt-3 inline-block px-4 py-2 bg-brand-blue hover:bg-brand-blue-500 text-white font-semibold text-xs rounded-xl transition-colors shadow-xs"
           >
             Sign In with Email or Google

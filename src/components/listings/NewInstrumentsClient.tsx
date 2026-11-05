@@ -17,6 +17,7 @@ import {
 } from "lucide-react";
 import { getOptimizedImageUrl, IMAGE_PRESETS } from "@/lib/images";
 import LoadMoreButton from "@/components/listings/LoadMoreButton";
+import { formatPrice } from "@/lib/formatters";
 import { Listing } from "./ListingsClient";
 
 const CATEGORIES = [
@@ -44,8 +45,8 @@ const PRICE_TIERS = [
 ];
 
 const STATUS_OPTIONS: { label: string; value: "ALL" | "AVAILABLE" | "SOLD" }[] = [
-  { label: "All Items", value: "ALL" },
   { label: "Available / In Stock", value: "AVAILABLE" },
+  { label: "All Items", value: "ALL" },
   { label: "Sold Out", value: "SOLD" },
 ];
 
@@ -77,7 +78,7 @@ export default function NewInstrumentsClient({
     urlCategory && CATEGORIES.includes(urlCategory) ? urlCategory : "ALL"
   );
   const [selectedStatus, setSelectedStatus] = useState<"ALL" | "AVAILABLE" | "SOLD">(
-    urlStatus === "AVAILABLE" || urlStatus === "SOLD" ? urlStatus : "ALL"
+    urlStatus === "ALL" || urlStatus === "SOLD" ? urlStatus : "AVAILABLE"
   );
   const [selectedPriceTier, setSelectedPriceTier] = useState(0);
   const [hasUserInteracted, setHasUserInteracted] = useState(Boolean(urlStatus));
@@ -98,11 +99,11 @@ export default function NewInstrumentsClient({
     }
 
     const stat = searchParams.get("status");
-    if (stat === "AVAILABLE" || stat === "SOLD") {
+    if (stat === "AVAILABLE" || stat === "SOLD" || stat === "ALL") {
       setSelectedStatus(stat);
       setHasUserInteracted(true);
-    } else if (!stat && selectedStatus !== "ALL") {
-      setSelectedStatus("ALL");
+    } else if (!stat && selectedStatus !== "AVAILABLE") {
+      setSelectedStatus("AVAILABLE");
       setHasUserInteracted(true);
     }
 
@@ -371,6 +372,7 @@ export default function NewInstrumentsClient({
                   setSelectedCategory("ALL");
                   setSelectedPriceTier(0);
                   setSearch("");
+                  setSelectedStatus("AVAILABLE");
                   setHasUserInteracted(true);
                 }}
                 className="px-4 py-2 border border-slate-300 rounded-xl text-xs font-semibold text-slate-700 hover:bg-slate-50"
@@ -461,12 +463,7 @@ export default function NewInstrumentsClient({
                           {item.status === "SOLD" ? "Price Realized (Sold)" : "Price / Quote"}
                         </span>
                         <span className={`text-base font-extrabold ${item.status === "SOLD" ? "text-slate-600" : "text-emerald-800"}`}>
-                          ₹{item.minPrice.toLocaleString("en-IN")}
-                          {item.maxPrice > item.minPrice && (
-                            <span className="text-xs text-slate-400 font-medium ml-1">
-                              - ₹{item.maxPrice.toLocaleString("en-IN")}
-                            </span>
-                          )}
+                          {formatPrice(item.minPrice, item.maxPrice)}
                         </span>
                       </div>
 
