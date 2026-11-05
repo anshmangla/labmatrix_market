@@ -17,6 +17,7 @@ import {
   Clock,
   Heart,
   Boxes,
+  FileText,
 } from "lucide-react";
 import { getOptimizedImageUrl, IMAGE_PRESETS } from "@/lib/images";
 import { formatPrice } from "@/lib/formatters";
@@ -36,6 +37,7 @@ export interface CatalogListing {
   condition: string;
   location: string;
   photos: string[];
+  documents?: string[];
   quantity?: number;
   createdAt: string;
   status: string;
@@ -665,6 +667,18 @@ export default function CatalogGrid({
                               : ""
                           }`}
                         />
+                      ) : item.documents && item.documents.length > 0 ? (
+                        <div className="w-full h-full flex flex-col items-center justify-center p-4 bg-gradient-to-br from-slate-900 via-slate-800 to-slate-950 text-white text-center relative">
+                          <div className="w-11 h-11 rounded-xl bg-rose-500/20 text-rose-400 border border-rose-500/30 flex items-center justify-center mb-2 shadow-xs group-hover:scale-105 transition-transform">
+                            <FileText className="w-5 h-5" />
+                          </div>
+                          <span className="text-[10px] font-bold text-rose-400 uppercase tracking-wider bg-rose-950/80 px-2 py-0.5 rounded-full border border-rose-800/60 mb-1">
+                            PDF Documentation
+                          </span>
+                          <span className="text-xs font-semibold text-slate-200 line-clamp-1 px-2">
+                            {decodeURIComponent(item.documents[0].split("/").pop()?.split("?")[0] || "Datasheet.pdf")}
+                          </span>
+                        </div>
                       ) : (
                         <div className="w-full h-full flex flex-col items-center justify-center text-slate-400 bg-slate-100">
                           <Tag className="w-8 h-8 mb-1" />
@@ -687,6 +701,12 @@ export default function CatalogGrid({
                         {item.quantity && item.quantity > 1 && (
                           <span className="bg-slate-900/80 text-white text-[10px] font-bold px-2 py-0.5 rounded shadow-xs">
                             Qty {item.quantity}
+                          </span>
+                        )}
+                        {item.documents && item.documents.length > 0 && (
+                          <span className="bg-rose-900/90 text-rose-200 text-[10px] font-bold px-2 py-0.5 rounded shadow-xs flex items-center space-x-1 border border-rose-700/50">
+                            <FileText className="w-3 h-3 text-rose-300" />
+                            <span>PDF{item.documents.length > 1 ? ` (${item.documents.length})` : ""}</span>
                           </span>
                         )}
                       </div>

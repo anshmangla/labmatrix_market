@@ -75,6 +75,7 @@ export default async function SparePartsHubPage({
           condition: true,
           location: true,
           photos: true,
+          documents: true,
           quantity: true,
           createdAt: true,
           status: true,

@@ -6,6 +6,7 @@ import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { cachedPublicRead, PUBLIC_LISTINGS_TAG } from "@/lib/public-cache";
 import PhotoGallery from "@/components/listings/PhotoGallery";
+import DocumentList from "@/components/listings/DocumentList";
 import InquiryBox from "@/components/inquiries/InquiryBox";
 import SaveListingButton from "@/components/listings/SaveListingButton";
 import ShareListingButton from "@/components/listings/ShareListingButton";
@@ -376,7 +377,11 @@ export default async function ListingDetailPage({
           <div className="lg:col-span-7 xl:col-span-8 space-y-6">
             {/* Gallery */}
             <div className="bg-white rounded-2xl p-4 sm:p-6 shadow-xs border border-slate-200">
-              <PhotoGallery photos={listing.photos} title={listing.title} />
+              <PhotoGallery
+                photos={listing.photos}
+                documents={listing.documents}
+                title={listing.title}
+              />
             </div>
 
             {/* Specifications Card */}
@@ -432,39 +437,10 @@ export default async function ListingDetailPage({
             </div>
 
             {/* Attached Documents & Manuals */}
-            {listing.documents && listing.documents.length > 0 && (
-              <div className="bg-white rounded-2xl p-6 sm:p-7 shadow-xs border border-slate-200 space-y-4">
-                <h2 className="text-base font-bold text-slate-900 flex items-center space-x-2">
-                  <FileText className="w-4 h-4 text-rose-600" />
-                  <span>Attached Documents & Manuals ({listing.documents.length})</span>
-                </h2>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  {listing.documents.map((docUrl: string, idx: number) => {
-                    const rawName = docUrl.split("/").pop()?.split("?")[0] || `Document_${idx + 1}.pdf`;
-                    const displayName = decodeURIComponent(rawName);
-                    return (
-                      <a
-                        key={idx}
-                        href={docUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="flex items-center space-x-3 p-3.5 bg-slate-50 hover:bg-slate-100 rounded-xl border border-slate-200 transition-colors group"
-                      >
-                        <div className="w-9 h-9 rounded-lg bg-rose-100 text-rose-600 flex items-center justify-center flex-shrink-0 group-hover:scale-105 transition-transform">
-                          <FileText className="w-5 h-5" />
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <p className="text-xs font-bold text-slate-900 truncate group-hover:text-brand-blue transition-colors">
-                            {displayName}
-                          </p>
-                          <p className="text-[11px] text-slate-500">PDF Document • Tap to view</p>
-                        </div>
-                      </a>
-                    );
-                  })}
-                </div>
-              </div>
-            )}
+            <DocumentList
+              documents={listing.documents}
+              listingTitle={listing.title}
+            />
           </div>
 
           {/* Right Column (5 Cols on lg, 4 on xl): Sticky Decision & Inquiry Panel */}

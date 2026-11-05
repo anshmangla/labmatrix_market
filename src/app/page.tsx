@@ -117,6 +117,7 @@ export default async function Home() {
           condition: true,
           location: true,
           photos: true,
+          documents: true,
           createdAt: true,
         },
       });

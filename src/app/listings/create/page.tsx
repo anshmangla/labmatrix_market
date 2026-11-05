@@ -17,8 +17,10 @@ import {
   Info,
   Image as 
   Clock,
+  Eye,
 } from "lucide-react";
 import { errorMessage } from "@/lib/errors";
+import PdfViewerModal from "@/components/listings/PdfViewerModal";
 
 const CATEGORIES = [
   "HPLC & UHPLC",
@@ -95,6 +97,8 @@ function CreateListingForm() {
   const [uploading, setUploading] = useState(false);
   const [documents, setDocuments] = useState<string[]>([]);
   const [uploadingDoc, setUploadingDoc] = useState(false);
+  const [previewPdfUrl, setPreviewPdfUrl] = useState<string | null>(null);
+  const [previewPdfTitle, setPreviewPdfTitle] = useState<string>("");
 
   // Private contact fields (collected when user posts)
   const [userHasPhone, setUserHasPhone] = useState(false);
@@ -912,13 +916,27 @@ function CreateListingForm() {
                             {displayName}
                           </span>
                         </div>
-                        <button
-                          type="button"
-                          onClick={() => removeDocument(idx)}
-                          className="p-1 text-slate-400 hover:text-rose-600 transition-colors ml-2"
-                        >
-                          <X className="w-4 h-4" />
-                        </button>
+                        <div className="flex items-center space-x-1 ml-2">
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setPreviewPdfUrl(docUrl);
+                              setPreviewPdfTitle(displayName);
+                            }}
+                            className="p-1 text-slate-400 hover:text-brand-blue transition-colors"
+                            title="Preview document"
+                          >
+                            <Eye className="w-4 h-4" />
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => removeDocument(idx)}
+                            className="p-1 text-slate-400 hover:text-rose-600 transition-colors"
+                            title="Remove document"
+                          >
+                            <X className="w-4 h-4" />
+                          </button>
+                        </div>
                       </div>
                     );
                   })}
@@ -1025,7 +1043,13 @@ function CreateListingForm() {
               {!loading && <ArrowRight className="w-4 h-4" />}
             </button>
           </div>
-        </form>
+          <PdfViewerModal
+          isOpen={!!previewPdfUrl}
+          onClose={() => setPreviewPdfUrl(null)}
+          pdfUrl={previewPdfUrl}
+          title={previewPdfTitle}
+        />
+      </form>
       </div>
     </div>
   );

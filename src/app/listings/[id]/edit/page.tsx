@@ -18,8 +18,10 @@ import {
   ArrowLeft,
   Loader2,
   ShieldAlert,
+  Eye,
 } from "lucide-react";
 import { errorMessage } from "@/lib/errors";
+import PdfViewerModal from "@/components/listings/PdfViewerModal";
 
 const CATEGORIES = [
   "HPLC & UHPLC",
@@ -84,6 +86,8 @@ export default function EditListingPage() {
   const [photos, setPhotos] = useState<string[]>([]);
   const [documents, setDocuments] = useState<string[]>([]);
   const [uploadingDoc, setUploadingDoc] = useState(false);
+  const [previewPdfUrl, setPreviewPdfUrl] = useState<string | null>(null);
+  const [previewPdfTitle, setPreviewPdfTitle] = useState<string>("");
 
   // Form states
   const [uploading, setUploading] = useState(false);
@@ -820,14 +824,28 @@ export default function EditListingPage() {
                           <p className="text-xs font-bold text-slate-800 truncate">
                             {displayName}
                           </p>
-                          <a
-                            href={docUrl}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="text-[11px] text-brand-blue hover:underline font-semibold"
-                          >
-                            View Document ↗
-                          </a>
+                          <div className="flex items-center space-x-2 mt-0.5">
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setPreviewPdfUrl(docUrl);
+                                setPreviewPdfTitle(displayName);
+                              }}
+                              className="text-[11px] text-brand-blue hover:underline font-semibold flex items-center space-x-1"
+                            >
+                              <Eye className="w-3 h-3" />
+                              <span>Preview</span>
+                            </button>
+                            <span className="text-slate-300">•</span>
+                            <a
+                              href={docUrl}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-[11px] text-slate-500 hover:text-brand-blue font-semibold"
+                            >
+                              New Window ↗
+                            </a>
+                          </div>
                         </div>
                       </div>
                       <button
@@ -877,7 +895,13 @@ export default function EditListingPage() {
               <span>{saving ? "Saving Changes..." : "Save Listing Updates"}</span>
             </button>
           </div>
-        </form>
+          <PdfViewerModal
+          isOpen={!!previewPdfUrl}
+          onClose={() => setPreviewPdfUrl(null)}
+          pdfUrl={previewPdfUrl}
+          title={previewPdfTitle}
+        />
+      </form>
       </div>
     </div>
   );

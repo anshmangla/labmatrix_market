@@ -75,6 +75,7 @@ export default async function BrowseListingsPage({
           condition: true,
           location: true,
           photos: true,
+          documents: true,
           quantity: true,
           createdAt: true,
           status: true,

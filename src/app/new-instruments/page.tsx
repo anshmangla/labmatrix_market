@@ -83,6 +83,7 @@ export default async function NewInstrumentsPage({
           condition: true,
           location: true,
           photos: true,
+          documents: true,
           quantity: true,
           createdAt: true,
           status: true,
