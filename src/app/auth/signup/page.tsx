@@ -295,7 +295,7 @@ export default function SignUpPage() {
           {success && (
             <div className="mb-6 rounded-xl bg-emerald-50 p-4 border border-emerald-200 flex items-start space-x-3 text-emerald-800 text-xs sm:text-sm">
               <CheckCircle2 className="w-5 h-5 flex-shrink-0 text-emerald-600 mt-0.5" />
-              <span>Email verified! Logging you into LabMatrix...</span>
+              <span>Email verified! Logging you into Labmatrix...</span>
             </div>
           )}
 

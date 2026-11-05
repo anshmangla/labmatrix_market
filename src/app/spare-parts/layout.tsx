@@ -26,7 +26,7 @@ export const metadata: Metadata = {
     "refurbished laboratory components",
   ],
   openGraph: {
-    title: "Refurbished & Replacement Analytical Spare Parts | LabMatrix",
+    title: "Refurbished & Replacement Analytical Spare Parts | Labmatrix",
     description:
       "Verified refurbished components, OEM consumables, and spare parts for laboratory machinery across India.",
     url: "/spare-parts",

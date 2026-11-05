@@ -23,7 +23,7 @@ export const metadata: Metadata = {
     "certified refurbished lab machinery",
   ],
   openGraph: {
-    title: "Refurbished & Pre-Owned Equipment | LabMatrix Marketplace",
+    title: "Refurbished & Pre-Owned Equipment | Labmatrix Marketplace",
     description:
       "Verified refurbished and pre-owned analytical instruments catalog from leading global manufacturers across India.",
     url: "/listings",

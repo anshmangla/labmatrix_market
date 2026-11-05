@@ -21,7 +21,7 @@ export const metadata: Metadata = {
     "refurbished lab machinery sourcing",
   ],
   openGraph: {
-    title: "Buyer Sourcing Requirements Board | LabMatrix Marketplace",
+    title: "Buyer Sourcing Requirements Board | Labmatrix Marketplace",
     description:
       "Active procurement inquiries for refurbished and pre-owned analytical equipment from pharmaceutical facilities across India.",
     url: "/requests",

@@ -31,6 +31,7 @@ import {
   Copy,
 } from "lucide-react";
 import type { InquiryWithTarget, ListingRecord, NotificationRecord, RequirementRecord, UserProfile } from "@/types/records";
+import { formatPrice } from "@/lib/formatters";
 
 function DashboardContent() {
   const { data: session, status, update: updateSession } = useSession();
@@ -391,6 +392,111 @@ function DashboardContent() {
           </div>
         </div>
 
+        {/* Interactive Quick Stats Tiles */}
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3.5">
+          {/* Tile 1: Live Listings */}
+          <button
+            type="button"
+            onClick={() => {
+              switchTab("listings");
+              setListingStatusFilter("AVAILABLE");
+            }}
+            className={`p-4 rounded-2xl border text-left transition-all cursor-pointer ${
+              activeTab === "listings" && listingStatusFilter === "AVAILABLE"
+                ? "bg-emerald-50/80 border-emerald-300 ring-2 ring-emerald-500/20 shadow-xs"
+                : "bg-white border-slate-200 hover:border-slate-300 shadow-2xs hover:shadow-xs"
+            }`}
+          >
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-xs font-bold text-slate-500">Live Listings</span>
+              <div className="w-8 h-8 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center">
+                <Tag className="w-4 h-4" />
+              </div>
+            </div>
+            <div className="text-2xl font-black text-slate-900">
+              {listings.filter((l) => l.status === "AVAILABLE" && l.isApproved).length}
+            </div>
+            <span className="text-[11px] text-emerald-700 font-semibold mt-0.5 block">
+              Active in marketplace →
+            </span>
+          </button>
+
+          {/* Tile 2: Under Review */}
+          <button
+            type="button"
+            onClick={() => {
+              switchTab("listings");
+              setListingStatusFilter("ALL");
+            }}
+            className={`p-4 rounded-2xl border text-left transition-all cursor-pointer ${
+              activeTab === "listings" && listings.some((l) => !l.isApproved)
+                ? "bg-amber-50/80 border-amber-300 ring-2 ring-amber-500/20 shadow-xs"
+                : "bg-white border-slate-200 hover:border-slate-300 shadow-2xs hover:shadow-xs"
+            }`}
+          >
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-xs font-bold text-slate-500">Under Review</span>
+              <div className="w-8 h-8 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center">
+                <Clock className="w-4 h-4" />
+              </div>
+            </div>
+            <div className="text-2xl font-black text-slate-900">
+              {listings.filter((l) => !l.isApproved).length}
+            </div>
+            <span className="text-[11px] text-amber-700 font-semibold mt-0.5 block">
+              Pending verification →
+            </span>
+          </button>
+
+          {/* Tile 3: Inquiries Received */}
+          <button
+            type="button"
+            onClick={() => switchTab("inquiries")}
+            className={`p-4 rounded-2xl border text-left transition-all cursor-pointer ${
+              activeTab === "inquiries"
+                ? "bg-blue-50/80 border-blue-300 ring-2 ring-brand-blue/20 shadow-xs"
+                : "bg-white border-slate-200 hover:border-slate-300 shadow-2xs hover:shadow-xs"
+            }`}
+          >
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-xs font-bold text-slate-500">Inquiries Received</span>
+              <div className="w-8 h-8 rounded-xl bg-blue-50 text-brand-blue flex items-center justify-center">
+                <MessageSquare className="w-4 h-4" />
+              </div>
+            </div>
+            <div className="text-2xl font-black text-slate-900">
+              {inquiries.received.length}
+            </div>
+            <span className="text-[11px] text-brand-blue font-semibold mt-0.5 block">
+              Buyer leads & messages →
+            </span>
+          </button>
+
+          {/* Tile 4: Sourcing Requests */}
+          <button
+            type="button"
+            onClick={() => switchTab("requests")}
+            className={`p-4 rounded-2xl border text-left transition-all cursor-pointer ${
+              activeTab === "requests"
+                ? "bg-purple-50/80 border-purple-300 ring-2 ring-purple-500/20 shadow-xs"
+                : "bg-white border-slate-200 hover:border-slate-300 shadow-2xs hover:shadow-xs"
+            }`}
+          >
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-xs font-bold text-slate-500">Sourcing Demands</span>
+              <div className="w-8 h-8 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center">
+                <FileQuestion className="w-4 h-4" />
+              </div>
+            </div>
+            <div className="text-2xl font-black text-slate-900">
+              {requirements.length}
+            </div>
+            <span className="text-[11px] text-purple-700 font-semibold mt-0.5 block">
+              Active wanted posts →
+            </span>
+          </button>
+        </div>
+
         {/* Tab Controls */}
         <div className="flex flex-wrap gap-2 border-b border-slate-200 pb-2">
           <button
@@ -457,7 +563,7 @@ function DashboardContent() {
                 </h3>
                 <p className="text-xs text-slate-500 mt-1 max-w-sm mx-auto">
                   Have surplus HPLC, GC-MS, or testing instruments? List them
-                  on LabMatrix and connect with verified buyers across India.
+                  on Labmatrix and connect with verified buyers across India.
                 </p>
                 <Link
                   href="/listings/create"
@@ -577,8 +683,8 @@ function DashboardContent() {
                               <span className="text-[10px] text-slate-400 block font-semibold">
                                 Price Expectation:
                               </span>
-                              <span className="text-sm font-black text-slate-900">
-                                ₹{item.minPrice.toLocaleString("en-IN")} - ₹{item.maxPrice.toLocaleString("en-IN")}
+                              <span className="text-sm font-black text-brand-blue">
+                                {formatPrice(item.minPrice, item.maxPrice)}
                               </span>
                             </div>
                             <div className="flex items-center space-x-2">
@@ -1212,7 +1318,7 @@ function DashboardContent() {
               </div>
 
               <p className="text-xs text-slate-600 leading-relaxed mb-4">
-                Are you sure you want to deactivate your LabMatrix account? Your listings ({listings.length}) and buyer requests ({requirements.length}) will be removed from public view and archived.
+                Are you sure you want to deactivate your Labmatrix account? Your listings ({listings.length}) and buyer requests ({requirements.length}) will be removed from public view and archived.
               </p>
 
               {deleteError && (

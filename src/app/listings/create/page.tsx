@@ -104,6 +104,10 @@ function CreateListingForm() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [submittedData, setSubmittedData] = useState<{ id: string; title: string; itemType: string } | null>(null);
+  const [priceOnRequest, setPriceOnRequest] = useState(false);
+  const [isDraftRestored, setIsDraftRestored] = useState(false);
+  const [draftSavedText, setDraftSavedText] = useState<string | null>(null);
+  const DRAFT_KEY = "labmatrix_sell_draft";
 
   // Check user profile for existing phone
   useEffect(() => {
@@ -122,6 +126,105 @@ function CreateListingForm() {
         .catch((err) => console.error("Profile check error:", err));
     }
   }, [session]);
+
+  // Restore draft from localStorage on mount if not duplicating
+  useEffect(() => {
+    const duplicateId = searchParams.get("duplicate");
+    if (duplicateId) return;
+
+    try {
+      const raw = localStorage.getItem(DRAFT_KEY);
+      if (raw) {
+        const draft = JSON.parse(raw);
+        if (draft.title || draft.description || draft.location) {
+          if (draft.title) setTitle(draft.title);
+          if (draft.category) setCategory(draft.category);
+          if (draft.itemType) setItemType(draft.itemType);
+          if (draft.condition) setCondition(draft.condition);
+          if (draft.compatibleWith) setCompatibleWith(draft.compatibleWith);
+          if (draft.partNumber) setPartNumber(draft.partNumber);
+          if (draft.location) setLocation(draft.location);
+          if (draft.minPrice) setMinPrice(draft.minPrice);
+          if (draft.maxPrice) setMaxPrice(draft.maxPrice);
+          if (draft.quantity) setQuantity(draft.quantity);
+          if (draft.description) setDescription(draft.description);
+          if (draft.priceOnRequest) {
+            setPriceOnRequest(true);
+            setMinPrice("0");
+            setMaxPrice("0");
+          }
+          setIsDraftRestored(true);
+        }
+      }
+    } catch (e) {
+      console.warn("Could not load draft:", e);
+    }
+  }, [searchParams]);
+
+  // Autosave draft to localStorage
+  useEffect(() => {
+    const duplicateId = searchParams.get("duplicate");
+    if (duplicateId || submittedData) return;
+
+    const timer = setTimeout(() => {
+      try {
+        if (title.trim() || description.trim() || location.trim()) {
+          const draft = {
+            title,
+            category,
+            itemType,
+            condition,
+            compatibleWith,
+            partNumber,
+            location,
+            minPrice,
+            maxPrice,
+            quantity,
+            description,
+            priceOnRequest,
+            savedAt: new Date().toISOString(),
+          };
+          localStorage.setItem(DRAFT_KEY, JSON.stringify(draft));
+          setDraftSavedText("Draft autosaved");
+        }
+      } catch (e) {
+        console.warn("Could not save draft:", e);
+      }
+    }, 800);
+
+    return () => clearTimeout(timer);
+  }, [
+    title,
+    category,
+    itemType,
+    condition,
+    compatibleWith,
+    partNumber,
+    location,
+    minPrice,
+    maxPrice,
+    quantity,
+    description,
+    priceOnRequest,
+    searchParams,
+    submittedData,
+  ]);
+
+  const discardDraft = () => {
+    try {
+      localStorage.removeItem(DRAFT_KEY);
+      setTitle("");
+      setDescription("");
+      setCompatibleWith("");
+      setPartNumber("");
+      setLocation("");
+      setMinPrice("");
+      setMaxPrice("");
+      setPriceOnRequest(false);
+      setIsDraftRestored(false);
+      setDraftSavedText(null);
+    } catch {}
+  };
 
   // Check for duplicate query param to prefill fields
   useEffect(() => {
@@ -171,7 +274,7 @@ function CreateListingForm() {
             Sign In Required to List Items
           </h2>
           <p className="text-sm text-slate-600 mt-2">
-            Please sign in with your email or Google account to list machinery or spare parts on LabMatrix.
+            Please sign in with your email or Google account to list machinery or spare parts on Labmatrix.
           </p>
           <Link
             href="/auth/signin"
@@ -287,7 +390,7 @@ function CreateListingForm() {
       return;
     }
 
-    if (parseFloat(minPrice) > parseFloat(maxPrice)) {
+    if (!priceOnRequest && parseFloat(minPrice) > parseFloat(maxPrice)) {
       setError("Minimum price cannot be greater than maximum price.");
       return;
     }
@@ -414,6 +517,21 @@ function CreateListingForm() {
             Your contact details remain completely private. Inquiries and proposals are coordinated securely.
           </p>
         </div>
+
+        {isDraftRestored && !duplicatingFrom && (
+          <div className="mb-6 rounded-2xl bg-amber-50 p-4 border border-amber-200/80 flex items-center justify-between text-amber-900 text-xs">
+            <span className="font-medium">
+              Restored an unfinished listing draft from your previous visit.
+            </span>
+            <button
+              type="button"
+              onClick={discardDraft}
+              className="font-bold text-amber-800 hover:text-amber-950 underline ml-3 flex-shrink-0 cursor-pointer"
+            >
+              Discard draft
+            </button>
+          </div>
+        )}
 
         {duplicatingFrom && (
           <div className="mb-6 rounded-2xl bg-brand-gold/15 p-4 border border-brand-gold/40 flex items-start space-x-3 text-brand-blue-900 text-sm">

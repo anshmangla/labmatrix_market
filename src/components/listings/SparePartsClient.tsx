@@ -461,7 +461,7 @@ export default function SparePartsClient({
                 </h3>
                 <p className="text-xs text-slate-500 max-w-sm mx-auto">
                   Have surplus lamps, columns, valves, or boards in your laboratory inventory?
-                  List them on LabMatrix and connect with laboratories looking for spares across India.
+                  List them on Labmatrix and connect with laboratories looking for spares across India.
                 </p>
                 <div className="pt-2">
                   <Link

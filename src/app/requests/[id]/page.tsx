@@ -49,7 +49,7 @@ export async function generateMetadata({
   if (!req || !req.isApproved) {
     return {
       title: "Sourcing Requirement",
-      description: "Buyer requirement for laboratory equipment on LabMatrix.",
+      description: "Buyer requirement for laboratory equipment on Labmatrix.",
     };
   }
 
@@ -59,8 +59,8 @@ export async function generateMetadata({
     : `Wanted: ${req.title} (${req.category}) | Refurbished & Pre-Owned Sourcing Request`;
 
   const desc = isSpare
-    ? `Buyer procurement request for ${req.title}.${req.compatibleWith ? ` Compatible with: ${req.compatibleWith}.` : ""}${req.partNumber ? ` Part Number: ${req.partNumber}.` : ""} Submit quote for refurbished or surplus inventory on LabMatrix.`
-    : `Buyer sourcing request for ${req.title}. Category: ${req.category}. Have refurbished or surplus equipment available? Connect and submit your quotation on LabMatrix Marketplace.`;
+    ? `Buyer procurement request for ${req.title}.${req.compatibleWith ? ` Compatible with: ${req.compatibleWith}.` : ""}${req.partNumber ? ` Part Number: ${req.partNumber}.` : ""} Submit quote for refurbished or surplus inventory on Labmatrix.`
+    : `Buyer sourcing request for ${req.title}. Category: ${req.category}. Have refurbished or surplus equipment available? Connect and submit your quotation on Labmatrix Marketplace.`;
 
   const keywords = [
     `buy ${req.title}`,

@@ -445,7 +445,7 @@ export default function AdminDashboardPage() {
           <ShieldAlert className="w-12 h-12 text-brand-blue mx-auto mb-4" />
           <h2 className="text-xl font-bold text-slate-900">Admin Area Restricted</h2>
           <p className="text-sm text-slate-600 mt-2">
-            Please sign in to access the LabMatrix Admin Control Desk.
+            Please sign in to access the Labmatrix Admin Control Desk.
           </p>
           <Link
             href="/auth/signin"
@@ -507,10 +507,10 @@ export default function AdminDashboardPage() {
           <div>
             <div className="inline-flex items-center space-x-2 text-xs font-bold text-brand-blue-700 bg-brand-blue-50 border border-brand-blue-100/60 px-2.5 py-1 rounded-full mb-1">
               <ShieldCheck className="w-4 h-4" />
-              <span>LabMatrix Operations Desk • Master Administrator View</span>
+              <span>Labmatrix Operations Desk • Master Administrator View</span>
             </div>
             <h1 className="text-2xl font-black text-slate-900">
-              LabMatrix Operations & Deal Console
+              Labmatrix Operations & Deal Console
             </h1>
             <p className="text-xs text-slate-500 mt-0.5">
               Logged in as: <strong>{session?.user?.email}</strong>. Buyer and
