@@ -185,22 +185,41 @@ export default async function ListingDetailPage({
             : listing.condition?.toLowerCase().includes("refurbished")
             ? "https://schema.org/RefurbishedCondition"
             : "https://schema.org/UsedCondition",
-        offers: {
-          "@type": "AggregateOffer",
-          priceCurrency: "INR",
-          lowPrice: listing.minPrice,
-          highPrice: listing.maxPrice,
-          offerCount: listing.quantity || 1,
-          availability:
-            listing.status === "SOLD"
-              ? "https://schema.org/OutOfStock"
-              : "https://schema.org/InStock",
-          seller: {
-            "@type": "Organization",
-            name: "Labmatrix Verified Seller Network",
-            url: "https://surplus.labmatrixindia.com",
-          },
+        sku: listing.partNumber || listing.id,
+        brand: {
+          "@type": "Brand",
+          name: listing.title.split(" ")[0] || "Analytical",
         },
+        offers: listing.minPrice && listing.minPrice > 0
+          ? {
+              "@type": "AggregateOffer",
+              priceCurrency: "INR",
+              lowPrice: listing.minPrice,
+              highPrice: listing.maxPrice && listing.maxPrice > 0 ? listing.maxPrice : listing.minPrice,
+              offerCount: listing.quantity || 1,
+              availability:
+                listing.status === "SOLD"
+                  ? "https://schema.org/OutOfStock"
+                  : "https://schema.org/InStock",
+              seller: {
+                "@type": "Organization",
+                name: "Labmatrix Verified Seller Network",
+                url: "https://surplus.labmatrixindia.com",
+              },
+            }
+          : {
+              "@type": "Offer",
+              priceCurrency: "INR",
+              availability:
+                listing.status === "SOLD"
+                  ? "https://schema.org/OutOfStock"
+                  : "https://schema.org/InStock",
+              seller: {
+                "@type": "Organization",
+                name: "Labmatrix Verified Seller Network",
+                url: "https://surplus.labmatrixindia.com",
+              },
+            },
       },
       {
         "@type": "BreadcrumbList",

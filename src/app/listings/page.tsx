@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import type { ListingStatus, Prisma } from "@/generated/prisma/client";
 import { cachedPublicRead, PUBLIC_LISTINGS_TAG } from "@/lib/public-cache";
 import CatalogGrid, { CatalogListing } from "@/components/listings/CatalogGrid";
+import { toJsonLd } from "@/lib/json-ld";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -94,8 +95,32 @@ export default async function BrowseListingsPage({
     console.error("Error pre-fetching initial listings:", error);
   }
 
+  const breadcrumbJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      {
+        "@type": "ListItem",
+        position: 1,
+        name: "Home",
+        item: "https://surplus.labmatrixindia.com",
+      },
+      {
+        "@type": "ListItem",
+        position: 2,
+        name: "Pre-Owned Equipment",
+        item: "https://surplus.labmatrixindia.com/listings",
+      },
+    ],
+  };
+
   return (
-    <Suspense
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: toJsonLd(breadcrumbJsonLd) }}
+      />
+      <Suspense
       fallback={
         <div className="min-h-screen bg-slate-50 py-10 px-4 sm:px-6 lg:px-8">
           <div className="max-w-[1440px] mx-auto flex items-center justify-center py-20">
@@ -111,5 +136,6 @@ export default async function BrowseListingsPage({
         pageSubtitle="Certified pre-owned and refurbished analytical instruments from laboratories and pharma facilities across India."
       />
     </Suspense>
+    </>
   );
 }

@@ -50,6 +50,30 @@ export const metadata: Metadata = {
   alternates: {
     canonical: "/",
   },
+  openGraph: {
+    title: "Labmatrix Marketplace | Certified Pre-Owned Analytical Instruments & Spares",
+    description:
+      "India's dedicated B2B equipment marketplace to buy and sell verified refurbished & pre-owned analytical machinery and spare parts across India.",
+    url: "/",
+    type: "website",
+    locale: "en_IN",
+    siteName: "Labmatrix Instrument India Pvt Ltd",
+    images: [
+      {
+        url: "/logo.png",
+        width: 800,
+        height: 200,
+        alt: "Labmatrix Marketplace - Refurbished Analytical Laboratory Instruments",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Labmatrix Marketplace | Certified Pre-Owned Analytical Instruments",
+    description:
+      "Verified B2B marketplace to buy and sell refurbished analytical instruments and spare parts with technical inspection in India.",
+    images: ["/logo.png"],
+  },
 };
 
 export default async function Home() {
