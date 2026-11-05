@@ -37,7 +37,16 @@ export default function DocumentList({ documents, listingTitle }: DocumentListPr
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         {documents.map((docUrl: string, idx: number) => {
           const rawName = docUrl.split("/").pop()?.split("?")[0] || `Document_${idx + 1}.pdf`;
-          const displayName = decodeURIComponent(rawName);
+          const rawDecoded = decodeURIComponent(rawName);
+          const isHashWithoutExt = !rawDecoded.includes(".");
+          const displayName = isHashWithoutExt
+            ? `${listingTitle} Datasheet.pdf`
+            : rawDecoded.toLowerCase().endsWith(".pdf")
+            ? rawDecoded
+            : `${rawDecoded}.pdf`;
+
+          const inlineStreamUrl = `/api/documents/serve?url=${encodeURIComponent(docUrl)}&title=${encodeURIComponent(displayName)}`;
+          const downloadUrl = `/api/documents/serve?url=${encodeURIComponent(docUrl)}&title=${encodeURIComponent(displayName)}&download=1`;
 
           return (
             <div
@@ -77,7 +86,7 @@ export default function DocumentList({ documents, listingTitle }: DocumentListPr
                 </button>
 
                 <a
-                  href={docUrl}
+                  href={inlineStreamUrl}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="p-1.5 text-slate-500 hover:text-brand-blue hover:bg-white rounded-lg transition-colors border border-transparent hover:border-slate-200 shadow-2xs"
@@ -87,10 +96,8 @@ export default function DocumentList({ documents, listingTitle }: DocumentListPr
                 </a>
 
                 <a
-                  href={docUrl}
+                  href={downloadUrl}
                   download={displayName}
-                  target="_blank"
-                  rel="noopener noreferrer"
                   className="p-1.5 text-slate-500 hover:text-rose-600 hover:bg-white rounded-lg transition-colors border border-transparent hover:border-slate-200 shadow-2xs"
                   title="Download PDF"
                 >

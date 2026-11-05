@@ -33,11 +33,19 @@ export default function PhotoGallery({
     })),
     ...(documents || []).map((url, idx) => {
       const raw = url.split("/").pop()?.split("?")[0] || `Document_${idx + 1}.pdf`;
+      const rawDecoded = decodeURIComponent(raw);
+      const isHashWithoutExt = !rawDecoded.includes(".");
+      const cleanName = isHashWithoutExt
+        ? `${title} Datasheet.pdf`
+        : rawDecoded.toLowerCase().endsWith(".pdf")
+        ? rawDecoded
+        : `${rawDecoded}.pdf`;
+
       return {
         type: "pdf" as const,
         url,
         id: `doc-${idx}`,
-        name: decodeURIComponent(raw),
+        name: cleanName,
       };
     }),
   ];
@@ -116,7 +124,7 @@ export default function PhotoGallery({
                 </button>
 
                 <a
-                  href={activeItem.url}
+                  href={`/api/documents/serve?url=${encodeURIComponent(activeItem.url)}&title=${encodeURIComponent(activeItem.name)}`}
                   target="_blank"
                   rel="noopener noreferrer"
                   onClick={(e) => e.stopPropagation()}
@@ -127,10 +135,8 @@ export default function PhotoGallery({
                 </a>
 
                 <a
-                  href={activeItem.url}
+                  href={`/api/documents/serve?url=${encodeURIComponent(activeItem.url)}&title=${encodeURIComponent(activeItem.name)}&download=1`}
                   download={activeItem.name}
-                  target="_blank"
-                  rel="noopener noreferrer"
                   onClick={(e) => e.stopPropagation()}
                   className="inline-flex items-center space-x-1.5 px-3 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 text-xs font-semibold transition-all active:scale-95"
                   title="Download PDF"

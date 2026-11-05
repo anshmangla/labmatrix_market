@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { X, ExternalLink, Download, FileText, AlertCircle, RefreshCw } from "lucide-react";
+import { X, ExternalLink, Download, FileText, RefreshCw } from "lucide-react";
 
 interface PdfViewerModalProps {
   isOpen: boolean;
@@ -19,13 +19,18 @@ export default function PdfViewerModal({
   const [useGoogleDocsFallback, setUseGoogleDocsFallback] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Close on Escape key press & prevent background scroll
+  // Close on Escape key press, dismiss loading spinner safety timer, & prevent background scroll
   useEffect(() => {
     if (!isOpen) {
       setUseGoogleDocsFallback(false);
       setIsLoading(true);
       return;
     }
+
+    // Safety timeout: dismiss spinner after 2.5s so slow network or browser viewer handoffs never hang
+    const timer = setTimeout(() => {
+      setIsLoading(false);
+    }, 2500);
 
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === "Escape") {
@@ -37,6 +42,7 @@ export default function PdfViewerModal({
     window.addEventListener("keydown", handleKeyDown);
 
     return () => {
+      clearTimeout(timer);
       document.body.style.overflow = "unset";
       window.removeEventListener("keydown", handleKeyDown);
     };
@@ -45,14 +51,18 @@ export default function PdfViewerModal({
   if (!isOpen || !pdfUrl) return null;
 
   const rawFileName = pdfUrl.split("/").pop()?.split("?")[0] || "Document.pdf";
-  const displayFileName = decodeURIComponent(rawFileName);
-  const displayTitle = title || displayFileName;
+  const rawDecoded = decodeURIComponent(rawFileName);
+  
+  // Format clean human-readable title and ensure .pdf extension for downloads
+  const displayTitle = title || (rawDecoded.toLowerCase().endsWith(".pdf") ? rawDecoded : `${rawDecoded}.pdf`);
+  const safePdfFileName = displayTitle.toLowerCase().endsWith(".pdf") ? displayTitle : `${displayTitle}.pdf`;
 
-  const googleDocsUrl = `https://docs.google.com/viewer?url=${encodeURIComponent(
-    pdfUrl
-  )}&embedded=true`;
+  // Server proxy endpoints that force Content-Type: application/pdf and proper Content-Disposition
+  const inlineStreamUrl = `/api/documents/serve?url=${encodeURIComponent(pdfUrl)}&title=${encodeURIComponent(safePdfFileName)}`;
+  const directDownloadUrl = `/api/documents/serve?url=${encodeURIComponent(pdfUrl)}&title=${encodeURIComponent(safePdfFileName)}&download=1`;
+  const googleDocsViewerUrl = `https://docs.google.com/viewer?url=${encodeURIComponent(pdfUrl)}&embedded=true`;
 
-  const activeSrc = useGoogleDocsFallback ? googleDocsUrl : pdfUrl;
+  const activeSrc = useGoogleDocsFallback ? googleDocsViewerUrl : inlineStreamUrl;
 
   return (
     <div
@@ -76,13 +86,13 @@ export default function PdfViewerModal({
               <h3 className="text-sm font-bold text-slate-900 truncate" title={displayTitle}>
                 {displayTitle}
               </h3>
-              <p className="text-[11px] text-slate-500 truncate">{displayFileName}</p>
+              <p className="text-[11px] text-slate-500 truncate">{safePdfFileName}</p>
             </div>
           </div>
 
           {/* Actions Bar */}
           <div className="flex items-center space-x-1.5 sm:space-x-2 flex-shrink-0">
-            {/* Fallback Switcher if rendering issues arise */}
+            {/* View mode switcher */}
             <button
               type="button"
               onClick={() => {
@@ -97,12 +107,12 @@ export default function PdfViewerModal({
               className="hidden sm:inline-flex items-center space-x-1 text-xs font-semibold px-2.5 py-1.5 rounded-lg border border-slate-200 bg-white text-slate-700 hover:bg-slate-100 transition-colors"
             >
               <RefreshCw className="w-3.5 h-3.5 text-slate-500" />
-              <span>{useGoogleDocsFallback ? "Native Mode" : "Alternative View"}</span>
+              <span>{useGoogleDocsFallback ? "Native Mode" : "Google Docs View"}</span>
             </button>
 
             {/* Open in New Window */}
             <a
-              href={pdfUrl}
+              href={inlineStreamUrl}
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center space-x-1.5 text-xs font-semibold px-3 py-1.5 rounded-lg border border-slate-200 bg-white text-slate-700 hover:text-brand-blue hover:bg-slate-100 transition-colors shadow-xs"
@@ -112,12 +122,10 @@ export default function PdfViewerModal({
               <span className="hidden sm:inline">Open in new window</span>
             </a>
 
-            {/* Direct Download */}
+            {/* Direct Download with guaranteed .pdf extension */}
             <a
-              href={pdfUrl}
-              download={displayFileName}
-              target="_blank"
-              rel="noopener noreferrer"
+              href={directDownloadUrl}
+              download={safePdfFileName}
               className="inline-flex items-center space-x-1.5 text-xs font-bold px-3 py-1.5 rounded-lg bg-brand-blue text-white hover:bg-brand-blue-700 transition-colors shadow-xs"
               title="Download PDF to your computer"
             >
@@ -140,7 +148,7 @@ export default function PdfViewerModal({
         {/* Modal Viewer Body */}
         <div className="flex-1 relative bg-slate-900 overflow-hidden flex flex-col">
           {isLoading && (
-            <div className="absolute inset-0 z-10 flex flex-col items-center justify-center bg-slate-900 text-slate-300">
+            <div className="absolute inset-0 z-10 flex flex-col items-center justify-center bg-slate-900 text-slate-300 pointer-events-none">
               <div className="w-8 h-8 border-2 border-brand-blue border-t-transparent rounded-full animate-spin mb-3" />
               <span className="text-xs font-medium">Loading document viewer...</span>
             </div>
@@ -157,8 +165,8 @@ export default function PdfViewerModal({
           {/* Quick Notice footer */}
           <div className="py-1.5 px-4 bg-slate-950 text-slate-400 text-[11px] flex items-center justify-between border-t border-slate-800">
             <span className="truncate">
-              Trouble viewing? Click <strong>Alternative View</strong> or{" "}
-              <strong>Open in new window</strong>.
+              Trouble viewing? Click <strong>Google Docs View</strong> or{" "}
+              <strong>Download</strong>.
             </span>
             <span className="hidden sm:inline font-mono text-[10px] text-slate-500">
               Labmatrix Secure Documents
