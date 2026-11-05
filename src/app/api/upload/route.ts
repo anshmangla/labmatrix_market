@@ -88,6 +88,7 @@ export async function POST(request: Request) {
         ? {
             folder: "labmatrix/documents",
             resource_type: "raw",
+            format: "pdf",
           }
         : {
             folder: "labmatrix/machines",
