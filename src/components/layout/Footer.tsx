@@ -113,6 +113,22 @@ export default function Footer() {
                 </Link>
               </li>
               <li>
+                <Link
+                  href="/privacy"
+                  className="hover:text-white transition-colors"
+                >
+                  Privacy Policy
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/terms"
+                  className="hover:text-white transition-colors"
+                >
+                  Terms of Service
+                </Link>
+              </li>
+              <li>
                 <a
                   href="https://www.labmatrixindia.com"
                   target="_blank"
@@ -193,6 +209,10 @@ export default function Footer() {
             <span>•</span>
             <Link href="/privacy" className="hover:text-slate-400 transition-colors">
               Privacy Policy
+            </Link>
+            <span>•</span>
+            <Link href="/terms" className="hover:text-slate-400 transition-colors">
+              Terms of Service
             </Link>
             <span>•</span>
             <a

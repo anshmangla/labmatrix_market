@@ -10,7 +10,7 @@ export const BASE_URL =
     : "https://surplus.labmatrixindia.com";
 
 export const DEFAULT_FROM_EMAIL =
-  process.env.RESEND_FROM_EMAIL || "LabMatrix Marketplace <notifications@surplus.labmatrixindia.com>";
+  process.env.RESEND_FROM_EMAIL || "Labmatrix Marketplace <notifications@surplus.labmatrixindia.com>";
 
 export const ADMIN_SALES_EMAIL =
   process.env.ADMIN_NOTIF_EMAIL || process.env.CONTACT_TO_EMAIL || "sales@labmatrixindia.com";
@@ -39,7 +39,7 @@ export interface ContactPayload {
 
 /**
  * Send contact inquiry emails via Resend:
- * 1. Notification to the LabMatrix Sales Team (sales@labmatrixindia.com)
+ * 1. Notification to the Labmatrix Sales Team (sales@labmatrixindia.com)
  * 2. Auto-reply confirmation to the submitter
  */
 export async function sendContactEmail(payload: ContactPayload) {
@@ -59,7 +59,7 @@ export async function sendContactEmail(payload: ContactPayload) {
     };
   }
 
-  // 1. Email to LabMatrix Sales Desk
+  // 1. Email to Labmatrix Sales Desk
   const salesHtml = `
     <!DOCTYPE html>
     <html>
@@ -72,7 +72,7 @@ export async function sendContactEmail(payload: ContactPayload) {
           <!-- Header Banner -->
           <div style="background: linear-gradient(135deg, #02244E 0%, #033A7D 100%); padding: 28px 32px; color: #ffffff;">
             <div style="font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; color: #FBC634; margin-bottom: 6px;">
-              LabMatrix Instrument India Pvt Ltd
+              Labmatrix Instrument India Pvt Ltd
             </div>
             <h1 style="margin: 0; font-size: 22px; font-weight: 800; color: #ffffff;">
               New Website Inquiry Received
@@ -127,7 +127,7 @@ ${esc(message)}
 
             <!-- Action Buttons -->
             <div style="margin-top: 28px; padding-top: 24px; border-top: 1px solid #e2e8f0; display: flex; gap: 12px;">
-              <a href="mailto:${esc(email)}?subject=Re:%20${encodeURIComponent(subject)}%20-%20LabMatrix%20Instrument%20India" style="display: inline-block; background-color: #033A7D; color: #ffffff; font-weight: 700; font-size: 13px; text-decoration: none; padding: 12px 22px; border-radius: 10px;">
+              <a href="mailto:${esc(email)}?subject=Re:%20${encodeURIComponent(subject)}%20-%20Labmatrix%20Instrument%20India" style="display: inline-block; background-color: #033A7D; color: #ffffff; font-weight: 700; font-size: 13px; text-decoration: none; padding: 12px 22px; border-radius: 10px;">
                 Reply via Email
               </a>
               <a href="tel:${esc(phone)}" style="display: inline-block; background-color: #f1f5f9; color: #1e293b; font-weight: 700; font-size: 13px; text-decoration: none; padding: 12px 22px; border-radius: 10px; margin-left: 10px;">
@@ -138,7 +138,7 @@ ${esc(message)}
 
           <!-- Footer -->
           <div style="background-color: #f8fafc; border-top: 1px solid #e2e8f0; padding: 16px 32px; font-size: 11px; color: #94a3b8; text-align: center;">
-            Sent automatically by LabMatrix B2B Marketplace • 514/5, Mehrauli, New Delhi – 110030
+            Sent automatically by Labmatrix B2B Marketplace • 514/5, Mehrauli, New Delhi – 110030
           </div>
         </div>
       </body>
@@ -157,7 +157,7 @@ ${esc(message)}
         <div style="max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 16px; border: 1px solid #e2e8f0; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);">
           <div style="background: linear-gradient(135deg, #02244E 0%, #033A7D 100%); padding: 28px 32px; color: #ffffff;">
             <div style="font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; color: #FBC634; margin-bottom: 6px;">
-              LabMatrix Instrument India Pvt Ltd
+              Labmatrix Instrument India Pvt Ltd
             </div>
             <h1 style="margin: 0; font-size: 22px; font-weight: 800; color: #ffffff;">
               Thank You for Contacting Us
@@ -172,7 +172,7 @@ ${esc(message)}
               Dear <strong>${esc(name)}</strong>,
             </p>
             <p style="font-size: 14px; color: #475569; line-height: 1.6;">
-              Thank you for reaching out to <strong>LabMatrix Instrument India Pvt. Ltd.</strong> regarding <strong>${esc(subject)}</strong>. Your inquiry has been routed to our technical support and procurement specialists.
+              Thank you for reaching out to <strong>Labmatrix Instrument India Pvt. Ltd.</strong> regarding <strong>${esc(subject)}</strong>. Your inquiry has been routed to our technical support and procurement specialists.
             </p>
 
             <div style="background-color: #eff5fb; border-left: 4px solid #033A7D; border-radius: 8px; padding: 16px; margin: 24px 0;">
@@ -222,7 +222,7 @@ ${esc(message)}
         from: fromEmail,
         to: [email],
         replyTo: toEmail,
-        subject: `We have received your inquiry - LabMatrix Instrument India`,
+        subject: `We have received your inquiry - Labmatrix Instrument India`,
         html: clientConfirmationHtml,
       });
     } catch (clientErr) {
@@ -271,14 +271,14 @@ export async function sendOtpEmail(payload: SendOtpPayload) {
     <html>
       <head>
         <meta charset="utf-8" />
-        <title>Your LabMatrix Verification Code</title>
+        <title>Your Labmatrix Verification Code</title>
       </head>
       <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: #f8fafc; margin: 0; padding: 24px; color: #1e293b;">
         <div style="max-width: 540px; margin: 0 auto; background-color: #ffffff; border-radius: 20px; border: 1px solid #e2e8f0; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);">
           <!-- Header Banner -->
           <div style="background: linear-gradient(135deg, #02244E 0%, #033A7D 100%); padding: 32px 32px 28px; text-align: center; color: #ffffff;">
             <div style="font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 2px; color: #FBC634; margin-bottom: 8px;">
-              LabMatrix Instrument India
+              Labmatrix Instrument India
             </div>
             <h1 style="margin: 0; font-size: 22px; font-weight: 800; color: #ffffff;">
               Email Verification Code
@@ -292,7 +292,7 @@ export async function sendOtpEmail(payload: SendOtpPayload) {
           <div style="padding: 32px; text-align: center;">
             <p style="font-size: 15px; color: #334155; margin-top: 0; margin-bottom: 20px; line-height: 1.5;">
               Hello${name ? ` <strong>${esc(name)}</strong>` : ""},<br />
-              Please enter the following 6-digit verification code to complete your registration on the LabMatrix Marketplace:
+              Please enter the following 6-digit verification code to complete your registration on the Labmatrix Marketplace:
             </p>
 
             <!-- OTP Display Card -->
@@ -308,7 +308,7 @@ export async function sendOtpEmail(payload: SendOtpPayload) {
 
             <div style="background-color: #fef3c7; border: 1px solid #fde68a; border-radius: 12px; padding: 12px 16px; margin: 24px 0 0; text-align: left;">
               <p style="margin: 0; font-size: 12px; color: #92400e; line-height: 1.5;">
-                <strong>Security Notice:</strong> LabMatrix will never ask you for your verification code or password via phone call or message. Do not share this code with anyone.
+                <strong>Security Notice:</strong> Labmatrix will never ask you for your verification code or password via phone call or message. Do not share this code with anyone.
               </p>
             </div>
 
@@ -331,7 +331,7 @@ export async function sendOtpEmail(payload: SendOtpPayload) {
     const result = await resend.emails.send({
       from: fromEmail,
       to: [email],
-      subject: `Your LabMatrix Verification Code: ${otpCode}`,
+      subject: `Your Labmatrix Verification Code: ${otpCode}`,
       html: otpHtml,
     });
 
@@ -371,14 +371,14 @@ export async function sendPasswordResetOtpEmail(payload: SendOtpPayload) {
     <html>
       <head>
         <meta charset="utf-8" />
-        <title>Reset Your LabMatrix Password</title>
+        <title>Reset Your Labmatrix Password</title>
       </head>
       <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: #f8fafc; margin: 0; padding: 24px; color: #1e293b;">
         <div style="max-width: 540px; margin: 0 auto; background-color: #ffffff; border-radius: 20px; border: 1px solid #e2e8f0; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);">
           <!-- Header Banner -->
           <div style="background: linear-gradient(135deg, #02244E 0%, #033A7D 100%); padding: 32px 32px 28px; text-align: center; color: #ffffff;">
             <div style="font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 2px; color: #FBC634; margin-bottom: 8px;">
-              LabMatrix Instrument India
+              Labmatrix Instrument India
             </div>
             <h1 style="margin: 0; font-size: 22px; font-weight: 800; color: #ffffff;">
               Password Reset Request
@@ -392,7 +392,7 @@ export async function sendPasswordResetOtpEmail(payload: SendOtpPayload) {
           <div style="padding: 32px; text-align: center;">
             <p style="font-size: 15px; color: #334155; margin-top: 0; margin-bottom: 20px; line-height: 1.5;">
               Hello${name ? ` <strong>${esc(name)}</strong>` : ""},<br />
-              We received a request to reset the password for your LabMatrix Marketplace account. Enter this 6-digit code on the reset page:
+              We received a request to reset the password for your Labmatrix Marketplace account. Enter this 6-digit code on the reset page:
             </p>
 
             <!-- OTP Display Card -->
@@ -408,7 +408,7 @@ export async function sendPasswordResetOtpEmail(payload: SendOtpPayload) {
 
             <div style="background-color: #fef3c7; border: 1px solid #fde68a; border-radius: 12px; padding: 12px 16px; margin: 24px 0 0; text-align: left;">
               <p style="margin: 0; font-size: 12px; color: #92400e; line-height: 1.5;">
-                <strong>Security Alert:</strong> Never share this code with anyone. LabMatrix representatives will never ask for your verification code or password.
+                <strong>Security Alert:</strong> Never share this code with anyone. Labmatrix representatives will never ask for your verification code or password.
               </p>
             </div>
 
@@ -431,7 +431,7 @@ export async function sendPasswordResetOtpEmail(payload: SendOtpPayload) {
     const result = await resend.emails.send({
       from: fromEmail,
       to: [email],
-      subject: `Your LabMatrix Password Reset Code: ${otpCode}`,
+      subject: `Your Labmatrix Password Reset Code: ${otpCode}`,
       html: otpHtml,
     });
 
@@ -476,14 +476,14 @@ export async function sendAccountDeletionEmail(payload: AccountDeletionEmailPayl
     <html>
       <head>
         <meta charset="utf-8" />
-        <title>LabMatrix Account Deleted</title>
+        <title>Labmatrix Account Deleted</title>
       </head>
       <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: #f8fafc; margin: 0; padding: 24px; color: #1e293b;">
         <div style="max-width: 540px; margin: 0 auto; background-color: #ffffff; border-radius: 20px; border: 1px solid #e2e8f0; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);">
           <!-- Header Banner -->
           <div style="background: linear-gradient(135deg, #02244E 0%, #033A7D 100%); padding: 32px 32px 28px; text-align: center; color: #ffffff;">
             <div style="font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 2px; color: #FBC634; margin-bottom: 8px;">
-              LabMatrix Instrument India
+              Labmatrix Instrument India
             </div>
             <h1 style="margin: 0; font-size: 22px; font-weight: 800; color: #ffffff;">
               Account Deactivated
@@ -497,7 +497,7 @@ export async function sendAccountDeletionEmail(payload: AccountDeletionEmailPayl
           <div style="padding: 32px; text-align: left;">
             <p style="font-size: 15px; color: #334155; margin-top: 0; margin-bottom: 16px; line-height: 1.5;">
               Hello${name ? ` <strong>${esc(name)}</strong>` : ""},<br /><br />
-              This email confirms that your account on the <strong>LabMatrix Marketplace</strong> has been closed and deactivated.
+              This email confirms that your account on the <strong>Labmatrix Marketplace</strong> has been closed and deactivated.
             </p>
 
             <ul style="font-size: 13px; color: #475569; line-height: 1.6; margin-bottom: 24px; padding-left: 20px;">
@@ -513,7 +513,7 @@ export async function sendAccountDeletionEmail(payload: AccountDeletionEmailPayl
             </div>
 
             <p style="font-size: 13px; color: #64748b; margin: 0; line-height: 1.5;">
-              Thank you for having been part of the LabMatrix community.
+              Thank you for having been part of the Labmatrix community.
             </p>
           </div>
 
@@ -531,7 +531,7 @@ export async function sendAccountDeletionEmail(payload: AccountDeletionEmailPayl
     const result = await resend.emails.send({
       from: fromEmail,
       to: [email],
-      subject: `Your LabMatrix Account Has Been Closed`,
+      subject: `Your Labmatrix Account Has Been Closed`,
       html,
     });
 
@@ -619,7 +619,7 @@ export async function sendAdminNewListingEmail(payload: AdminNewListingPayload) 
           <!-- Header Banner -->
           <div style="background: linear-gradient(135deg, #02244E 0%, #033A7D 100%); padding: 28px 32px; color: #ffffff;">
             <div style="font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; color: #FBC634; margin-bottom: 6px;">
-              Admin Review Required • LabMatrix Marketplace
+              Admin Review Required • Labmatrix Marketplace
             </div>
             <h1 style="margin: 0; font-size: 22px; font-weight: 800; color: #ffffff;">
               New ${itemLabel} Submitted
@@ -781,7 +781,7 @@ export async function sendAdminNewRequirementEmail(payload: AdminNewRequirementP
           <!-- Header Banner -->
           <div style="background: linear-gradient(135deg, #02244E 0%, #033A7D 100%); padding: 28px 32px; color: #ffffff;">
             <div style="font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; color: #FBC634; margin-bottom: 6px;">
-              Admin Review Required • LabMatrix Marketplace
+              Admin Review Required • Labmatrix Marketplace
             </div>
             <h1 style="margin: 0; font-size: 22px; font-weight: 800; color: #ffffff;">
               New ${itemLabel} Submitted
@@ -917,7 +917,7 @@ export async function sendUserListingApprovedEmail(payload: UserListingApprovedP
           <!-- Header Banner -->
           <div style="background: linear-gradient(135deg, #02244E 0%, #033A7D 100%); padding: 32px 32px 28px; text-align: center; color: #ffffff;">
             <div style="font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 2px; color: #FBC634; margin-bottom: 8px;">
-              LabMatrix Surplus Marketplace
+              Labmatrix Surplus Marketplace
             </div>
             <h1 style="margin: 0; font-size: 24px; font-weight: 800; color: #ffffff;">
               🎉 Your Listing is Approved!
@@ -931,7 +931,7 @@ export async function sendUserListingApprovedEmail(payload: UserListingApprovedP
           <div style="padding: 32px;">
             <p style="font-size: 15px; color: #334155; margin-top: 0; margin-bottom: 20px; line-height: 1.6;">
               Hello${userName ? ` <strong>${esc(userName)}</strong>` : ""},<br /><br />
-              We are pleased to inform you that your listing has been reviewed and approved by the LabMatrix engineering team. It is now published and accessible to buyers across India.
+              We are pleased to inform you that your listing has been reviewed and approved by the Labmatrix engineering team. It is now published and accessible to buyers across India.
             </p>
 
             <!-- Listing Highlight Card -->
@@ -1029,7 +1029,7 @@ export async function sendUserRequirementApprovedEmail(payload: UserRequirementA
           <!-- Header Banner -->
           <div style="background: linear-gradient(135deg, #02244E 0%, #033A7D 100%); padding: 32px 32px 28px; text-align: center; color: #ffffff;">
             <div style="font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 2px; color: #FBC634; margin-bottom: 8px;">
-              LabMatrix Surplus Marketplace
+              Labmatrix Surplus Marketplace
             </div>
             <h1 style="margin: 0; font-size: 24px; font-weight: 800; color: #ffffff;">
               🎉 Your Request is Approved!

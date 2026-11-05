@@ -1,4 +1,4 @@
-# 🔬 LabMatrix Surplus Marketplace
+# 🔬 Labmatrix Surplus Marketplace
 
 > **The Premier B2B Marketplace for Refurbished & Pre-Owned Analytical Instruments, Laboratory Equipment & Spare Parts**  
 > Operated by **Labmatrix Instrument India Pvt. Ltd.** • [https://surplus.labmatrixindia.com](https://surplus.labmatrixindia.com)
@@ -15,13 +15,13 @@
 
 ## 📌 Overview
 
-**LabMatrix Surplus Marketplace** is a high-performance B2B equipment liquidity platform designed specifically for the Indian scientific, pharmaceutical, biotechnology, and analytical research sectors. 
+**Labmatrix Surplus Marketplace** is a high-performance B2B equipment liquidity platform designed specifically for the Indian scientific, pharmaceutical, biotechnology, and analytical research sectors. 
 
 It allows verified labs, universities, testing centers, and manufacturers to:
 * **Buy & Sell Pre-Owned Analytical Machinery:** ICP-OES, ICP-MS, Atomic Absorption Spectrometers (AAS), UV-Visible Spectrophotometers, Gas Chromatography (GC), High-Performance Liquid Chromatography (HPLC), and general laboratory instruments.
 * **Source Spare Parts & Consumables:** Filter and procure components with exact part numbers, model numbers, and instrument compatibility tags.
 * **Browse New Instruments:** Dedicated showcase for newly available scientific instruments and turnkey laboratory setups.
-* **Post Sourcing / Procurement Requests (RFQs):** Post specific equipment requirements so verified sellers and the LabMatrix operations team can match supply with demand.
+* **Post Sourcing / Procurement Requests (RFQs):** Post specific equipment requirements so verified sellers and the Labmatrix operations team can match supply with demand.
 
 ---
 
@@ -162,7 +162,7 @@ ADMIN_EMAIL="admin@labmatrixindia.com"
 
 # Resend Email Configuration (Verified Domain: surplus.labmatrixindia.com)
 RESEND_API_KEY="re_123456789"
-RESEND_FROM_EMAIL="LabMatrix Marketplace <notifications@surplus.labmatrixindia.com>"
+RESEND_FROM_EMAIL="Labmatrix Marketplace <notifications@surplus.labmatrixindia.com>"
 CONTACT_TO_EMAIL="sales@labmatrixindia.com"
 ADMIN_NOTIF_EMAIL="sales@labmatrixindia.com"
 ```

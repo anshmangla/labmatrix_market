@@ -144,7 +144,7 @@ export async function POST(req: NextRequest) {
       {
         success: true,
         message:
-          "Thank you! Your inquiry has been dispatched to LabMatrix Instrument India. Our team will contact you shortly.",
+          "Thank you! Your inquiry has been dispatched to Labmatrix Instrument India. Our team will contact you shortly.",
         emailDelivered: emailResult.success,
       },
       {
