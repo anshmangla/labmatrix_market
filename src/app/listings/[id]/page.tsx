@@ -7,6 +7,9 @@ import { prisma } from "@/lib/prisma";
 import { cachedPublicRead, PUBLIC_LISTINGS_TAG } from "@/lib/public-cache";
 import PhotoGallery from "@/components/listings/PhotoGallery";
 import InquiryBox from "@/components/inquiries/InquiryBox";
+import SaveListingButton from "@/components/listings/SaveListingButton";
+import ShareListingButton from "@/components/listings/ShareListingButton";
+import MobileListingActionBar from "@/components/listings/MobileListingActionBar";
 import {
   MapPin,
   Clock,
@@ -17,6 +20,7 @@ import {
   ArrowRight,
   Pencil,
   Copy,
+  Boxes,
 } from "lucide-react";
 import { getOptimizedImageUrl } from "@/lib/images";
 import { toJsonLd } from "@/lib/json-ld";
@@ -27,29 +31,31 @@ export const dynamic = "force-dynamic";
 // Cached across requests (shared cache) and within one request (React cache);
 // owner/admin visibility checks still run per request on the result
 const getListing = cache(async (id: string) => {
-  return cachedPublicRead(PUBLIC_LISTINGS_TAG, ["listing", id], () => prisma.listing.findUnique({
-    where: { id },
-    select: {
-      id: true,
-      title: true,
-      description: true,
-      category: true,
-      itemType: true,
-      partNumber: true,
-      compatibleWith: true,
-      condition: true,
-      minPrice: true,
-      maxPrice: true,
-      photos: true,
-      documents: true,
-      location: true,
-      quantity: true,
-      status: true,
-      isApproved: true,
-      sellerId: true,
-      createdAt: true,
-    },
-  }));
+  return cachedPublicRead(PUBLIC_LISTINGS_TAG, ["listing", id], () =>
+    prisma.listing.findUnique({
+      where: { id },
+      select: {
+        id: true,
+        title: true,
+        description: true,
+        category: true,
+        itemType: true,
+        partNumber: true,
+        compatibleWith: true,
+        condition: true,
+        minPrice: true,
+        maxPrice: true,
+        photos: true,
+        documents: true,
+        location: true,
+        quantity: true,
+        status: true,
+        isApproved: true,
+        sellerId: true,
+        createdAt: true,
+      },
+    })
+  );
 });
 
 export async function generateMetadata({
@@ -63,7 +69,7 @@ export async function generateMetadata({
   if (!listing || !listing.isApproved) {
     return {
       title: "Equipment Listing",
-      description: "Pre-owned laboratory analytical instrument on LabMatrix.",
+      description: "Pre-owned laboratory analytical instrument on Labmatrix.",
     };
   }
 
@@ -73,8 +79,8 @@ export async function generateMetadata({
     : `${listing.title} | Refurbished & Pre-Owned ${listing.category} in ${listing.location || "India"}`;
 
   const desc = isSpare
-    ? `Buy certified refurbished and pre-owned ${listing.title} in ${listing.location || "India"}.${listing.compatibleWith ? ` Compatible with ${listing.compatibleWith}.` : ""}${listing.partNumber ? ` Part Number: ${listing.partNumber}.` : ""} Condition: ${listing.condition || "Used"}. Expected Price: ₹${listing.minPrice.toLocaleString("en-IN")} - ₹${listing.maxPrice.toLocaleString("en-IN")}. Contact LabMatrix for prompt delivery.`
-    : `Buy certified refurbished and pre-owned ${listing.title} in ${listing.location || "India"}. Category: ${listing.category}. Condition: ${listing.condition || "Used"}. Approx Price: ₹${listing.minPrice.toLocaleString("en-IN")} - ₹${listing.maxPrice.toLocaleString("en-IN")}. Contact LabMatrix for inspection, testing, and quotations.`;
+    ? `Buy certified refurbished and pre-owned ${listing.title} in ${listing.location || "India"}.${listing.compatibleWith ? ` Compatible with ${listing.compatibleWith}.` : ""}${listing.partNumber ? ` Part Number: ${listing.partNumber}.` : ""} Condition: ${listing.condition || "Used"}. Expected Price: ${formatPrice(listing.minPrice, listing.maxPrice)}. Contact Labmatrix for prompt delivery.`
+    : `Buy certified refurbished and pre-owned ${listing.title} in ${listing.location || "India"}. Category: ${listing.category}. Condition: ${listing.condition || "Used"}. Expected Price: ${formatPrice(listing.minPrice, listing.maxPrice)}. Contact Labmatrix for inspection, testing, and quotations.`;
 
   const image =
     listing.photos && listing.photos.length > 0
@@ -96,7 +102,7 @@ export async function generateMetadata({
     listing.location,
     "refurbished analytical instruments",
     "pre-owned scientific machinery",
-    "LabMatrix marketplace",
+    "Labmatrix marketplace",
   ].filter(Boolean) as string[];
 
   return {
@@ -133,10 +139,8 @@ export default async function ListingDetailPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const [listing, session] = await Promise.all([
-    getListing(id),
-    auth(),
-  ]);
+  const session = await auth();
+  const listing = await getListing(id);
 
   if (!listing) {
     notFound();
@@ -145,29 +149,25 @@ export default async function ListingDetailPage({
   const isOwner = session?.user?.id === listing.sellerId;
   const isAdmin = session?.user?.role === "ADMIN";
 
-  // If not approved, only owner or admin can preview it
+  // If unapproved, only owner or admin can preview it
   if (!listing.isApproved && !isOwner && !isAdmin) {
     notFound();
   }
 
-  const knownBrands = [
-    "PerkinElmer",
-    "Perkin Elmer",
-    "Agilent",
-    "Waters",
-    "Shimadzu",
-    "Thermo Fisher",
-    "Thermo",
-    "Bruker",
-    "Metrohm",
-    "Sartorius",
-    "Mettler Toledo",
-    "Hitachi",
-  ];
-  const matchedBrand =
-    knownBrands.find((b) =>
-      listing.title.toLowerCase().includes(b.toLowerCase())
-    ) || "LabMatrix";
+  const isSpare = listing.itemType === "SPARE_PART";
+  const catalogHref =
+    listing.itemType === "NEW_INSTRUMENT"
+      ? "/new-instruments"
+      : listing.itemType === "SPARE_PART"
+      ? "/spare-parts"
+      : "/listings";
+
+  const catalogName =
+    listing.itemType === "NEW_INSTRUMENT"
+      ? "Brand new"
+      : listing.itemType === "SPARE_PART"
+      ? "Spare parts"
+      : "Pre-owned";
 
   const productJsonLd = {
     "@context": "https://schema.org",
@@ -176,39 +176,28 @@ export default async function ListingDetailPage({
         "@type": "Product",
         "@id": `https://surplus.labmatrixindia.com/listings/${listing.id}#product`,
         name: listing.title,
-        description: listing.description.slice(0, 300),
+        description: listing.description,
         category: listing.category,
-        sku: listing.id,
-        ...(listing.partNumber ? { mpn: listing.partNumber } : {}),
-        brand: {
-          "@type": "Brand",
-          name: matchedBrand,
-        },
-        image:
-          listing.photos && listing.photos.length > 0
-            ? listing.photos
-            : ["https://surplus.labmatrixindia.com/logo.png"],
-        itemCondition: listing.condition?.toLowerCase().includes("refurbished")
-          ? "https://schema.org/RefurbishedCondition"
-          : listing.condition?.toLowerCase().includes("brand new")
-          ? "https://schema.org/NewCondition"
-          : "https://schema.org/UsedCondition",
+        image: listing.photos && listing.photos.length > 0 ? listing.photos : undefined,
+        itemCondition:
+          listing.condition?.toLowerCase().includes("new")
+            ? "https://schema.org/NewCondition"
+            : listing.condition?.toLowerCase().includes("refurbished")
+            ? "https://schema.org/RefurbishedCondition"
+            : "https://schema.org/UsedCondition",
         offers: {
           "@type": "AggregateOffer",
           priceCurrency: "INR",
           lowPrice: listing.minPrice,
           highPrice: listing.maxPrice,
-          offerCount: "1",
-          // Server Component: rendered once per request, so "60 days from now" is intended
-          // eslint-disable-next-line react-hooks/purity
-          priceValidUntil: new Date(Date.now() + 60 * 24 * 60 * 60 * 1000)
-            .toISOString()
-            .split("T")[0],
+          offerCount: listing.quantity || 1,
           availability:
-            listing.status === "SOLD" ? "https://schema.org/SoldOut" : "https://schema.org/InStock",
+            listing.status === "SOLD"
+              ? "https://schema.org/OutOfStock"
+              : "https://schema.org/InStock",
           seller: {
             "@type": "Organization",
-            name: "LabMatrix Instrument India Pvt Ltd",
+            name: "Labmatrix Verified Seller Network",
             url: "https://surplus.labmatrixindia.com",
           },
         },
@@ -225,14 +214,14 @@ export default async function ListingDetailPage({
           {
             "@type": "ListItem",
             position: 2,
-            name: "Equipment",
+            name: "Marketplace",
             item: "https://surplus.labmatrixindia.com/listings",
           },
           {
             "@type": "ListItem",
             position: 3,
-            name: listing.category,
-            item: `https://surplus.labmatrixindia.com/listings?category=${encodeURIComponent(listing.category)}`,
+            name: catalogName,
+            item: `https://surplus.labmatrixindia.com${catalogHref}`,
           },
           {
             "@type": "ListItem",
@@ -246,23 +235,31 @@ export default async function ListingDetailPage({
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 py-10 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-slate-50 py-8 px-4 sm:px-6 lg:px-8 pb-24 lg:pb-16">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: toJsonLd(productJsonLd) }}
       />
       <div className="max-w-7xl mx-auto">
         {/* Breadcrumb Navigation */}
-        <div className="mb-6 flex items-center space-x-2 text-xs font-semibold text-slate-500">
+        <div className="mb-6 flex items-center space-x-2 text-xs font-semibold text-slate-500 overflow-x-auto whitespace-nowrap">
           <Link href="/" className="hover:text-brand-blue transition-colors">
             Home
           </Link>
           <span>/</span>
+          <Link href="/listings" className="hover:text-brand-blue transition-colors">
+            Marketplace
+          </Link>
+          <span>/</span>
+          <Link href={catalogHref} className="hover:text-brand-blue transition-colors">
+            {catalogName}
+          </Link>
+          <span>/</span>
           <Link
-            href="/listings"
+            href={`${catalogHref}?category=${encodeURIComponent(listing.category)}`}
             className="hover:text-brand-blue transition-colors"
           >
-            Listings
+            {listing.category}
           </Link>
           <span>/</span>
           <span className="text-slate-800 truncate max-w-xs">{listing.title}</span>
@@ -318,13 +315,13 @@ export default async function ListingDetailPage({
                 <span className="text-xs font-bold text-amber-800">• Pending Admin Approval</span>
               </div>
               <p className="text-xs text-amber-800 mt-1">
-                This listing is currently under admin review and is not visible to the public. You will receive an on-site notification (bell icon) as soon as it is approved.
+                This listing is currently under admin review and is not visible to the public. You will receive an on-site notification as soon as it is approved.
               </p>
             </div>
           </div>
         )}
 
-        {/* SOLD Banner with Direct Request Action */}
+        {/* SOLD Banner with Direct Sourcing Request Action */}
         {listing.status === "SOLD" && (
           <div className="mb-6 p-4 sm:p-5 rounded-2xl bg-amber-50/90 border border-amber-200/80 text-amber-950 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-xs">
             <div className="flex items-start space-x-3">
@@ -339,8 +336,8 @@ export default async function ListingDetailPage({
                   <span className="text-xs font-bold text-amber-900">• Looking for this model?</span>
                 </div>
                 <p className="text-xs text-amber-800 mt-1 max-w-2xl leading-relaxed">
-                  This specific unit has been sold. However, LabMatrix actively sources certified refurbished &amp; pre-owned{" "}
-                  <strong>{listing.title}</strong> across India. Submit an inquiry below or post a request to get notified when equivalent stock arrives.
+                  This specific unit has been sold. However, Labmatrix actively sources certified refurbished &amp; pre-owned{" "}
+                  <strong>{listing.title}</strong> across India. Submit an inquiry or post a sourcing request to get notified when equivalent stock arrives.
                 </p>
               </div>
             </div>
@@ -354,189 +351,175 @@ export default async function ListingDetailPage({
           </div>
         )}
 
-        {/* Main Content Layout */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Left Column (2 Cols): Photos & Specifications */}
-          <div className="lg:col-span-2 space-y-6">
+        {/* Main Content Layout: Two-Column Decision Grid */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+          {/* Left Column (7 Cols on lg, 8 on xl): Photos & Specifications */}
+          <div className="lg:col-span-7 xl:col-span-8 space-y-6">
             {/* Gallery */}
             <div className="bg-white rounded-2xl p-4 sm:p-6 shadow-xs border border-slate-200">
               <PhotoGallery photos={listing.photos} title={listing.title} />
             </div>
 
-            {/* Description & Technical Specs */}
-            <div className="bg-white rounded-2xl p-6 sm:p-8 shadow-xs border border-slate-200 space-y-6">
-              <div>
-                <span className="text-xs font-bold uppercase tracking-wider text-brand-blue">
-                  {listing.category}
-                </span>
-                <h1 className="text-2xl sm:text-3xl font-black text-slate-900 mt-1">
-                  {listing.title}
-                </h1>
-                <div className="flex flex-wrap items-center gap-3 mt-3 text-xs text-slate-500">
-                  <span className="flex items-center">
-                    <MapPin className="w-3.5 h-3.5 mr-1 text-slate-400" />
-                    {listing.location || "India"}
-                  </span>
-                  <span>•</span>
-                  <span className="text-brand-blue bg-brand-blue-50 px-2 py-0.5 rounded font-semibold">
-                    {listing.condition}
-                  </span>
-                  <span>•</span>
-                  <span className="text-amber-800 bg-amber-50 border border-amber-200 px-2 py-0.5 rounded font-bold">
-                    Qty: {listing.quantity || 1} available
-                  </span>
-                  {listing.status === "SOLD" && (
-                    <>
-                      <span>•</span>
-                      <span className="bg-rose-100 text-rose-700 border border-rose-200 px-2 py-0.5 rounded font-black text-xs uppercase">
-                        SOLD
-                      </span>
-                    </>
-                  )}
-                  <span>•</span>
-                  <span className="flex items-center">
-                    <Clock className="w-3.5 h-3.5 mr-1 text-slate-400" />
-                    Listed on {formatDate(listing.createdAt)}
-                  </span>
-                </div>
+            {/* Specifications Card */}
+            <div className="bg-white rounded-2xl p-6 sm:p-7 shadow-xs border border-slate-200">
+              <h2 className="text-base font-bold text-slate-900 mb-4 flex items-center space-x-2">
+                <Boxes className="w-4 h-4 text-brand-blue" />
+                <span>Instrument Specifications</span>
+              </h2>
 
-                {listing.itemType === "SPARE_PART" && (
-                  <div className="mt-4 p-3.5 bg-brand-blue-50/70 rounded-xl border border-brand-blue-200/80 flex flex-wrap gap-5 text-xs">
-                    {listing.compatibleWith && (
-                      <div>
-                        <span className="text-slate-400 block font-bold text-[10px] uppercase">
-                          Compatible Instrument / Model
-                        </span>
-                        <span className="font-bold text-slate-900 text-sm">{listing.compatibleWith}</span>
-                      </div>
-                    )}
-                    {listing.partNumber && (
-                      <div>
-                        <span className="text-slate-400 block font-bold text-[10px] uppercase">
-                          Part / Catalog #
-                        </span>
-                        <span className="font-bold text-slate-900 font-mono text-sm">{listing.partNumber}</span>
-                      </div>
-                    )}
+              <div className="border border-slate-200 rounded-xl overflow-hidden divide-y divide-slate-100 text-sm">
+                <div className="grid grid-cols-3 p-3.5 bg-slate-50/50">
+                  <span className="text-slate-500 font-medium">Condition</span>
+                  <span className="col-span-2 font-bold text-slate-900">{listing.condition || "Used"}</span>
+                </div>
+                <div className="grid grid-cols-3 p-3.5 bg-white">
+                  <span className="text-slate-500 font-medium">Quantity</span>
+                  <span className="col-span-2 font-bold text-slate-900">{listing.quantity || 1} available</span>
+                </div>
+                <div className="grid grid-cols-3 p-3.5 bg-slate-50/50">
+                  <span className="text-slate-500 font-medium">Location</span>
+                  <span className="col-span-2 font-bold text-slate-900">{listing.location || "India"}</span>
+                </div>
+                <div className="grid grid-cols-3 p-3.5 bg-white">
+                  <span className="text-slate-500 font-medium">Listed Date</span>
+                  <span className="col-span-2 font-bold text-slate-900">{formatDate(listing.createdAt)}</span>
+                </div>
+                {isSpare && listing.partNumber && (
+                  <div className="grid grid-cols-3 p-3.5 bg-slate-50/50">
+                    <span className="text-slate-500 font-medium">Part Number</span>
+                    <span className="col-span-2 font-mono font-bold text-brand-blue bg-brand-blue-50/80 px-2 py-0.5 rounded w-fit text-xs">
+                      {listing.partNumber}
+                    </span>
+                  </div>
+                )}
+                {isSpare && listing.compatibleWith && (
+                  <div className="grid grid-cols-3 p-3.5 bg-white">
+                    <span className="text-slate-500 font-medium">Compatible With</span>
+                    <span className="col-span-2 font-bold text-slate-900">{listing.compatibleWith}</span>
                   </div>
                 )}
               </div>
+            </div>
 
-              <div className="border-t border-slate-100 pt-6">
-                <h2 className="text-base font-bold text-slate-900 mb-3 flex items-center space-x-2">
-                  <FileText className="w-4 h-4 text-brand-blue" />
-                  <span>Technical Description & Details</span>
-                </h2>
-                <div className="text-sm text-slate-700 leading-relaxed whitespace-pre-line bg-slate-50 p-5 rounded-xl border border-slate-100">
-                  {listing.description}
-                </div>
-              </div>
-
-              {/* Attached Documents & Manuals */}
-              {listing.documents && listing.documents.length > 0 && (
-                <div className="border-t border-slate-100 pt-6">
-                  <h2 className="text-base font-bold text-slate-900 mb-3 flex items-center space-x-2">
-                    <FileText className="w-4 h-4 text-rose-600" />
-                    <span>Attached Documents & Manuals ({listing.documents.length})</span>
-                  </h2>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    {listing.documents.map((docUrl: string, idx: number) => {
-                      const rawName = docUrl.split("/").pop()?.split("?")[0] || `Document_${idx + 1}.pdf`;
-                      const displayName = decodeURIComponent(rawName);
-                      return (
-                        <a
-                          key={idx}
-                          href={docUrl}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="flex items-center space-x-3 p-3.5 bg-slate-50 hover:bg-slate-100 rounded-xl border border-slate-200 transition-colors group"
-                        >
-                          <div className="w-9 h-9 rounded-lg bg-rose-100 text-rose-600 flex items-center justify-center flex-shrink-0 group-hover:scale-105 transition-transform">
-                            <FileText className="w-5 h-5" />
-                          </div>
-                          <div className="flex-1 min-w-0">
-                            <p className="text-xs font-bold text-slate-900 truncate group-hover:text-brand-blue transition-colors">
-                              {displayName}
-                            </p>
-                            <p className="text-[11px] text-slate-500">PDF Document • Tap to view</p>
-                          </div>
-                        </a>
-                      );
-                    })}
-                  </div>
-                </div>
-              )}
-
-              {/* Marketplace Assurance Box */}
-              <div className="bg-brand-blue-950 text-white rounded-xl p-5 flex items-start space-x-3.5 shadow-sm border border-brand-blue-800">
-                <div className="w-8 h-8 rounded-lg bg-brand-gold/20 text-brand-gold flex items-center justify-center flex-shrink-0 mt-0.5">
-                  <ShieldCheck className="w-4 h-4 text-brand-gold" />
-                </div>
-                <div>
-                  <h4 className="text-xs font-bold text-brand-gold uppercase tracking-wider">
-                    Verified Equipment Listing
-                  </h4>
-                  <p className="text-xs text-slate-300 mt-1 leading-relaxed">
-                    Instrument specifications and maintenance logs are verified through our platform.
-                    Submit an inquiry below to ask technical questions, request additional photos, or submit a quotation.
-                  </p>
-                </div>
+            {/* Description Card */}
+            <div className="bg-white rounded-2xl p-6 sm:p-7 shadow-xs border border-slate-200 space-y-3">
+              <h2 className="text-base font-bold text-slate-900 flex items-center space-x-2">
+                <FileText className="w-4 h-4 text-brand-blue" />
+                <span>Technical Description & Details</span>
+              </h2>
+              <div className="text-sm text-slate-700 leading-relaxed whitespace-pre-line bg-slate-50 p-5 rounded-xl border border-slate-100">
+                {listing.description}
               </div>
             </div>
+
+            {/* Attached Documents & Manuals */}
+            {listing.documents && listing.documents.length > 0 && (
+              <div className="bg-white rounded-2xl p-6 sm:p-7 shadow-xs border border-slate-200 space-y-4">
+                <h2 className="text-base font-bold text-slate-900 flex items-center space-x-2">
+                  <FileText className="w-4 h-4 text-rose-600" />
+                  <span>Attached Documents & Manuals ({listing.documents.length})</span>
+                </h2>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  {listing.documents.map((docUrl: string, idx: number) => {
+                    const rawName = docUrl.split("/").pop()?.split("?")[0] || `Document_${idx + 1}.pdf`;
+                    const displayName = decodeURIComponent(rawName);
+                    return (
+                      <a
+                        key={idx}
+                        href={docUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center space-x-3 p-3.5 bg-slate-50 hover:bg-slate-100 rounded-xl border border-slate-200 transition-colors group"
+                      >
+                        <div className="w-9 h-9 rounded-lg bg-rose-100 text-rose-600 flex items-center justify-center flex-shrink-0 group-hover:scale-105 transition-transform">
+                          <FileText className="w-5 h-5" />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-xs font-bold text-slate-900 truncate group-hover:text-brand-blue transition-colors">
+                            {displayName}
+                          </p>
+                          <p className="text-[11px] text-slate-500">PDF Document • Tap to view</p>
+                        </div>
+                      </a>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
           </div>
 
-          {/* Right Column (1 Col): Price & Inquiry Box */}
-          <div className="space-y-6">
-            {/* Price Box */}
-            <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-xs">
-              {listing.status === "SOLD" && (
-                <div className="inline-block px-2.5 py-1 rounded-md text-xs font-black uppercase tracking-wider bg-rose-100 text-rose-700 border border-rose-200 mb-3">
-                  Status: SOLD OUT
+          {/* Right Column (5 Cols on lg, 4 on xl): Sticky Decision & Inquiry Panel */}
+          <div className="lg:col-span-5 xl:col-span-4 lg:sticky lg:top-24 space-y-4">
+            <div className="bg-white rounded-2xl border border-slate-200 p-6 sm:p-7 shadow-md space-y-4">
+              {/* Category & Action Icons */}
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-bold uppercase tracking-wider text-brand-blue bg-brand-blue-50 px-2.5 py-1 rounded-lg border border-brand-blue-100">
+                  {listing.category}
+                </span>
+                <div className="flex items-center space-x-1">
+                  <ShareListingButton title={listing.title} />
+                  <SaveListingButton
+                    listingId={listing.id}
+                    className="p-2 rounded-xl hover:bg-slate-100"
+                  />
                 </div>
-              )}
-              <span className="text-xs font-semibold text-slate-400 block mb-1">
-                {listing.status === "SOLD" ? "Last Asking Price" : "Expected Price"}
-              </span>
-              <div className="text-2xl sm:text-3xl font-black text-brand-blue">
-                {formatPrice(listing.minPrice, listing.maxPrice)}
               </div>
-              {listing.quantity && listing.quantity > 1 ? (
-                <div className="mt-1 text-xs font-semibold text-slate-700 flex items-center space-x-1.5">
-                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
-                  <span>
-                    Stock: <strong>{listing.quantity} units</strong> available
-                  </span>
-                </div>
-              ) : null}
-              <p className="text-[11px] text-slate-500 mt-1">
-                Prices negotiable subject to technical condition & included
-                accessories.
-              </p>
 
-              <div className="mt-4 pt-4 border-t border-slate-100 space-y-2 text-xs text-slate-600">
-                <div className="flex items-center space-x-2">
-                  <CheckCircle className="w-3.5 h-3.5 text-brand-gold-600 flex-shrink-0" />
-                  <span>Verified laboratory equipment listing</span>
+              {/* Title */}
+              <h1 className="text-xl sm:text-2xl font-black text-slate-900 leading-snug">
+                {listing.title}
+              </h1>
+
+              {/* Price Block */}
+              <div className="pt-3 border-t border-slate-100">
+                <span className="text-xs font-semibold text-slate-400 block mb-0.5">
+                  {listing.status === "SOLD" ? "Last Asking Price" : "Expected Price"}
+                </span>
+                <div className="text-2xl sm:text-3xl font-black text-brand-blue">
+                  {formatPrice(listing.minPrice, listing.maxPrice)}
                 </div>
-                <div className="flex items-center space-x-2">
-                  <CheckCircle className="w-3.5 h-3.5 text-brand-gold-600 flex-shrink-0" />
-                  <span>On-site or video inspection coordinated</span>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <CheckCircle className="w-3.5 h-3.5 text-brand-gold-600 flex-shrink-0" />
-                  <span>Complete escrow & handover assistance</span>
-                </div>
+                <p className="text-[11px] text-slate-500 mt-1">
+                  {listing.status === "SOLD"
+                    ? "Unit is sold. Inquire below to request incoming or equivalent units."
+                    : "Prices negotiable subject to technical condition & accessories."}
+                </p>
+                {listing.quantity && listing.quantity > 1 ? (
+                  <div className="mt-2 text-xs font-semibold text-slate-700 flex items-center space-x-1.5">
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                    <span>
+                      Stock: <strong>{listing.quantity} units</strong> available
+                    </span>
+                  </div>
+                ) : null}
+              </div>
+
+              {/* Inquiry Form */}
+              <div className="pt-2">
+                <InquiryBox
+                  listingId={listing.id}
+                  itemTitle={listing.title}
+                  isSold={listing.status === "SOLD"}
+                />
               </div>
             </div>
 
-            {/* Inquiry Form */}
-            <InquiryBox
-              listingId={listing.id}
-              itemTitle={listing.title}
-              isSold={listing.status === "SOLD"}
-            />
+            {/* Single Trust Strip */}
+            <div className="bg-slate-100/90 text-slate-700 rounded-xl p-4 text-xs leading-relaxed border border-slate-200 flex items-start space-x-2.5">
+              <ShieldCheck className="w-4 h-4 text-brand-blue flex-shrink-0 mt-0.5" />
+              <span>
+                <strong>Verified by Labmatrix.</strong> Contact details are never shown publicly; our Deal Desk coordinates verification, inspection, and escrow handover.
+              </span>
+            </div>
           </div>
         </div>
+
+        {/* Mobile Sticky Action Bar */}
+        <MobileListingActionBar
+          listingId={listing.id}
+          minPrice={listing.minPrice}
+          maxPrice={listing.maxPrice}
+          isSold={listing.status === "SOLD"}
+        />
       </div>
     </div>
   );

@@ -16,6 +16,7 @@ import {
 import { getOptimizedImageUrl, IMAGE_PRESETS } from "@/lib/images";
 import LoadMoreButton from "@/components/listings/LoadMoreButton";
 import { formatPrice } from "@/lib/formatters";
+import SaveListingButton from "@/components/listings/SaveListingButton";
 
 export interface SpareListing {
   id: string;

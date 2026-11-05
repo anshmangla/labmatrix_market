@@ -14,6 +14,13 @@ import {
 } from "lucide-react";
 import { errorMessage } from "@/lib/errors";
 
+const QUICK_TOPICS = [
+  { id: "price", label: "Best price", text: "Please share your best commercial price for this unit." },
+  { id: "calibration", label: "Calibration records", text: "Please share recent calibration certificates and service logs." },
+  { id: "video", label: "Video inspection", text: "I would like to request an operational video inspection of the instrument." },
+  { id: "delivery", label: "Delivery timeline", text: "Please provide estimated delivery time and shipping logistics." },
+];
+
 export default function InquiryBox({
   listingId,
   requirementId,
@@ -38,6 +45,7 @@ export default function InquiryBox({
     : `Hello, I am interested in acquiring this ${itemTitle}. Please let me know the availability and inspection schedule.`;
 
   const [message, setMessage] = useState(defaultMessage);
+  const [selectedTopics, setSelectedTopics] = useState<string[]>([]);
   const [phone, setPhone] = useState("");
   const [loading, setLoading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
@@ -51,6 +59,7 @@ export default function InquiryBox({
         const parsed = JSON.parse(saved);
         if (parsed.message) setMessage(parsed.message);
         if (parsed.phone) setPhone(parsed.phone);
+        if (Array.isArray(parsed.selectedTopics)) setSelectedTopics(parsed.selectedTopics);
       }
     } catch {
       // sessionStorage unavailable or restricted
@@ -60,13 +69,31 @@ export default function InquiryBox({
   // Persist draft on edit
   useEffect(() => {
     try {
-      if (message !== defaultMessage || phone) {
-        sessionStorage.setItem(draftKey, JSON.stringify({ message, phone }));
+      if (message !== defaultMessage || phone || selectedTopics.length > 0) {
+        sessionStorage.setItem(
+          draftKey,
+          JSON.stringify({ message, phone, selectedTopics })
+        );
       }
     } catch {
       // sessionStorage unavailable
     }
-  }, [message, phone, draftKey, defaultMessage]);
+  }, [message, phone, selectedTopics, draftKey, defaultMessage]);
+
+  const toggleTopic = (topic: typeof QUICK_TOPICS[number]) => {
+    if (selectedTopics.includes(topic.id)) {
+      setSelectedTopics((prev) => prev.filter((id) => id !== topic.id));
+      setMessage((prev) =>
+        prev
+          .replace(topic.text, "")
+          .replace(/\n\n+/g, "\n\n")
+          .trim()
+      );
+    } else {
+      setSelectedTopics((prev) => [...prev, topic.id]);
+      setMessage((prev) => (prev ? `${prev.trim()}\n\n${topic.text}` : topic.text));
+    }
+  };
 
   const handleInquiry = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -118,8 +145,7 @@ export default function InquiryBox({
           </span>
         </div>
         <p className="text-xs text-emerald-800 leading-relaxed mb-4">
-          Your inquiry has been logged securely. We will review the details and follow up promptly
-          to facilitate next steps.
+          Your inquiry has been logged securely. The Labmatrix Deal Desk will review details and follow up promptly.
         </p>
         <Link
           href="/dashboard?tab=inquiries"
@@ -133,7 +159,7 @@ export default function InquiryBox({
   }
 
   return (
-    <div className="bg-white rounded-2xl border border-slate-200 shadow-md p-6">
+    <div id="inquiry-form" className="bg-white rounded-2xl border border-slate-200 shadow-md p-6 scroll-mt-24">
       <div className="flex items-center space-x-2 text-xs font-bold text-brand-blue bg-brand-blue-50 border border-brand-blue-100 px-3 py-1 rounded-md w-fit mb-3">
         <ShieldCheck className="w-4 h-4 text-brand-gold-600" />
         <span>
@@ -156,7 +182,7 @@ export default function InquiryBox({
         {isOfferToRequirement
           ? "Submit your instrument specifications and price ask to coordinate with the buyer."
           : isSold
-          ? "This specific unit is sold. Submit your specifications below and our engineering desk will locate equivalent units or incoming stock for you."
+          ? "This specific unit is sold. Submit your specifications below and our Labmatrix engineering desk will locate equivalent units or incoming stock for you."
           : "Submit your questions, required specifications, or price proposal below."}
       </p>
 
@@ -183,7 +209,36 @@ export default function InquiryBox({
           </Link>
         </div>
       ) : (
-        <form onSubmit={handleInquiry} className="mt-4 space-y-3">
+        <form onSubmit={handleInquiry} className="mt-4 space-y-3.5">
+          {/* Quick Inquiry Topic Chips */}
+          {!isOfferToRequirement && (
+            <div>
+              <span className="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">
+                Quick questions (Tap to add)
+              </span>
+              <div className="flex flex-wrap gap-1.5">
+                {QUICK_TOPICS.map((topic) => {
+                  const active = selectedTopics.includes(topic.id);
+                  return (
+                    <button
+                      key={topic.id}
+                      type="button"
+                      onClick={() => toggleTopic(topic)}
+                      className={`text-xs px-2.5 py-1 rounded-lg border transition-all flex items-center space-x-1 ${
+                        active
+                          ? "bg-brand-blue-50 border-brand-blue text-brand-blue font-bold shadow-2xs"
+                          : "bg-slate-50 hover:bg-slate-100 border-slate-200 text-slate-600 font-medium"
+                      }`}
+                    >
+                      <span className="text-[11px]">{active ? "✓" : "+"}</span>
+                      <span>{topic.label}</span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
           <div>
             <label className="block text-xs font-semibold text-slate-700 mb-1">
               Your Inquiry Message
@@ -199,7 +254,7 @@ export default function InquiryBox({
 
           <div>
             <label className="block text-xs font-semibold text-slate-700 mb-1">
-              Your Contact Phone Number (Private)
+              Your Contact Phone Number (Kept Private)
             </label>
             <div className="relative">
               <Phone className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-3" />

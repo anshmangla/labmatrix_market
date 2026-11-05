@@ -16,14 +16,14 @@ export default function Footer() {
             >
               <Image
                 src="/logo.png"
-                alt="LabMatrix - Refurbished & Pre-Owned Analytical Laboratory Instruments"
+                alt="Labmatrix - Refurbished & Pre-Owned Analytical Laboratory Instruments"
                 width={150}
                 height={32}
                 className="h-7 w-auto object-contain"
               />
             </Link>
             <p className="text-xs text-slate-400 leading-relaxed">
-              LabMatrix Instrument India Pvt. Ltd. is a premier Indian marketplace
+              Labmatrix Instrument India Pvt. Ltd. is a premier Indian marketplace
               and engineering provider for certified refurbished and pre-owned analytical machinery, spare parts,
               and turnkey laboratory solutions.
             </p>

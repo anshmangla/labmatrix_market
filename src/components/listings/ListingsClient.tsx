@@ -18,6 +18,7 @@ import {
 import { getOptimizedImageUrl, IMAGE_PRESETS } from "@/lib/images";
 import LoadMoreButton from "@/components/listings/LoadMoreButton";
 import { formatPrice } from "@/lib/formatters";
+import SaveListingButton from "@/components/listings/SaveListingButton";
 
 export interface Listing {
   id: string;
@@ -403,6 +404,9 @@ export default function ListingsClient({
               >
                 {/* Image */}
                 <div className="relative aspect-[4/3] bg-slate-100 overflow-hidden">
+                  <div className="absolute top-2.5 right-2.5 z-10 w-8 h-8 rounded-full bg-white/90 backdrop-blur-xs shadow-xs flex items-center justify-center hover:bg-white transition-colors">
+                    <SaveListingButton listingId={item.id} />
+                  </div>
                   {item.photos && item.photos.length > 0 ? (
                     <img
                       src={getOptimizedImageUrl(item.photos[0], IMAGE_PRESETS.CARD)}

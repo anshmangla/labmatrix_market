@@ -20,7 +20,7 @@ import { toJsonLd } from "@/lib/json-ld";
 
 export const metadata: Metadata = {
   title: {
-    absolute: "LabMatrix Marketplace | Refurbished & Pre-Owned Analytical Lab Instruments",
+    absolute: "Labmatrix Marketplace | Refurbished & Pre-Owned Analytical Lab Instruments",
   },
   description:
     "India's dedicated B2B marketplace to buy and sell certified refurbished & pre-owned analytical equipment: HPLC, GC-MS, UV-Vis, AAS, ICP-OES, and spare parts with technical inspection.",
@@ -53,14 +53,14 @@ export default function Home() {
 
   const faqs = [
     {
-      question: "What types of analytical instruments and spare parts can I trade on LabMatrix?",
+      question: "What types of analytical instruments and spare parts can I trade on Labmatrix?",
       answer:
-        "LabMatrix specializes in certified refurbished, pre-owned, and new analytical equipment including HPLC, UHPLC, GC, GC-MS, ICP-OES, ICP-MS, AAS, UV-Vis, FTIR, DSC-TGA, and genuine replacement spare parts such as PPC modules, power supplies, deuterium lamps, and boards from manufacturers like PerkinElmer, Agilent, Waters, and Shimadzu.",
+        "Labmatrix specializes in certified refurbished, pre-owned, and new analytical equipment including HPLC, UHPLC, GC, GC-MS, ICP-OES, ICP-MS, AAS, UV-Vis, FTIR, DSC-TGA, and genuine replacement spare parts such as PPC modules, power supplies, deuterium lamps, and boards from manufacturers like PerkinElmer, Agilent, Waters, and Shimadzu.",
     },
     {
-      question: "How does LabMatrix ensure equipment quality and refurbished verification?",
+      question: "How does Labmatrix ensure equipment quality and refurbished verification?",
       answer:
-        "Every refurbished and pre-owned listing submitted to LabMatrix undergoes technical verification before appearing publicly. We cross-verify specifications, serial numbers, module configurations, refurbishment status, and operational history. On-site or video technical inspections can be arranged prior to final transaction closing.",
+        "Every refurbished and pre-owned listing submitted to Labmatrix undergoes technical verification before appearing publicly. We cross-verify specifications, serial numbers, module configurations, refurbishment status, and operational history. On-site or video technical inspections can be arranged prior to final transaction closing.",
     },
     {
       question: "Can I find hard-to-source or refurbished spare parts for older instruments?",
@@ -265,7 +265,7 @@ export default function Home() {
               Simple & Transparent
             </span>
             <h2 className="text-3xl font-black text-slate-900 mt-1">
-              How It Works on LabMatrix
+              How It Works on Labmatrix
             </h2>
             <p className="text-sm text-slate-600 mt-3">
               A streamlined process to list equipment, submit inquiries, and connect
@@ -325,7 +325,7 @@ export default function Home() {
               Frequently Asked Questions
             </h2>
             <p className="text-sm text-slate-600 mt-2">
-              Everything you need to know about buying, selling, and sourcing analytical instruments on LabMatrix.
+              Everything you need to know about buying, selling, and sourcing analytical instruments on Labmatrix.
             </p>
           </div>
 

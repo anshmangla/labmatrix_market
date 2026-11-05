@@ -17,8 +17,8 @@ const geistSans = Geist({
 export const metadata: Metadata = {
   metadataBase: new URL("https://surplus.labmatrixindia.com"),
   title: {
-    default: "LabMatrix Marketplace | Refurbished & Pre-Owned Analytical Lab Instruments",
-    template: "%s | LabMatrix Instrument India",
+    default: "Labmatrix Marketplace | Refurbished & Pre-Owned Analytical Lab Instruments",
+    template: "%s | Labmatrix Instrument India",
   },
   description:
     "India's dedicated B2B marketplace to buy and sell certified refurbished & pre-owned HPLC, GC-MS, UV-Vis, AAS, ICP-OES, DSC-TGA, spare parts, and analytical laboratory machinery.",
@@ -60,8 +60,8 @@ export const metadata: Metadata = {
     type: "website",
     locale: "en_IN",
     url: "https://surplus.labmatrixindia.com",
-    siteName: "LabMatrix Instrument India Pvt Ltd",
-    title: "LabMatrix Marketplace | Refurbished & Pre-Owned Analytical Lab Instruments",
+    siteName: "Labmatrix Instrument India Pvt Ltd",
+    title: "Labmatrix Marketplace | Refurbished & Pre-Owned Analytical Lab Instruments",
     description:
       "Buy & sell certified refurbished and pre-owned HPLC, GC-MS, Spectroscopy, Elemental & Thermal Analysis equipment and replacement spares across India.",
     images: [
@@ -69,13 +69,13 @@ export const metadata: Metadata = {
         url: "/logo.png",
         width: 800,
         height: 200,
-        alt: "LabMatrix Marketplace - Refurbished & Pre-Owned Analytical Instruments",
+        alt: "Labmatrix Marketplace - Refurbished & Pre-Owned Analytical Instruments",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "LabMatrix Marketplace | Refurbished & Pre-Owned Analytical Lab Instruments",
+    title: "Labmatrix Marketplace | Refurbished & Pre-Owned Analytical Lab Instruments",
     description:
       "Verified B2B marketplace for refurbished and pre-owned laboratory machinery, spare parts, and analytical testing equipment in India.",
     images: ["/logo.png"],
@@ -108,7 +108,7 @@ const jsonLd = {
       "@type": "LocalBusiness",
       "@id": "https://surplus.labmatrixindia.com/#organization",
       name: "LABMATRIX INSTRUMENT INDIA PVT LTD",
-      alternateName: "LabMatrix Refurbished & Surplus Analytical Marketplace",
+      alternateName: "Labmatrix Refurbished & Surplus Analytical Marketplace",
       description:
         "Premier Indian marketplace and engineering provider for certified refurbished and pre-owned analytical instruments, replacement spare parts, and calibration services.",
       url: "https://surplus.labmatrixindia.com",
@@ -131,7 +131,7 @@ const jsonLd = {
       "@type": "WebSite",
       "@id": "https://surplus.labmatrixindia.com/#website",
       url: "https://surplus.labmatrixindia.com",
-      name: "LabMatrix Marketplace | Refurbished & Pre-Owned Analytical Instruments",
+      name: "Labmatrix Marketplace | Refurbished & Pre-Owned Analytical Instruments",
       description:
         "B2B marketplace to buy and sell certified refurbished & pre-owned HPLC, GC-MS, AAS, ICP-OES, spectrophotometers, and laboratory spare parts across India.",
       publisher: {

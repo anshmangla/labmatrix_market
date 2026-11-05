@@ -2,9 +2,9 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 export const metadata: Metadata = {
-  title: "Privacy Policy | LabMatrix Marketplace",
+  title: "Privacy Policy | Labmatrix Marketplace",
   description:
-    "How LabMatrix Instrument India Pvt Ltd collects, uses, shares and protects your information on the LabMatrix Marketplace website and mobile app, and how to delete your account.",
+    "How Labmatrix Instrument India Pvt Ltd collects, uses, shares and protects your information on the Labmatrix Marketplace website and mobile app, and how to delete your account.",
   alternates: {
     canonical: "/privacy",
   },
@@ -32,13 +32,13 @@ export default function PrivacyPolicyPage() {
           <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900">Privacy Policy</h1>
           <p className="text-sm text-slate-500">Effective date: {EFFECTIVE_DATE}</p>
           <p className="text-sm leading-relaxed text-slate-700">
-            This policy explains how <strong>LabMatrix Instrument India Pvt Ltd</strong> (&quot;LabMatrix&quot;,
+            This policy explains how <strong>Labmatrix Instrument India Pvt Ltd</strong> (&quot;Labmatrix&quot;,
             &quot;we&quot;, &quot;us&quot;) collects, uses, shares and protects information when you use the
-            LabMatrix Marketplace website at{" "}
+            Labmatrix Marketplace website at{" "}
             <Link href="/" className="text-brand-blue font-semibold hover:underline">
               surplus.labmatrixindia.com
             </Link>{" "}
-            and the LabMatrix Market mobile app (together, the &quot;Service&quot;). The Service is a
+            and the Labmatrix Market mobile app (together, the &quot;Service&quot;). The Service is a
             business-to-business marketplace for buying and selling laboratory instruments, spare parts and
             consumables.
           </p>
@@ -125,7 +125,7 @@ export default function PrivacyPolicyPage() {
           </p>
           <p>
             Your name, email address, phone number and company are <strong>not</strong> shown publicly and are
-            not shared directly with other buyers or sellers. LabMatrix administrators can see them so our deal
+            not shared directly with other buyers or sellers. Labmatrix administrators can see them so our deal
             desk can coordinate transactions.
           </p>
         </Section>
@@ -155,14 +155,14 @@ export default function PrivacyPolicyPage() {
           </ul>
           <p>
             We may also disclose information if required by law, or to protect the rights, safety and property
-            of LabMatrix, our users or others.
+            of Labmatrix, our users or others.
           </p>
         </Section>
 
         <Section id="security" title="6. How we protect your information">
           <p>
             All data is sent over encrypted HTTPS connections. Passwords and verification codes are stored only
-            as hashes. Access to administrative tools is restricted to authorised LabMatrix staff. Sessions are
+            as hashes. Access to administrative tools is restricted to authorised Labmatrix staff. Sessions are
             revoked when you change your password or delete your account. No system is completely secure, but we
             work to protect your information and fix issues promptly.
           </p>
@@ -262,7 +262,7 @@ export default function PrivacyPolicyPage() {
           </address>
           <p>For anything else, you can reach the company at:</p>
           <address className="not-italic text-sm text-slate-700 space-y-1">
-            <p className="font-semibold text-slate-900">LabMatrix Instrument India Pvt Ltd</p>
+            <p className="font-semibold text-slate-900">Labmatrix Instrument India Pvt Ltd</p>
             <p>514/5, Mehrauli, New Delhi – 110030, India</p>
             <p>
               Email:{" "}

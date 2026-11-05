@@ -99,7 +99,7 @@ export default function ContactPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center">
           <div className="inline-flex items-center space-x-2 px-3.5 py-1.5 rounded-full bg-brand-gold/15 border border-brand-gold/40 text-brand-gold text-xs font-bold tracking-wide uppercase mb-4">
             <ShieldCheck className="w-4 h-4 text-brand-gold" />
-            <span>LabMatrix Instrument India Pvt Ltd</span>
+            <span>Labmatrix Instrument India Pvt Ltd</span>
           </div>
           <h1 className="text-3xl sm:text-5xl font-black tracking-tight text-white max-w-3xl mx-auto">
             Get in Touch with Our{" "}
@@ -164,7 +164,7 @@ export default function ContactPage() {
                       <span>Call Now</span>
                     </a>
                     <a
-                      href="https://wa.me/917303040804?text=Hello%20LabMatrix%20Team%2C%20I%20have%20an%20inquiry%20regarding%20laboratory%20equipment."
+                      href="https://wa.me/917303040804?text=Hello%20Labmatrix%20Team%2C%20I%20have%20an%20inquiry%20regarding%20laboratory%20equipment."
                       target="_blank"
                       rel="noopener noreferrer"
                       className="inline-flex items-center space-x-1 text-xs font-bold px-2.5 py-1 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg transition-colors shadow-xs"
@@ -238,10 +238,10 @@ export default function ContactPage() {
             <div className="bg-slate-900 text-white rounded-2xl p-6 shadow-sm border border-slate-800 space-y-3">
               <div className="flex items-center space-x-2 text-brand-gold font-bold text-xs uppercase tracking-wider">
                 <ShieldCheck className="w-4 h-4" />
-                <span>LabMatrix Assurance Guarantee</span>
+                <span>Labmatrix Assurance Guarantee</span>
               </div>
               <p className="text-xs text-slate-300 leading-relaxed">
-                Every instrument and spare part listed or requested through LabMatrix is
+                Every instrument and spare part listed or requested through Labmatrix is
                 handled with strict confidentiality, verification support, and pan-India logistics coordination.
               </p>
             </div>
@@ -434,7 +434,7 @@ export default function ContactPage() {
 
           <div className="w-full h-80 sm:h-96 bg-slate-100 relative">
             <iframe
-              title="LabMatrix Office Location Map"
+              title="Labmatrix Office Location Map"
               width="100%"
               height="100%"
               style={{ border: 0 }}
