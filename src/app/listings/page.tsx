@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 import { prisma } from "@/lib/prisma";
 import type { ListingStatus, Prisma } from "@/generated/prisma/client";
 import { cachedPublicRead, PUBLIC_LISTINGS_TAG } from "@/lib/public-cache";
-import ListingsClient, { Listing } from "@/components/listings/ListingsClient";
+import CatalogGrid, { CatalogListing } from "@/components/listings/CatalogGrid";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -27,7 +27,7 @@ export default async function BrowseListingsPage({
   const query = typeof params.query === "string" ? params.query : undefined;
   const statusParam = typeof params.status === "string" ? params.status : undefined;
 
-  let initialListings: Listing[] = [];
+  let initialListings: CatalogListing[] = [];
   try {
     const where: Prisma.ListingWhereInput = {
       isApproved: true,
@@ -66,6 +66,9 @@ export default async function BrowseListingsPage({
           title: true,
           description: true,
           category: true,
+          itemType: true,
+          partNumber: true,
+          compatibleWith: true,
           minPrice: true,
           maxPrice: true,
           condition: true,
@@ -95,13 +98,18 @@ export default async function BrowseListingsPage({
     <Suspense
       fallback={
         <div className="min-h-screen bg-slate-50 py-10 px-4 sm:px-6 lg:px-8">
-          <div className="max-w-7xl mx-auto flex items-center justify-center py-20">
+          <div className="max-w-[1440px] mx-auto flex items-center justify-center py-20">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-brand-blue" />
           </div>
         </div>
       }
     >
-      <ListingsClient initialListings={initialListings} />
+      <CatalogGrid
+        initialListings={initialListings}
+        itemType="MACHINE"
+        pageTitle="Pre-Owned Analytical Equipment"
+        pageSubtitle="Certified pre-owned and refurbished analytical instruments from laboratories and pharma facilities across India."
+      />
     </Suspense>
   );
 }
