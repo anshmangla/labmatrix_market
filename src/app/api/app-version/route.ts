@@ -15,11 +15,9 @@ export async function GET() {
     process.env.APP_RELEASE_NOTES ||
     "In-app PDF document viewer, unified media carousel, and performance improvements.";
 
-  const updateUrl = {
-    android: "market://details?id=com.labmatrix.market",
-    androidWeb: "https://play.google.com/store/apps/details?id=com.labmatrix.market",
-    ios: "https://apps.apple.com/app/id6470000000",
-  };
+  const androidMarketUrl = "market://details?id=com.labmatrix.market";
+  const androidWebUrl = "https://play.google.com/store/apps/details?id=com.labmatrix.market";
+  const iosUrl = "https://apps.apple.com/app/id6470000000";
 
   return NextResponse.json(
     {
@@ -27,7 +25,12 @@ export async function GET() {
       minRequiredVersion,
       forceUpdate,
       releaseNotes,
-      updateUrl,
+      updateUrl: androidMarketUrl,
+      updateUrls: {
+        android: androidMarketUrl,
+        androidWeb: androidWebUrl,
+        ios: iosUrl,
+      },
     },
     {
       headers: {
