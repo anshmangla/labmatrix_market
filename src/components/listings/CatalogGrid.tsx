@@ -770,13 +770,7 @@ export default function CatalogGrid({
                         </div>
 
                         {/* Mobile Heart Save Button */}
-                        <div
-                          className="sm:hidden flex items-center justify-center p-0.5"
-                          onClick={(e) => {
-                            e.preventDefault();
-                            e.stopPropagation();
-                          }}
-                        >
+                        <div className="sm:hidden flex items-center justify-center p-0.5">
                           <SaveListingButton listingId={item.id} />
                         </div>
 
