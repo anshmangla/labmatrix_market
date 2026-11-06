@@ -329,15 +329,15 @@ export default async function Home() {
               </Link>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-5">
               {recentListings.map((item) => (
                 <Link
                   key={item.id}
                   href={`/listings/${item.id}`}
-                  className="group bg-white rounded-2xl border border-slate-200 hover:border-brand-blue shadow-2xs hover:shadow-md transition-all flex flex-col overflow-hidden"
+                  className="group bg-white rounded-2xl border border-slate-200 hover:border-brand-blue shadow-2xs hover:shadow-md transition-all flex flex-row sm:flex-col overflow-hidden p-2.5 sm:p-0 gap-3 sm:gap-0"
                 >
                   {/* Thumbnail Image Container */}
-                  <div className="relative aspect-[4/3] bg-slate-100 overflow-hidden">
+                  <div className="relative w-24 h-24 sm:w-full sm:h-auto sm:aspect-[4/3] flex-shrink-0 rounded-xl sm:rounded-none bg-slate-100 overflow-hidden">
                     {item.photos && item.photos.length > 0 ? (
                       <img
                         src={getOptimizedImageUrl(item.photos[0], IMAGE_PRESETS.CARD)}
@@ -348,18 +348,18 @@ export default async function Home() {
                       />
                     ) : (
                       <div className="w-full h-full flex flex-col items-center justify-center text-slate-400 bg-slate-100">
-                        <Tag className="w-8 h-8 mb-1" />
-                        <span className="text-[11px]">No photos provided</span>
+                        <Tag className="w-5 h-5 sm:w-8 sm:h-8 mb-0.5 sm:mb-1" />
+                        <span className="text-[9px] sm:text-[11px]">No photos</span>
                       </div>
                     )}
 
-                    {/* Top Right Save Heart Button */}
-                    <div className="absolute top-2.5 right-2.5 z-10 w-8 h-8 rounded-full bg-white/90 backdrop-blur-xs shadow-xs flex items-center justify-center hover:bg-white transition-colors">
+                    {/* Desktop Top Right Save Heart Button */}
+                    <div className="hidden sm:flex absolute top-2.5 right-2.5 z-10 w-8 h-8 rounded-full bg-white/90 backdrop-blur-xs shadow-xs items-center justify-center hover:bg-white transition-colors">
                       <SaveListingButton listingId={item.id} />
                     </div>
 
-                    {/* Condition Badge */}
-                    <div className="absolute bottom-2.5 left-2.5">
+                    {/* Desktop Condition Badge */}
+                    <div className="hidden sm:block absolute bottom-2.5 left-2.5">
                       <span className="text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-md bg-white/95 text-slate-800 shadow-xs backdrop-blur-xs">
                         {item.condition || "Pre-Owned"}
                       </span>
@@ -367,29 +367,56 @@ export default async function Home() {
                   </div>
 
                   {/* Listing Details */}
-                  <div className="p-4 flex-1 flex flex-col justify-between">
+                  <div className="p-0 sm:p-4 flex-1 min-w-0 flex flex-col justify-between py-0.5 sm:py-4 sm:space-y-3">
                     <div>
-                      <p className="text-[11px] font-semibold text-brand-blue uppercase tracking-wider truncate">
-                        {item.category}
-                      </p>
-                      <h3 className="font-bold text-slate-900 text-sm mt-1 line-clamp-2 group-hover:text-brand-blue transition-colors">
+                      {/* Top Tag Row */}
+                      <div className="flex items-center gap-1.5 sm:justify-between text-[11px] mb-1">
+                        <span className="font-bold text-brand-blue truncate bg-blue-50 sm:bg-transparent px-1.5 py-0.5 sm:px-0 sm:py-0 rounded text-[10px] sm:text-[11px] uppercase tracking-wider">
+                          {item.condition || item.category}
+                        </span>
+                      </div>
+
+                      {/* Title */}
+                      <h3 className="font-bold text-slate-900 text-xs sm:text-sm mt-0.5 sm:mt-1 line-clamp-2 group-hover:text-brand-blue transition-colors leading-snug">
                         {item.title}
                       </h3>
+
+                      {/* Mobile Location Row */}
+                      {item.location && (
+                        <div className="flex sm:hidden items-center text-[10.5px] text-slate-500 mt-1 truncate">
+                          <MapPin className="w-2.5 h-2.5 mr-1 text-slate-400 flex-shrink-0" />
+                          <span className="truncate">{item.location}</span>
+                        </div>
+                      )}
                     </div>
 
-                    <div className="mt-3 pt-3 border-t border-slate-100 flex items-center justify-between">
+                    {/* Price and Action Row */}
+                    <div className="pt-1.5 sm:pt-3 sm:border-t sm:border-slate-100 flex items-center justify-between mt-auto">
                       <div>
-                        <span className="text-[10px] text-slate-400 block font-medium">Estimated Price</span>
-                        <span className="text-sm font-black text-brand-blue">
+                        <span className="text-[9.5px] sm:text-[10px] text-slate-400 block font-medium">Estimated Price</span>
+                        <span className="text-sm sm:text-base font-black text-brand-blue">
                           {formatPrice(item.minPrice, item.maxPrice)}
                         </span>
                       </div>
+
+                      {/* Desktop Location on bottom right */}
                       {item.location && (
-                        <span className="text-[11px] text-slate-500 flex items-center gap-0.5 max-w-[120px] truncate">
+                        <span className="hidden sm:flex text-[11px] text-slate-500 items-center gap-0.5 max-w-[120px] truncate">
                           <MapPin className="w-3 h-3 text-slate-400 flex-shrink-0" />
                           <span className="truncate">{item.location}</span>
                         </span>
                       )}
+
+                      {/* Mobile Heart Button */}
+                      <div
+                        className="sm:hidden flex items-center justify-center p-0.5"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                        }}
+                      >
+                        <SaveListingButton listingId={item.id} />
+                      </div>
                     </div>
                   </div>
                 </Link>
