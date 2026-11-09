@@ -69,8 +69,12 @@ export async function generateMetadata({
 
   if (!listing || !listing.isApproved) {
     return {
-      title: "Equipment Listing",
-      description: "Pre-owned laboratory analytical instrument on Labmatrix.",
+      title: "Listing Not Found | Labmatrix Marketplace",
+      description: "The requested equipment listing is no longer available or has been removed.",
+      robots: {
+        index: false,
+        follow: false,
+      },
     };
   }
 

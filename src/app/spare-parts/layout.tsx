@@ -4,9 +4,6 @@ export const metadata: Metadata = {
   title: "Refurbished & Replacement Analytical Instrument Spare Parts & Modules",
   description:
     "Source certified refurbished spare parts, OEM replacement modules, deuterium lamps, detector boards, valves, and consumables for HPLC, GC-MS, and analytical testing instruments in India.",
-  alternates: {
-    canonical: "/spare-parts",
-  },
   keywords: [
     "refurbished lab spare parts India",
     "refurbished HPLC spare parts",

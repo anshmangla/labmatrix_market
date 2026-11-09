@@ -66,10 +66,11 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       prisma.listing.findMany({
         where: {
           isApproved: true,
-          status: "AVAILABLE",
+          status: { in: ["AVAILABLE", "SOLD"] },
         },
         select: {
           id: true,
+          status: true,
           updatedAt: true,
         },
       })
@@ -78,8 +79,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     listingRoutes = listings.map((item) => ({
       url: `${baseUrl}/listings/${item.id}`,
       lastModified: item.updatedAt || new Date(),
-      changeFrequency: "weekly",
-      priority: 0.8,
+      changeFrequency: item.status === "SOLD" ? "monthly" : "weekly",
+      priority: item.status === "SOLD" ? 0.5 : 0.8,
     }));
   } catch (err) {
     console.warn("[Sitemap] Could not fetch listings for sitemap:", err);
@@ -92,10 +93,11 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       prisma.requirement.findMany({
         where: {
           isApproved: true,
-          status: "OPEN",
+          status: { in: ["OPEN", "FULFILLED"] },
         },
         select: {
           id: true,
+          status: true,
           updatedAt: true,
         },
       })
@@ -104,8 +106,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     requestRoutes = requests.map((item) => ({
       url: `${baseUrl}/requests/${item.id}`,
       lastModified: item.updatedAt || new Date(),
-      changeFrequency: "weekly",
-      priority: 0.7,
+      changeFrequency: item.status === "FULFILLED" ? "monthly" : "weekly",
+      priority: item.status === "FULFILLED" ? 0.4 : 0.7,
     }));
   } catch (err) {
     console.warn("[Sitemap] Could not fetch requests for sitemap:", err);

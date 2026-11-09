@@ -48,8 +48,12 @@ export async function generateMetadata({
 
   if (!req || !req.isApproved) {
     return {
-      title: "Sourcing Requirement",
-      description: "Buyer requirement for laboratory equipment on Labmatrix.",
+      title: "Requirement Not Found | Labmatrix Marketplace",
+      description: "The requested procurement requirement is no longer available or has been fulfilled.",
+      robots: {
+        index: false,
+        follow: false,
+      },
     };
   }
 

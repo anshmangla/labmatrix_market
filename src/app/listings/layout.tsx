@@ -4,9 +4,6 @@ export const metadata: Metadata = {
   title: "Refurbished & Pre-Owned Analytical & Testing Equipment",
   description:
     "Explore verified refurbished and pre-owned HPLC, GC-MS, UV-Vis, AAS, ICP-OES, and DSC-TGA analytical instruments available across pharmaceutical & chemical laboratories in India.",
-  alternates: {
-    canonical: "/listings",
-  },
   keywords: [
     "refurbished analytical instruments India",
     "refurbished HPLC machines",

@@ -36,6 +36,8 @@ export default function robots(): MetadataRoute.Robots {
           "/requests/*/edit",
           "/api/*",
           "/auth/*",
+          "/*?*query=*",
+          "/*?*search=*",
         ],
       },
     ],
