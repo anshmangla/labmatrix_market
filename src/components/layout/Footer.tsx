@@ -198,42 +198,42 @@ export default function Footer() {
         </div>
 
         {/* Bottom Bar */}
-        <div className="pt-8 mt-8 border-t border-slate-800/80 flex flex-col md:flex-row items-center justify-between gap-3 text-xs text-slate-500">
-          <div className="flex flex-col sm:flex-row items-center gap-1 sm:gap-2 text-center sm:text-left">
+        <div className="pt-8 mt-8 border-t border-slate-800 flex flex-col md:flex-row items-center justify-between gap-3 text-xs text-slate-300">
+          <div className="flex flex-col sm:flex-row items-center gap-1 sm:gap-2 text-center sm:text-left text-slate-300">
             <p>
               &copy; {new Date().getFullYear()} LABMATRIX INSTRUMENT INDIA PVT LTD. All rights reserved.
             </p>
-            <span className="hidden sm:inline text-slate-700">•</span>
+            <span className="hidden sm:inline text-slate-500">•</span>
             <p>
               Engineered &amp; Developed by{" "}
               <a
                 href="https://anshmangla.vercel.app/"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="font-medium text-slate-400 hover:text-brand-gold transition-colors underline decoration-slate-700 underline-offset-2"
+                className="font-semibold text-white hover:text-brand-gold transition-colors underline decoration-slate-400 hover:decoration-brand-gold underline-offset-2"
               >
                 Ansh Mangla
               </a>
             </p>
           </div>
-          <div className="flex flex-wrap justify-center items-center gap-x-4 gap-y-1">
-            <Link href="/contact" className="hover:text-slate-400 transition-colors">
+          <div className="flex flex-wrap justify-center items-center gap-x-4 gap-y-1 text-slate-300">
+            <Link href="/contact" className="hover:text-white transition-colors">
               Contact Sales
             </Link>
-            <span>•</span>
-            <Link href="/privacy" className="hover:text-slate-400 transition-colors">
+            <span className="text-slate-500">•</span>
+            <Link href="/privacy" className="hover:text-white transition-colors">
               Privacy Policy
             </Link>
-            <span>•</span>
-            <Link href="/terms" className="hover:text-slate-400 transition-colors">
+            <span className="text-slate-500">•</span>
+            <Link href="/terms" className="hover:text-white transition-colors">
               Terms of Service
             </Link>
-            <span>•</span>
+            <span className="text-slate-500">•</span>
             <a
               href="https://www.labmatrixindia.com"
               target="_blank"
               rel="noopener noreferrer"
-              className="hover:text-slate-400 transition-colors"
+              className="hover:text-white transition-colors"
             >
               labmatrixindia.com
             </a>
