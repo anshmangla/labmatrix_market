@@ -198,11 +198,25 @@ export default function Footer() {
         </div>
 
         {/* Bottom Bar */}
-        <div className="pt-8 mt-8 border-t border-slate-800/80 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-500">
-          <p>
-            &copy; {new Date().getFullYear()} LABMATRIX INSTRUMENT INDIA PVT LTD. All rights reserved.
-          </p>
-          <div className="flex items-center space-x-4">
+        <div className="pt-8 mt-8 border-t border-slate-800/80 flex flex-col md:flex-row items-center justify-between gap-3 text-xs text-slate-500">
+          <div className="flex flex-col sm:flex-row items-center gap-1 sm:gap-2 text-center sm:text-left">
+            <p>
+              &copy; {new Date().getFullYear()} LABMATRIX INSTRUMENT INDIA PVT LTD. All rights reserved.
+            </p>
+            <span className="hidden sm:inline text-slate-700">•</span>
+            <p>
+              Engineered &amp; Developed by{" "}
+              <a
+                href="https://anshmangla.vercel.app/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="font-medium text-slate-400 hover:text-brand-gold transition-colors underline decoration-slate-700 underline-offset-2"
+              >
+                Ansh Mangla
+              </a>
+            </p>
+          </div>
+          <div className="flex flex-wrap justify-center items-center gap-x-4 gap-y-1">
             <Link href="/contact" className="hover:text-slate-400 transition-colors">
               Contact Sales
             </Link>
