@@ -10,7 +10,7 @@ export const metadata: Metadata = {
   },
 };
 
-const EFFECTIVE_DATE = "4 November 2026";
+const EFFECTIVE_DATE = "21 November 2026";
 const CONTACT_EMAIL = "sales@labmatrixindia.com";
 const GRIEVANCE_OFFICER = "Pradeep Sharma";
 const GRIEVANCE_EMAIL = "pradeep.sharma@labmatrixindia.com";
@@ -221,13 +221,50 @@ export default function PrivacyPolicyPage() {
           </p>
         </Section>
 
-        <Section id="your-rights" title="9. Your rights">
+        <Section id="your-rights" title="9. Your rights & international data protection">
           <p>
-            You can view and update your name, phone number and company at any time from your profile settings.
-            Subject to applicable law, including India&apos;s Digital Personal Data Protection Act, 2023, you may
-            also ask us for a summary of the personal data we hold about you, ask us to correct or erase it, or
-            withdraw consent. To make a request or raise a concern, contact our Grievance Officer using the
-            details below.
+            You can view and update your name, phone number and company at any time from your profile settings,
+            or delete your account at any time as described in Section 8. We respect the data protection rights
+            of all users globally, subject to applicable local laws across our operating regions:
+          </p>
+          <ul className="list-disc pl-5 space-y-2">
+            <li>
+              <strong>India (DPDP Act, 2023):</strong> You may request a summary of the personal data we hold,
+              request correction or erasure, or nominate another person to exercise rights on your behalf.
+            </li>
+            <li>
+              <strong>European Union, UK &amp; Switzerland (GDPR, UK GDPR, Swiss FADP):</strong> If you are located in
+              the UK, Germany, Spain, Switzerland or the EEA, our lawful bases for processing are the performance of our
+              contract (facilitating marketplace listings, sourcing requests, and deal coordination), our legitimate
+              interests (securing the platform and preventing counterparty fraud), and your consent (Google sign-in).
+              You have the right to access, rectify, port, or erase your personal data, restrict or object to processing,
+              and lodge a complaint with your supervisory authority (such as the UK Information Commissioner&apos;s Office - ICO).
+            </li>
+            <li>
+              <strong>United States (CCPA / CPRA &amp; State Laws):</strong> We do not sell or share personal information,
+              including sensitive personal information, for monetary consideration or cross-context behavioral advertising.
+              US residents have the right to request disclosure of personal information collected, request deletion, and
+              not be discriminated against for exercising these statutory rights.
+            </li>
+            <li>
+              <strong>Asia-Pacific &amp; Americas (Canada PIPEDA, Australia Privacy Act 1988, New Zealand Privacy Act 2020, Singapore PDPA, Japan APPI):</strong> Users
+              in Canada, Australia, New Zealand, Singapore, Japan and other territories have the right to access,
+              review, correct, or withdraw consent for the processing of their personal data.
+            </li>
+            <li>
+              <strong>Middle East &amp; Global (UAE PDPL, Saudi Arabia PDPL, South Africa POPIA):</strong> Users in the
+              United Arab Emirates, Saudi Arabia, Oman, South Africa, and other international jurisdictions have the
+              right to request access, correction, and deletion of personal data processed in accordance with local regulations.
+            </li>
+          </ul>
+          <p>
+            <strong>International data transfers:</strong> To operate our global B2B marketplace, data is hosted on secure
+            infrastructure in Singapore (Vercel and Neon) and managed from our corporate headquarters in New Delhi, India.
+            All cross-border transfers are encrypted in transit via HTTPS/TLS and encrypted at rest, adhering to international
+            data protection standards.
+          </p>
+          <p>
+            To exercise any of these rights, contact our Privacy &amp; Grievance Desk using the details below.
           </p>
         </Section>
 
